@@ -1,0 +1,661 @@
+dimensions:
+  unlimited:
+  - time
+  fixed:
+  - altitude_mie
+  - altitude_ray
+  - field_of_view
+variables:
+  time:
+    name: time
+    dim:
+    - time
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: time
+    attributes:
+      long_name: Time (UTC) of the measurement
+      standard_name: time
+      units: seconds since 1970-01-01
+      comment: Time indication of samples is at the center of integration time
+  altitude_mie:
+    name: altitude_mie
+    dim:
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: AltMie
+    attributes:
+      long_name: Altitude above mean sea level, for Mie peak measurements
+      units: m
+      comment: Altitude coordinate is at the center of integration window
+  altitude_ray:
+    name: altitude_ray
+    dim:
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: AltRay
+    attributes:
+      long_name: Altitude above mean sea level, for Rayleigh peak measurements
+      units: m
+      comment: Altitude coordinate is at the center of integration window
+  field_of_view:
+    name: field_of_view
+    dim:
+    - field_of_view
+    type: str
+    _FillValue: null
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Measurement fields of view (off-zenith are 30deg slanted)
+    value:
+    - zenith
+    - eastward
+    - northward
+  latitude_mie:
+    name: latitude_mie
+    dim:
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Latitude corresponding to altitude array in each field of view, for
+        Mie peak measurements
+      units: deg
+      comment: Derived using 30deg off-zenith slant in eastward direction
+  latitude_ray:
+    name: latitude_ray
+    dim:
+    - altitude_ray
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Latitude corresponding to altitude array in each field of view, for
+        Rayleigh peak measurements
+      units: deg
+      comment: Derived using 30deg off-zenith slant in eastward direction
+  longitude_mie:
+    name: longitude_mie
+    dim:
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Longitude corresponding to altitude array in each field of view,
+        for Mie peak measurements
+      units: deg
+      comment: Derived using 30deg off-zenith slant in eastward direction
+  longitude_ray:
+    name: longitude_ray
+    dim:
+    - altitude_ray
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Longitude corresponding to altitude array in each field of view,
+        for Rayleigh peak measurements
+      units: deg
+      comment: Derived using 30deg off-zenith slant in eastward direction
+  station_latitude:
+    name: station_latitude
+    dim: ''
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: Latitude
+    attributes:
+      long_name: Latitude of measurement station
+      units: deg
+  station_longitude:
+    name: station_longitude
+    dim: ''
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: Longitude
+    attributes:
+      long_name: Longitude of measurement station
+      units: deg
+  station_altitude:
+    name: station_altitude
+    dim: ''
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Altitude of measurement station
+  vertical_integration:
+    name: vertical_integration
+    dim: ''
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: DeltaAlt
+    attributes:
+      long_name: Vertical integration window
+      units: m
+  time_integration:
+    name: time_integration
+    dim: ''
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: DeltaTime
+    attributes:
+      long_name: Time integration window
+      units: s
+  backscatter_coef:
+    name: backscatter_coef
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - BSCMieC
+      - BSCMieE
+      - BSCMieN
+    attributes:
+      long_name: Backscatter coefficient
+      units: m^-1sr^-1
+      scattering_regime: Mie
+  backscatter_coef_err:
+    name: backscatter_coef_err
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - BSCMieCErr
+      - BSCMieEErr
+      - BSCMieNErr
+    attributes:
+      long_name: Uncertainty on backscatter coefficient
+      units: m^-1sr^-1
+      scattering_regime: Mie
+      comment: Error propagated from photon count
+  backscatter_ratio:
+    name: backscatter_ratio
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - BSRMieC
+      - BSRMieE
+      - BSRMieN
+    attributes:
+      long_name: Backscatter ratio
+      units: '-'
+      scattering_regime: Mie
+  backscatter_ratio_err:
+    name: backscatter_ratio_err
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - BSRMieCErr
+      - BSRMieEErr
+      - BSRMieNErr
+    attributes:
+      long_name: Uncertainty on backscatter ratio
+      units: '-'
+      scattering_regime: Mie
+      comment: Error propagated from photon count
+  temperature_int:
+    name: temperature_int
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - TRayIntC
+      - TRayIntE
+      - TRayIntN
+    attributes:
+      long_name: Temperature from Rayleigh integration
+      standard_name: air_temperature
+      units: K
+      scattering_regime: Rayleigh
+      retrieval_method: Rayleigh integration
+  temperature_int_err:
+    name: temperature_int_err
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - TRayIntCErr
+      - TRayIntEErr
+      - TRayIntNErr
+    attributes:
+      long_name: Uncertainty on temperature from Rayleigh integration
+      units: K
+      scattering_regime: Rayleigh
+      retrieval_method: Rayleigh integration
+      comment: Error propagated from photon count
+  temperature_broad:
+    name: temperature_broad
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Temperature from Doppler broadening
+      standard_name: air_temperature
+      units: K
+      scattering_regime: Rayleigh
+      retrieval_method: Doppler broadening
+  temperature_broad_err:
+    name: temperature_broad_err
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Uncertainty on temperature from Doppler broadening
+      units: K
+      scattering_regime: Rayleigh
+      retrieval_method: Doppler broadening
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  w_mie:
+    name: w_mie
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: VMieC
+    attributes:
+      long_name: Upward air velocity from Doppler shift of Mie peak
+      units: ms^-1
+      scattering_regime: Mie
+  w_mie_err:
+    name: w_mie_err
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: VMieCErr
+    attributes:
+      long_name: Uncertainty on upward air velocity from Doppler shift of Mie peak
+      units: ms^-1
+      scattering_regime: Mie
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  u_mie:
+    name: u_mie
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: VMieE
+    attributes:
+      long_name: Eastward wind from Doppler shift of Mie peak
+      standard_name: eastward_wind
+      units: ms^-1
+      scattering_regime: Mie
+  u_mie_err:
+    name: u_mie_err
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: VMieEErr
+    attributes:
+      long_name: 'Uncertainty on eastward wind from Doppler shift of Mie peak '
+      units: ms^-1
+      scattering_regime: Mie
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  v_mie:
+    name: v_mie
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: VMieN
+    attributes:
+      long_name: Northward wind from Doppler shift of Mie peak
+      standard_name: northward_wind
+      units: ms^-1
+      scattering_regime: Mie
+  v_mie_err:
+    name: v_mie_err
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: VMieNErr
+    attributes:
+      long_name: Uncertainty on northward wind from Doppler shift of Mie peak
+      units: ms^-1
+      scattering_regime: Mie
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  w_ray:
+    name: w_ray
+    dim:
+    - time
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Upward air velocity from Doppler shift of Rayleigh peak
+      units: ms^-1
+      scattering_regime: Rayleigh
+  w_ray_err:
+    name: w_ray_err
+    dim:
+    - time
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Uncertainty on upward air velocity from Doppler shift of Rayleigh
+        peak
+      units: ms^-1
+      scattering_regime: Rayleigh
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  u_ray:
+    name: u_ray
+    dim:
+    - time
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Eastward wind from Doppler shift of Rayleigh peak
+      standard_name: eastward_wind
+      units: ms^-1
+      scattering_regime: Rayleigh
+  u_ray_err:
+    name: u_ray_err
+    dim:
+    - time
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: 'Uncertainty on eastward wind from Doppler shift of Rayleigh peak '
+      units: ms^-1
+      scattering_regime: Rayleigh
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  v_ray:
+    name: v_ray
+    dim:
+    - time
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Northward wind from Doppler shift of Rayleigh peak
+      standard_name: northward_wind
+      units: ms^-1
+      scattering_regime: Rayleigh
+  v_ray_err:
+    name: v_ray_err
+    dim:
+    - time
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Uncertainty on northward wind from Doppler shift of Rayleigh peak
+      units: ms^-1
+      scattering_regime: Rayleigh
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  width_mie:
+    name: width_mie
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - WidthMieC
+      - WidthMieE
+      - WidthMieN
+    attributes:
+      long_name: Spectrum width of Mie peak
+      units: MHz
+      scattering_regime: Mie
+  width_mie_err:
+    name: width_mie_err
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - WidthMieCErr
+      - WidthMieNErr
+      - WidthMieNErr
+    attributes:
+      long_name: Uncertainty on spectrum width of Mie peak
+      units: MHz
+      scattering_regime: Mie
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  width_ray:
+    name: width_ray
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Spectrum width of Rayleigh peak
+      units: MHz
+      scattering_regime: Rayleigh
+  width_ray_err:
+    name: width_ray_err
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Uncertainty on spectrum width of Rayleigh peak
+      units: MHz
+      scattering_regime: Rayleigh
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  time_mean:
+    name: time_mean
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: meanTime
+    attributes:
+      long_name: Mean time of measurement
+      standard_name: time
+      units: seconds since 1970-01-01
+      comment: If gaps in measurement, meantime is the mean time of actually used
+        measurements
+  time_mean:
+    name: time_mean
+    dim:
+    - time
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: meanTime
+    attributes:
+      long_name: Mean time of measurement
+      standard_name: time
+      units: seconds since 1970-01-01
+      comment: If gaps in measurement, meantime is the mean time of actually used
+        measurements
+  vertical_resolution:
+    name: vertical_resolution
+    dim: ''
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: ShiftAlt
+    attributes:
+      long_name: Shift step of the integration window
+      units: m
+  time_resolution:
+    name: time_resolution
+    dim: ''
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: ShiftTime
+    attributes:
+      long_name: Shift step of the time integration window
+      units: s
+
+attributes:
+  Conventions: CF-1.12
+  campaign_name:
+  license:
+  references:
+  instrument_id:
+  instrument_model:
+  instrument_manufacturer:
+  site_location:
+  history:
+  institution:
+  comment:
+  principal_investigator:
+  calibration_status:
+  conventions:
+  operation_mode:
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: Mode
+  algorithm_code_version:
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: Version
+  algorithm_code:
+  algorithm_reference:
