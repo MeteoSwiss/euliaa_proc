@@ -81,6 +81,7 @@ class Measurement():
         self.data['longitude_mie'] =  self.data['station_longitude'] + lon_coef*self.data['altitude_mie']*np.cos(self.data['station_latitude']*np.pi/180)
         self.data['longitude_ray'] =  self.data['station_longitude'] + lon_coef*self.data['altitude_ray']*np.cos(self.data['station_latitude']*np.pi/180)
 
+
     def load_data(self):
         """load the data from the hdf5 file or config"""
 
@@ -149,8 +150,8 @@ class Measurement():
 if __name__=='__main__':
 
     hdf5file = '/home/bia/Data/IAP/BankExport.h5'
-    config = 'config_nc_option2_1.yaml'
+    config = 'config_nc.yaml'
     # output_nc = 'TestNC_var_per_fov2.nc'
-    output_nc = 'TestNC_fov_as_dim4.nc'
+    output_nc = 'TestNC.nc'
     meas = Measurement(hdf5file,config)
     meas.run(out_file=output_nc)#,add_var=fov)
