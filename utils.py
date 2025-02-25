@@ -19,4 +19,21 @@ def check_var_in_ds(ds, var):
     else:
         return (var in ds.keys())
 
-# def compute_lat_lon_array(altitude, )
+
+def compute_lat_lon(lat_station = 0, lon_station = 0, altitude = np.zeros(1), theta_slant_deg = 30):
+    lat_coef = 110.574 # 1 deg = 110.574 km
+    lon_coef = 111.320 # 1 deg = 111.320 * cos(lat) km
+    theta_slant_rad = theta_slant_deg*np.pi/180
+
+    latitude_arr_3fov = ((altitude.dims[0], 'field_of_view'), np.stack((lat_station + 0*altitude,
+                                                       lat_station + 0*altitude,
+                                                       lat_station + lat_coef*np.tan(theta_slant_rad)*altitude
+                                                       ),
+                                                       axis=-1))
+
+    longitude_arr_3fov = ((altitude.dims[0], 'field_of_view'), np.stack((lon_station + 0*altitude,
+                                                        lon_station + lon_coef*np.cos(lat_station*np.pi/180)*np.tan(theta_slant_rad)*altitude,
+                                                        lon_station + 0*altitude
+                                                        ), axis = -1))
+
+    return (latitude_arr_3fov, longitude_arr_3fov)

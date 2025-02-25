@@ -3,7 +3,7 @@ from netCDF4 import Dataset
 import pandas as pd
 import yaml
 import numpy as np
-from utils import get_conf, correct_dim_scalar_fields, check_var_in_ds
+from utils import get_conf, correct_dim_scalar_fields, check_var_in_ds, compute_lat_lon
 ENC_NO_FILLVALUE = None
 
 class Measurement():
@@ -64,23 +64,6 @@ class Measurement():
             self.data[var] = self.data[var].fillna(specs['_FillValue'])  # don't use with _FillValue=None, dtype problem
             self.data[var].encoding.update(_FillValue=specs['_FillValue'])
 
-    def compute_latlon(self):
-        lat_coef = 110.574 # 1 deg = 110.574 km
-        lon_coef = 111.320 # 1 deg = 111.320 * cos(lat) km
-        theta_slant = 30*np.pi/180
-        self.data['latitude_mie'] =  (self.conf_nc['variables']['latitude_mie']['dim'], np.stack((self.data['station_latitude'].data + 0*self.data['altitude_mie'].data,
-                                                                                  self.data['station_latitude'].data + 0*self.data['altitude_mie'].data,
-                                                                                  self.data['station_latitude'].data + lat_coef*self.data['altitude_mie'].data*np.tan(theta_slant)),
-                                                                                  axis=-1
-                                                                                  ))
-        self.data['latitude_ray'] =  (self.conf_nc['variables']['latitude_ray']['dim'], np.stack((self.data['station_latitude'].data + 0*self.data['altitude_ray'].data,
-                                                                                  self.data['station_latitude'].data + 0*self.data['altitude_ray'].data,
-                                                                                  self.data['station_latitude'].data + lat_coef*self.data['altitude_ray'].data*np.tan(theta_slant)),
-                                                                                  axis=-1))
-
-        self.data['longitude_mie'] =  self.data['station_longitude'] + lon_coef*self.data['altitude_mie']*np.cos(self.data['station_latitude']*np.pi/180)
-        self.data['longitude_ray'] =  self.data['station_longitude'] + lon_coef*self.data['altitude_ray']*np.cos(self.data['station_latitude']*np.pi/180)
-
 
     def load_data(self):
         """load the data from the hdf5 file or config"""
@@ -134,24 +117,17 @@ class Measurement():
             self.data[var_name] = var_data
 
 
-    def run(self,out_file=None,add_var=None):
-        """run the full pipeline"""
-        # self.load_config()
-        self.read_hdf5_file()
-        self.load_attrs()
-        self.load_data()
-        self.compute_latlon()
-        if not (add_var is None):
-            self.add_var(add_var)
-        # self.add_history_attr()
-        if not (out_file is None):
-            self.write_nc(out_file)
 
 if __name__=='__main__':
 
     hdf5file = '/home/bia/Data/IAP/BankExport.h5'
-    config = 'config_nc.yaml'
+    config = '/home/bia/euliaa_postproc/config_nc.yaml'
     # output_nc = 'TestNC_var_per_fov2.nc'
-    output_nc = 'TestNC.nc'
+    output_nc = '/home/bia/euliaa_postproc/TestNC2.nc'
     meas = Measurement(hdf5file,config)
-    meas.run(out_file=output_nc)#,add_var=fov)
+    meas.read_hdf5_file()
+    meas.load_attrs()
+    meas.load_data()
+    meas.data['latitude_mie'], meas.data['longitude_mie'] = compute_lat_lon(lat_station=meas.data.station_latitude, lon_station=meas.data.station_longitude, altitude=meas.data.altitude_mie)
+    meas.data['latitude_ray'], meas.data['longitude_ray'] = compute_lat_lon(lat_station=meas.data.station_latitude, lon_station=meas.data.station_longitude, altitude=meas.data.altitude_ray)
+    meas.write_nc(output_nc)
