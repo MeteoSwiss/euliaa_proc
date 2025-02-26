@@ -102,11 +102,10 @@ class Measurement():
             specs = self.conf_nc['variables'][var]
             self.set_fillvalue(var,specs)
             if 'type' in specs.keys():
-                self.data[var].encoding.update(dtype=specs['type'])
+                self.data[var].encoding.update(dtype=specs['type']) # TO DO does this really work
             if 'attributes' in specs.keys():
                 self.data[var].attrs.update(specs['attributes'])
         self.data.to_netcdf(out_file)
-
 
     def add_var(self, var_dict):
         """if additional var should be added separately
@@ -128,6 +127,7 @@ if __name__=='__main__':
     meas.read_hdf5_file()
     meas.load_attrs()
     meas.load_data()
+
     meas.data['latitude_mie'], meas.data['longitude_mie'] = compute_lat_lon(lat_station=meas.data.station_latitude, lon_station=meas.data.station_longitude, altitude=meas.data.altitude_mie)
     meas.data['latitude_ray'], meas.data['longitude_ray'] = compute_lat_lon(lat_station=meas.data.station_latitude, lon_station=meas.data.station_longitude, altitude=meas.data.altitude_ray)
     meas.write_nc(output_nc)
