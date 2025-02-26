@@ -29,12 +29,12 @@ def compute_lat_lon(lat_station = 0, lon_station = 0, altitude = np.zeros(1), th
 
     latitude_arr_3fov = ((altitude.dims[0], 'field_of_view'), np.stack((lat_station + 0*altitude,
                                                        lat_station + 0*altitude,
-                                                       lat_station + lat_coef*np.tan(theta_slant_rad)*altitude
+                                                       lat_station + altitude*np.tan(theta_slant_rad)*1e-3/lat_coef
                                                        ),
                                                        axis=-1))
 
     longitude_arr_3fov = ((altitude.dims[0], 'field_of_view'), np.stack((lon_station + 0*altitude,
-                                                        lon_station + lon_coef*np.cos(lat_station*np.pi/180)*np.tan(theta_slant_rad)*altitude,
+                                                        lon_station + altitude*np.tan(theta_slant_rad)*1e-3/(lon_coef*np.cos(lat_station*np.pi/180)),
                                                         lon_station + 0*altitude
                                                         ), axis = -1))
 

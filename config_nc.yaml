@@ -153,6 +153,8 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Altitude of measurement station
+      units: m
+    value: 10.
   vertical_integration:
     name: vertical_integration
     dim: ''
@@ -639,8 +641,10 @@ attributes:
   campaign_name:
   license:
   references:
-  instrument_id:
-  instrument_model:
+  wigos_station_id: 0-20000-0-06610
+  wmo_id: '06610'
+  instrument_id: EULIAA_1
+  instrument_model: EULIAA
   instrument_manufacturer:
   site_location:
   history:
