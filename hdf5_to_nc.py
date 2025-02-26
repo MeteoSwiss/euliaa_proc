@@ -122,7 +122,7 @@ if __name__=='__main__':
     hdf5file = '/home/bia/Data/IAP/BankExport.h5'
     config = '/home/bia/euliaa_postproc/config_nc.yaml'
     # output_nc = 'TestNC_var_per_fov2.nc'
-    output_nc = '/home/bia/euliaa_postproc/TestNC2.nc'
+    output_nc = '/home/bia/euliaa_postproc/data/TestNC2.nc'
     meas = Measurement(hdf5file,config)
     meas.read_hdf5_file()
     meas.load_attrs()
