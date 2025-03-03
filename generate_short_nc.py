@@ -12,11 +12,12 @@ TEMP_ERR_THRES = 5 # K
 TEMP_MIN_THRES = 0 # K
 TEMP_MAX_THRES = 409.5 # K
 INVALID_TO_NAN = True
+
 VARS_TO_KEEP = ['temperature_int', 'w_mie', 'v_mie', 'u_mie',
                 'temperature_int_flag', 'w_mie_flag', 'v_mie_flag', 'u_mie_flag', 'u_v_flag',
                 'station_latitude', 'station_longitude', 'station_altitude',
                 'vertical_resolution', 'vertical_integration', 'time_integration', 'time_resolution']
-CORRECTION = 28.98
+CORRECTION = 28.98 # temporary correction to do remove when fixed by IAP
 
 
 
@@ -36,7 +37,7 @@ ds_z['u_v_flag']= xr.ufuncs.maximum(ds_z.u_mie_flag,ds_z.v_mie_flag)
 
 if INVALID_TO_NAN:
     for var in ['u_mie', 'v_mie', 'w_mie', 'temperature_int']:
-        ds_z[var] = ds_z[var].where(ds_z[var+'_flag']<2, np.nan)
+        ds_z[var] = ds_z[var].where(ds_z[var+'_flag']<1, np.nan)
 
 ds_z_subsel = ds_z[VARS_TO_KEEP]
 ds_z_subsel_t0 = ds_z_subsel.isel(time=0)
