@@ -211,6 +211,9 @@ def bufr_encode_forloop_309024(ibufr,dst):
     bufr_encode_common_header_sequence(ibufr, dst)
     # ############################################
 
+    # Frequency sequence: 2 01 151, 2 02 130, 0 02 121, 2 02 000, 2 01 000, TO DO implement sequence
+    ############################################
+
     ec.codes_set(ibufr, '#2#timeSignificance', 2) # 0 08 021 -> time significance, see p. 820 of wmo code book (2: Time averaged)
     ec.codes_set(ibufr, 'timePeriod', 1) # 0 04 025 -> Time period indicates the duration in minutes over which the measurements have been averaged
 
@@ -268,6 +271,9 @@ def bufr_encode_forloop(ibufr,dst):
 
     ############################################
 
+    # Frequency sequence: 2 01 151, 2 02 130, 0 02 121, 2 02 000, 2 01 000, TO DO implement sequence
+    ############################################
+
     ec.codes_set(ibufr, '#2#timeSignificance', 2) # 0 08 021 -> time significance, see p. 820 of wmo code book (2: Time averaged)
     ec.codes_set(ibufr, 'timePeriod', int(dst.time_integration/60)) # 0 04 025 -> Time period indicates the duration in minutes over which the measurements have been averaged
 
@@ -295,10 +301,10 @@ def bufr_encode_forloop(ibufr,dst):
 if __name__=='__main__':
 
     inputFilename = '/home/bia/euliaa_postproc/data/Test_profile_NC.nc'
-    outFilename = '/home/bia/euliaa_postproc/data/Test_profile_NC2BUFR_forloop_notemplate.bufr'
+    outFilename = '/home/bia/euliaa_postproc/data/Test_profile_NC2BUFR_forloop_notemplate_newenv.bufr'
 
-    coder = xr.coders.CFDatetimeCoder(time_unit="s")
-    ds = xr.open_dataset(inputFilename, decode_times=coder) # Otherwise xarray converts time to ns
+    # coder = xr.coders.CFDatetimeCoder(time_unit="s")
+    ds = xr.open_dataset(inputFilename,decode_times=False)#, decode_times=coder) # Otherwise xarray converts time to ns - this works only for xarray >
 
     # following steps: if the file is the full LV1
     if False:
