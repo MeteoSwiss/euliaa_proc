@@ -1,4 +1,3 @@
-**/*.ipynb
 **/*.plain
 __pycache__
 old/
