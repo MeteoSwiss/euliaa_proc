@@ -156,3 +156,70 @@ def find_cloud_mask(bsc, cloud_base, cloud_top, return_below_cloud_top = False, 
         return cloud_mask, below_cloud_top, above_cloud_base
     else:
         return cloud_mask
+
+
+def plot_cloud(ds,ymax=30000,savefig=None):
+
+    fig,ax = plt.subplots(figsize = (15,4))
+    im=ds.attenuated_backscatter_0.plot(x='time',vmin=1e-9,vmax=1e-5,norm=colors.LogNorm(),cmap='plasma')
+    cloud_mask_for_plot=ds.cloud_mask.where(ds.cloud_mask,np.nan)
+    cloud_mask_for_plot.T.plot(alpha=.7,vmin=0, vmax=1, cmap='Greys_r',ylim=(0,ymax),add_colorbar=False)
+    ax.plot([],[],lw=0,marker='s', ms=10, color='white', alpha=.7, label='clouds')
+    ax.set_ylim(0,ymax)
+    ax.set_facecolor('dimgray')
+    ax.legend(loc='upper right')
+
+    if ('cloud_base' in ds) and ('cloud_top' in ds):
+        cloud_base_height = ds.altitude.values*np.where(ds.cloud_base,1,np.nan)
+        cloud_top_height = ds.altitude.values*np.where(ds.cloud_top,1,np.nan)
+        time_array = np.repeat(ds.time.values.reshape(-1,1),len(ds.altitude),axis=1)
+        ax.scatter(time_array, cloud_base_height,s=10,color='k',marker='.')
+        ax.scatter(time_array, cloud_top_height,s=10,color='cyan',marker='.')
+
+    if savefig:
+        fig.savefig(savefig)
+
+
+if __name__=='__main__':
+    path_l2 = '/home/bia/euliaa_postproc/data/L2Test_NC_for_Aprofiles.nc'
+    REMOVE_BELOW = 6
+    PLOT = True
+    savefig = '/home/bia/euliaa_postproc/figures/cloud_detection_aprofiles.png'
+    SAVE_NC = True
+    in_house_cloud_detection = False
+    aprofiles_cloud_detection = True
+
+
+    ds = xr.open_dataset(path_l2)
+    if in_house_cloud_detection:
+        cloud_base = detect_cloud_edge(ds.attenuated_backscatter_0, ds.altitude, return_height = False, vg_thres=.25)
+        cloud_top = detect_cloud_edge(ds.attenuated_backscatter_0, ds.altitude, return_height = False, base_or_top='top',vg_thres=.5)
+
+        for i in range(len(ds.time)):
+            cb = cloud_base[i]
+            ct = cloud_top[i]
+            bsc = ds.attenuated_backscatter_0.isel(time=i)
+            refine_cloud_detection(bsc,cb,ct)
+
+        cloud_base[:,:REMOVE_BELOW] = 0 # the lowest gates are not valid
+        cloud_top[:,:REMOVE_BELOW] = 0
+
+        ds['cloud_mask'], ds['below_cloud_top'], ds['above_cloud_base'] = find_cloud_mask(ds.attenuated_backscatter_0,cloud_base,cloud_top,
+                                            return_below_cloud_top=True, return_above_cloud_base=True)
+        ds['cloud_base'] = xr.zeros_like(ds.cloud_mask)
+        ds['cloud_top'] = xr.zeros_like(ds.cloud_mask)
+        ds['cloud_base'][:,1:-1] = cloud_base
+        ds['cloud_top'][:,1:-1] = cloud_top
+
+    elif aprofiles_cloud_detection:
+        ds['cloud_mask'] = cloud_aprofiles(path_l2)
+
+    if PLOT:
+        plot_cloud(ds,savefig=savefig)
+
+    if SAVE_NC:
+        if in_house_cloud_detection:
+            suffix = '_cloud_in_house.nc'
+        elif aprofiles_cloud_detection:
+            suffix = '_cloud_aprofiles.nc'
+        ds.to_netcdf(path_l2.replace('.nc',suffix))
