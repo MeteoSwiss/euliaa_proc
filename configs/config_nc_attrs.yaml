@@ -1,0 +1,34 @@
+attributes:
+  Conventions: CF-1.12
+  campaign_name:
+  license:
+  references:
+  wigos_station_id: 0-20000-0-06610
+  wmo_id: '06610'
+  instrument_type: 'high_spectral_resolution_lidar'
+  instrument_id: EULIAA_1
+  instrument_serial_number: # also laser serial number?
+  instrument_model: EULIAA
+  instrument_manufacturer:
+  site_location:
+  history:
+  institution:
+  comment:
+  principal_investigator:
+  conventions:
+  operation_mode:
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: Mode
+  algorithm_code_version:
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: Version
+  algorithm_code: # Algorithm should include description of both measurement method, retrieval and correction / postproc (or split into several fields)
+  algorithm_reference:
+  calibration_status:
+  calibration_time:
+  height_above_ground:
+  date_of_installation:
+  maintenance: #preventive and corrective maintenance (recommended and scheduled maintenance and calibration procedures, including frequency, and a description of procedures)
+  comparison_to_reference: #results of comparison with travelling standards
