@@ -164,7 +164,7 @@ def plot_cloud(ds,ymax=30000,name_bsc_var = 'attenuated_backscatter_0', savefig=
     im=ds[name_bsc_var].plot(x='time',vmin=1e-9,vmax=1e-5,norm=colors.LogNorm(),cmap='plasma')
     cloud_mask_for_plot=ds.cloud_mask.where(ds.cloud_mask,np.nan)
     cloud_mask_for_plot.T.plot(alpha=.7,vmin=0, vmax=1, cmap='Greys_r',ylim=(0,ymax),add_colorbar=False)
-    ax.plot([],[],lw=0,marker='s', ms=10, color='white', alpha=.7, label='clouds')
+    ax.plot([],[],lw=0,marker='s', ms=10, color='white', alpha=.7, label='clouds or aerosols')
     ax.set_ylim(0,ymax)
     ax.set_facecolor('dimgray')
     ax.legend(loc='upper right')
