@@ -158,10 +158,10 @@ def find_cloud_mask(bsc, cloud_base, cloud_top, return_below_cloud_top = False, 
         return cloud_mask
 
 
-def plot_cloud(ds,ymax=30000,savefig=None):
+def plot_cloud(ds,ymax=30000,name_bsc_var = 'attenuated_backscatter_0', savefig=None):
 
     fig,ax = plt.subplots(figsize = (15,4))
-    im=ds.attenuated_backscatter_0.plot(x='time',vmin=1e-9,vmax=1e-5,norm=colors.LogNorm(),cmap='plasma')
+    im=ds[name_bsc_var].plot(x='time',vmin=1e-9,vmax=1e-5,norm=colors.LogNorm(),cmap='plasma')
     cloud_mask_for_plot=ds.cloud_mask.where(ds.cloud_mask,np.nan)
     cloud_mask_for_plot.T.plot(alpha=.7,vmin=0, vmax=1, cmap='Greys_r',ylim=(0,ymax),add_colorbar=False)
     ax.plot([],[],lw=0,marker='s', ms=10, color='white', alpha=.7, label='clouds')
@@ -188,23 +188,23 @@ if __name__=='__main__':
     SAVE_NC = True
     in_house_cloud_detection = False
     aprofiles_cloud_detection = True
-
+    name_bsc_var = 'attenuated_backscatter_0'
 
     ds = xr.open_dataset(path_l2)
     if in_house_cloud_detection:
-        cloud_base = detect_cloud_edge(ds.attenuated_backscatter_0, ds.altitude, return_height = False, vg_thres=.25)
-        cloud_top = detect_cloud_edge(ds.attenuated_backscatter_0, ds.altitude, return_height = False, base_or_top='top',vg_thres=.5)
+        cloud_base = detect_cloud_edge(ds[name_bsc_var], ds.altitude, return_height = False, vg_thres=.25)
+        cloud_top = detect_cloud_edge(ds[name_bsc_var], ds.altitude, return_height = False, base_or_top='top',vg_thres=.5)
 
         for i in range(len(ds.time)):
             cb = cloud_base[i]
             ct = cloud_top[i]
-            bsc = ds.attenuated_backscatter_0.isel(time=i)
+            bsc = ds[name_bsc_var].isel(time=i)
             refine_cloud_detection(bsc,cb,ct)
 
         cloud_base[:,:REMOVE_BELOW] = 0 # the lowest gates are not valid
         cloud_top[:,:REMOVE_BELOW] = 0
 
-        ds['cloud_mask'], ds['below_cloud_top'], ds['above_cloud_base'] = find_cloud_mask(ds.attenuated_backscatter_0,cloud_base,cloud_top,
+        ds['cloud_mask'], ds['below_cloud_top'], ds['above_cloud_base'] = find_cloud_mask(ds[name_bsc_var],cloud_base,cloud_top,
                                             return_below_cloud_top=True, return_above_cloud_base=True)
         ds['cloud_base'] = xr.zeros_like(ds.cloud_mask)
         ds['cloud_top'] = xr.zeros_like(ds.cloud_mask)
