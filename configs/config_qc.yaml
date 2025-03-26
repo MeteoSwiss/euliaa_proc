@@ -1,0 +1,27 @@
+MAX_ALTITUDE: 60e3
+W_ABS_THRES: 40.96 # m/s
+W_ERR_THRES: 1 # m/s
+U_V_ABS_THRES: 409.6 # m/s
+U_V_ERR_THRES: 1 # m/s
+TEMP_ERR_THRES: 5 # K
+TEMP_MIN_THRES: 0 # K
+TEMP_MAX_THRES: 409.5 # K
+CORRECTION: 28.98 # temporary correction to do remove when fixed by IAP
+INVALID_TO_NAN: True
+VARS_TO_KEEP:
+- temperature_int
+- w_mie
+- v_mie
+- u_mie
+- temperature_int_flag
+- w_mie_flag
+- v_mie_flag
+- u_mie_flag
+- u_v_flag
+- station_latitude
+- station_longitude
+- station_altitude
+- vertical_resolution
+- vertical_integration
+- time_integration
+- time_resolution

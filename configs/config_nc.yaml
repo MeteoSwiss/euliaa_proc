@@ -74,7 +74,7 @@ variables:
     attributes:
       long_name: Latitude corresponding to altitude array in each field of view, for
         Mie peak measurements
-      units: deg
+      units: degrees_north
       comment: Derived using 30deg off-zenith slant in eastward direction
   latitude_ray:
     name: latitude_ray
@@ -89,7 +89,8 @@ variables:
     attributes:
       long_name: Latitude corresponding to altitude array in each field of view, for
         Rayleigh peak measurements
-      units: deg
+      units: degrees_north
+      standard_name: latitude
       comment: Derived using 30deg off-zenith slant in eastward direction
   longitude_mie:
     name: longitude_mie
@@ -104,7 +105,8 @@ variables:
     attributes:
       long_name: Longitude corresponding to altitude array in each field of view,
         for Mie peak measurements
-      units: deg
+      units: degrees_east
+      standard_name: longitude
       comment: Derived using 30deg off-zenith slant in eastward direction
   longitude_ray:
     name: longitude_ray
@@ -119,7 +121,8 @@ variables:
     attributes:
       long_name: Longitude corresponding to altitude array in each field of view,
         for Rayleigh peak measurements
-      units: deg
+      units: degrees_east
+      standard_name: longitude
       comment: Derived using 30deg off-zenith slant in eastward direction
   station_latitude:
     name: station_latitude
@@ -131,7 +134,8 @@ variables:
       hdf5_var_name: Latitude
     attributes:
       long_name: Latitude of measurement station
-      units: deg
+      standard_name: latitude
+      units: degrees_north
   station_longitude:
     name: station_longitude
     dim: ''
@@ -142,7 +146,8 @@ variables:
       hdf5_var_name: Longitude
     attributes:
       long_name: Longitude of measurement station
-      units: deg
+      units: degrees_east
+      standard_name: longitude
   station_altitude:
     name: station_altitude
     dim: ''
@@ -153,6 +158,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Altitude of measurement station
+      standard_name: altitude
       units: m
     value: 10.
   vertical_integration:
@@ -193,7 +199,7 @@ variables:
       - BSCMieN
     attributes:
       long_name: Backscatter coefficient
-      units: m^-1sr^-1
+      units: m-1
       scattering_regime: Mie
   backscatter_coef_err:
     name: backscatter_coef_err
@@ -211,7 +217,7 @@ variables:
       - BSCMieNErr
     attributes:
       long_name: Uncertainty on backscatter coefficient
-      units: m^-1sr^-1
+      units: m-1
       scattering_regime: Mie
       comment: Error propagated from photon count
   backscatter_ratio:
@@ -338,7 +344,7 @@ variables:
       hdf5_var_name: VMieC
     attributes:
       long_name: Upward air velocity from Doppler shift of Mie peak
-      units: ms^-1
+      units: m s-1
       scattering_regime: Mie
   w_mie_err:
     name: w_mie_err
@@ -352,7 +358,7 @@ variables:
       hdf5_var_name: VMieCErr
     attributes:
       long_name: Uncertainty on upward air velocity from Doppler shift of Mie peak
-      units: ms^-1
+      units: m s-1
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
@@ -369,7 +375,7 @@ variables:
     attributes:
       long_name: Eastward wind from Doppler shift of Mie peak
       standard_name: eastward_wind
-      units: ms^-1
+      units: m s-1
       scattering_regime: Mie
   u_mie_err:
     name: u_mie_err
@@ -383,7 +389,7 @@ variables:
       hdf5_var_name: VMieEErr
     attributes:
       long_name: 'Uncertainty on eastward wind from Doppler shift of Mie peak '
-      units: ms^-1
+      units: m s-1
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
@@ -400,7 +406,7 @@ variables:
     attributes:
       long_name: Northward wind from Doppler shift of Mie peak
       standard_name: northward_wind
-      units: ms^-1
+      units: m s-1
       scattering_regime: Mie
   v_mie_err:
     name: v_mie_err
@@ -414,7 +420,7 @@ variables:
       hdf5_var_name: VMieNErr
     attributes:
       long_name: Uncertainty on northward wind from Doppler shift of Mie peak
-      units: ms^-1
+      units: m s-1
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
@@ -430,7 +436,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Upward air velocity from Doppler shift of Rayleigh peak
-      units: ms^-1
+      units: m s-1
       scattering_regime: Rayleigh
   w_ray_err:
     name: w_ray_err
@@ -445,7 +451,7 @@ variables:
     attributes:
       long_name: Uncertainty on upward air velocity from Doppler shift of Rayleigh
         peak
-      units: ms^-1
+      units: m s-1
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
@@ -462,7 +468,7 @@ variables:
     attributes:
       long_name: Eastward wind from Doppler shift of Rayleigh peak
       standard_name: eastward_wind
-      units: ms^-1
+      units: m s-1
       scattering_regime: Rayleigh
   u_ray_err:
     name: u_ray_err
@@ -476,7 +482,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: 'Uncertainty on eastward wind from Doppler shift of Rayleigh peak '
-      units: ms^-1
+      units: m s-1
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
@@ -493,7 +499,7 @@ variables:
     attributes:
       long_name: Northward wind from Doppler shift of Rayleigh peak
       standard_name: northward_wind
-      units: ms^-1
+      units: m s-1
       scattering_regime: Rayleigh
   v_ray_err:
     name: v_ray_err
@@ -507,7 +513,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Uncertainty on northward wind from Doppler shift of Rayleigh peak
-      units: ms^-1
+      units: m s-1
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
@@ -637,13 +643,15 @@ variables:
       units: s
 
 attributes:
-  Conventions: CF-1.12
+  Conventions: CF-1.8
   campaign_name:
   license:
   references:
   wigos_station_id: 0-20000-0-06610
   wmo_id: '06610'
+  instrument_type: 'high_spectral_resolution_lidar'
   instrument_id: EULIAA_1
+  instrument_serial_number: # also laser serial number?
   instrument_model: EULIAA
   instrument_manufacturer:
   site_location:
@@ -651,7 +659,6 @@ attributes:
   institution:
   comment:
   principal_investigator:
-  calibration_status:
   conventions:
   operation_mode:
     original_hdf5:
@@ -661,5 +668,11 @@ attributes:
     original_hdf5:
       hdf5_group: glo
       hdf5_var_name: Version
-  algorithm_code:
+  algorithm_code: # Algorithm should include description of both measurement method, retrieval and correction / postproc (or split into several fields)
   algorithm_reference:
+  calibration_status:
+  calibration_time:
+  height_above_ground:
+  date_of_installation:
+  maintenance: #preventive and corrective maintenance (recommended and scheduled maintenance and calibration procedures, including frequency, and a description of procedures)
+  comparison_to_reference: #results of comparison with travelling standards
