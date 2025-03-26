@@ -1,3 +1,5 @@
 **/*.plain
 __pycache__
 old/
+data/L2*
+tests/test*
