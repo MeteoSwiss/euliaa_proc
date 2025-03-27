@@ -52,7 +52,6 @@ if __name__=='__main__':
     hdf5file = '/home/bia/Data/IAP/BankExport.h5'
     config = '/home/bia/euliaa_postproc/configs/config_nc.yaml'
     config_qc = '/home/bia/euliaa_postproc/configs/config_qc.yaml'
-    # output_nc = 'TestNC_var_per_fov2.nc'
     output_nc_l2A = '/home/bia/euliaa_postproc/data/TestNC_L2A.nc'
     output_nc_l2B = '/home/bia/euliaa_postproc/data/TestNC_L2B.nc'
 
@@ -63,9 +62,12 @@ if __name__=='__main__':
     meas.load_data()
     meas.add_lat_lon()
     meas.add_quality_flag()
+    meas.add_clouds()
     nc_writer = Writer(meas.data,output_file=output_nc_l2A,conf_nc_file=config)
     nc_writer.write_nc()
     print('Wrote L2A successfully\n')
+
     meas.subsel_stripped_profile()
     nc_writer_l2b = Writer(meas.data,output_file=output_nc_l2B,conf_nc_file=config)
     nc_writer_l2b.write_nc()
+    print('Wrote L2B successfully\n')

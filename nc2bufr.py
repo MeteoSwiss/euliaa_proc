@@ -298,10 +298,23 @@ def bufr_encode_forloop(ibufr,dst):
     ec.codes_set(ibufr, 'pack', 1)  # Required to encode the keys back in the data section
 
 
+def write_bufr(ds, output_name) :
+    # TO DO add option to select template
+    # convert to BUFR
+    fout = open(output_name, "wb")
+    bid = ec.codes_bufr_new_from_samples('BUFR4')
+    bufr_encode_header(bid,ds)
+
+    # bufr_encode_forloop_309024(bid,ds)
+    bufr_encode_forloop(bid,ds)
+
+    ec.codes_write(bid,fout)
+
+
 if __name__=='__main__':
 
-    inputFilename = '/home/bia/euliaa_postproc/data/Test_profile_NC.nc'
-    outFilename = '/home/bia/euliaa_postproc/data/Test_profile_NC2BUFR_forloop_notemplate_newenv.bufr'
+    inputFilename = '/home/bia/euliaa_postproc/data/TestNC_L2B.nc'
+    outFilename = '/home/bia/euliaa_postproc/data/Test_L2B.bufr'
 
     # coder = xr.coders.CFDatetimeCoder(time_unit="s")
     ds = xr.open_dataset(inputFilename,decode_times=False)#, decode_times=coder) # Otherwise xarray converts time to ns - this works only for xarray >
@@ -317,13 +330,4 @@ if __name__=='__main__':
         ds.v_mie[(ds.u_mie < -409.6)|(ds.u_mie > 409.6)] = np.nan
         ds.temperature_int[(ds.temperature_int > 409.5) | (ds.temperature_int < 0)]=np.nan
 
-    # convert to BUFR
-    fout = open(outFilename, "wb")
-    bid = ec.codes_bufr_new_from_samples('BUFR4')
-    bufr_encode_header(bid,ds)
-
-    # bufr_encode_forloop_309024(bid,ds)
-    # bufr_encode_309024(bid, ds)
-    bufr_encode_forloop(bid,ds)
-
-    ec.codes_write(bid,fout)
+    write_bufr(ds, outFilename)
