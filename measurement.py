@@ -4,6 +4,7 @@ import pandas as pd
 import yaml
 import numpy as np
 from utils import get_conf, correct_dim_scalar_fields, check_var_in_ds, compute_lat_lon, flag_var
+from cloud_detection import in_house_cloud_detection
 
 class Measurement():
     def __init__(self, conf_nc_file, data=None, conf_qc_file=None):
@@ -30,8 +31,16 @@ class Measurement():
         self.data['latitude_mie'], self.data['longitude_mie'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_mie)
         self.data['latitude_ray'], self.data['longitude_ray'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_ray)
 
+    def add_clouds(self,method='in_house',**kwargs):
+        if 'field_of_view' in self.data.keys() and len(self.data.field_of_view)>1:
+            data_zen = self.data.sel(field_of_view='zenith')
+        else:
+            data_zen = self.data
+        cloud_ds = in_house_cloud_detection(data_zen,**kwargs)
+        self.data = xr.merge([self.data, cloud_ds])
 
     def add_quality_flag(self):
+        self.data.w_mie.values = self.data.w_mie.values-self.qc_conf['CORRECTION'] # first file from iap has a velocity bias
         self.data['w_mie_flag'] = flag_var(self.data, 'w_mie', 'w_mie_err', var_min_thres=-self.qc_conf['W_ABS_THRES'], var_max_thres=self.qc_conf['W_ABS_THRES'], var_err_thres=self.qc_conf['W_ERR_THRES'])
         self.data['u_mie_flag'] = flag_var(self.data, 'u_mie', 'u_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
         self.data['v_mie_flag'] = flag_var(self.data, 'v_mie', 'v_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
@@ -46,8 +55,9 @@ class Measurement():
     def subsel_stripped_profile(self):
         self.data = self.data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']),field_of_view='zenith')
         self.data = self.data.isel(time=0)
-        self.data.w_mie.values = self.data.w_mie.values-self.qc_conf['CORRECTION'] # first file from iap has a velocity bias
         self.data = self.data[self.qc_conf['VARS_TO_KEEP']]
+
+
 
 
 

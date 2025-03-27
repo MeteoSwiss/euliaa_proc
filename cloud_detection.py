@@ -122,9 +122,9 @@ def refine_cloud_detection(bsc, cb, ct, F0 = 5, K0 = 3,bsc_thres = 1e-8, vg_thre
             print('no cloud top detected, removing cloud base')
 
         else: # different dimensions depending on the number of cloud layers
-            try:
+            if len(cti[1:-1])==len(y[1:-1]):
                 cti[1:-1] = np.where((y[1:-1]==np.nanmax(y[1:-1])), 1, 0)[::-1]
-            except:
+            else:
                 cti[:] = np.where((y[1:-1]==np.nanmax(y[1:-1])), 1, 0)[::-1]
 
 
@@ -179,39 +179,68 @@ def plot_cloud(ds,ymax=30000,name_bsc_var = 'attenuated_backscatter_0', savefig=
     if savefig:
         fig.savefig(savefig)
 
+def in_house_cloud_detection(ds,name_bsc_var='backscatter_coef',name_altitude_var = 'altitude_mie',vg_thres_base = 0.25,vg_thres_top = 0.5, remove_below=5):
+    cloud_base = detect_cloud_edge(ds[name_bsc_var], ds[name_altitude_var], return_height = False, vg_thres=vg_thres_base)
+    cloud_top = detect_cloud_edge(ds[name_bsc_var], ds[name_altitude_var], return_height = False, base_or_top='top',vg_thres=vg_thres_top)
+
+    for i in range(len(ds.time)):
+        cb = cloud_base[i]
+        ct = cloud_top[i]
+        bsc = ds[name_bsc_var].isel(time=i)
+        refine_cloud_detection(bsc,cb,ct)
+
+    cloud_base[:,:remove_below] = 0 # the lowest gates are not valid
+    cloud_top[:,:remove_below] = 0
+
+    cloud_ds = xr.Dataset({})
+    cloud_ds['cloud_mask'], cloud_ds['below_cloud_top'], cloud_ds['above_cloud_base'] = find_cloud_mask(ds[name_bsc_var],cloud_base,cloud_top,
+                                        return_below_cloud_top=True, return_above_cloud_base=True)
+    cloud_ds['cloud_base'] = xr.zeros_like(cloud_ds.cloud_mask)
+    cloud_ds['cloud_top'] = xr.zeros_like(cloud_ds.cloud_mask)
+    cloud_ds['cloud_base'][:,1:-1] = cloud_base
+    cloud_ds['cloud_top'][:,1:-1] = cloud_top
+
+    return cloud_ds
+
 
 if __name__=='__main__':
     path_l2 = '/home/bia/euliaa_postproc/data/L2Test_NC_for_Aprofiles.nc'
     REMOVE_BELOW = 6
     PLOT = True
-    savefig = '/home/bia/euliaa_postproc/figures/cloud_detection_aprofiles.png'
+    savefig = '/home/bia/euliaa_postproc/figures/cloud_detection_inhouse.png'
+    # savefig = '/home/bia/euliaa_postproc/figures/cloud_detection_aprofiles.png'
     SAVE_NC = True
-    in_house_cloud_detection = False
-    aprofiles_cloud_detection = True
+    VG_THRES_BASE = 0.25
+    VG_THRES_TOP = 0.5
+    run_in_house_cloud_detection = True
+    run_aprofiles_cloud_detection = False
     name_bsc_var = 'attenuated_backscatter_0'
 
     ds = xr.open_dataset(path_l2)
-    if in_house_cloud_detection:
-        cloud_base = detect_cloud_edge(ds[name_bsc_var], ds.altitude, return_height = False, vg_thres=.25)
-        cloud_top = detect_cloud_edge(ds[name_bsc_var], ds.altitude, return_height = False, base_or_top='top',vg_thres=.5)
+    if run_in_house_cloud_detection:
+        ds = xr.merge([ds,in_house_cloud_detection(ds,name_bsc_var=name_bsc_var,name_altitude_var='altitude',vg_thres_base=VG_THRES_BASE,vg_thres_top=VG_THRES_TOP,remove_below=REMOVE_BELOW)])
 
-        for i in range(len(ds.time)):
-            cb = cloud_base[i]
-            ct = cloud_top[i]
-            bsc = ds[name_bsc_var].isel(time=i)
-            refine_cloud_detection(bsc,cb,ct)
+        if False:
+            cloud_base = detect_cloud_edge(ds[name_bsc_var], ds.altitude, return_height = False, vg_thres=.25)
+            cloud_top = detect_cloud_edge(ds[name_bsc_var], ds.altitude, return_height = False, base_or_top='top',vg_thres=.5)
 
-        cloud_base[:,:REMOVE_BELOW] = 0 # the lowest gates are not valid
-        cloud_top[:,:REMOVE_BELOW] = 0
+            for i in range(len(ds.time)):
+                cb = cloud_base[i]
+                ct = cloud_top[i]
+                bsc = ds[name_bsc_var].isel(time=i)
+                refine_cloud_detection(bsc,cb,ct)
 
-        ds['cloud_mask'], ds['below_cloud_top'], ds['above_cloud_base'] = find_cloud_mask(ds[name_bsc_var],cloud_base,cloud_top,
-                                            return_below_cloud_top=True, return_above_cloud_base=True)
-        ds['cloud_base'] = xr.zeros_like(ds.cloud_mask)
-        ds['cloud_top'] = xr.zeros_like(ds.cloud_mask)
-        ds['cloud_base'][:,1:-1] = cloud_base
-        ds['cloud_top'][:,1:-1] = cloud_top
+            cloud_base[:,:REMOVE_BELOW] = 0 # the lowest gates are not valid
+            cloud_top[:,:REMOVE_BELOW] = 0
 
-    elif aprofiles_cloud_detection:
+            ds['cloud_mask'], ds['below_cloud_top'], ds['above_cloud_base'] = find_cloud_mask(ds[name_bsc_var],cloud_base,cloud_top,
+                                                return_below_cloud_top=True, return_above_cloud_base=True)
+            ds['cloud_base'] = xr.zeros_like(ds.cloud_mask)
+            ds['cloud_top'] = xr.zeros_like(ds.cloud_mask)
+            ds['cloud_base'][:,1:-1] = cloud_base
+            ds['cloud_top'][:,1:-1] = cloud_top
+
+    elif run_aprofiles_cloud_detection:
         ds['cloud_mask'] = cloud_aprofiles(path_l2)
 
     if PLOT:
