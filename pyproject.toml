@@ -1,0 +1,23 @@
+[project]
+name = "euliaa_postproc"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Anne-Claire Billault-Roux",email = "anne-claire.billault-roux@meteoswiss.ch"}
+]
+readme = "README.md"
+requires-python = ">=3.10, <3.12"
+dependencies = [
+    "aprofiles (>=0.12.5,<0.13.0)",
+    "jupyterlab (>=4.3.5,<5.0.0)",
+    "eccodes (>=2.40.0,<3.0.0)",
+    "ipywidgets (>=8.1.5,<9.0.0)",
+    "pyarrow (>=19.0.1,<20.0.0)"
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
