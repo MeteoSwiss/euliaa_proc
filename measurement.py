@@ -7,16 +7,16 @@ from utils import get_conf, correct_dim_scalar_fields, check_var_in_ds, compute_
 from cloud_detection import in_house_cloud_detection
 
 class Measurement():
-    def __init__(self, conf_nc_file, data=None, conf_qc_file=None):
-        self.conf_nc = get_conf(conf_nc_file)
+    def __init__(self, conf_file, data=None, conf_qc_file=None):
+        self.conf = get_conf(conf_file)
         if data:
             self.data = data
         else:
             self.data = xr.Dataset()
         if conf_qc_file:
             self.qc_conf = get_conf(conf_qc_file)
-        self.config_dims = self.conf_nc['dimensions']['unlimited'] + self.conf_nc['dimensions']['fixed']
-        correct_dim_scalar_fields(self.conf_nc['variables'])
+        self.config_dims = self.conf['dimensions']['unlimited'] + self.conf['dimensions']['fixed']
+        correct_dim_scalar_fields(self.conf['variables'])
 
 
     def add_var(self, var_dict):
@@ -63,8 +63,8 @@ class Measurement():
 
 class H5Reader(Measurement):
 
-    def __init__(self, conf_nc_file, h5_data_file,**kwargs):
-        super().__init__(conf_nc_file,**kwargs)
+    def __init__(self, conf_file, h5_data_file,**kwargs):
+        super().__init__(conf_file,**kwargs)
         self.data_file = h5_data_file
 
 
@@ -78,7 +78,7 @@ class H5Reader(Measurement):
             glo: xarray Dataset with data from 'glo' group of hdf5 file; contains mostly metadata
         """
         nc = Dataset(self.data_file, diskless=True, persist=False)
-        nc2 = Dataset('/home/bia/Data/IAP/BankExport2.h5', diskless=True, persist=False) # For now I had to hardcode this because of an error in the first file - to be removed
+        nc2 = Dataset(self.data_file.replace('.h5','2.h5'), diskless=True, persist=False) # For now I had to hardcode this because of an error in the first file - to be removed
         self.rec = xr.open_dataset(xr.backends.NetCDF4DataStore(nc.groups.get('rec')))
         self.glo = xr.open_dataset(xr.backends.NetCDF4DataStore(nc2.groups.get('glo')))
         if load_units:
@@ -88,25 +88,25 @@ class H5Reader(Measurement):
 
     def load_attrs(self):
         """prepare list of attributes; checks whether value should be fetched in hdf5"""
-        ds_attrs = self.conf_nc['attributes'].copy()
+        ds_attrs = self.conf['attributes'].copy()
         for attr in ds_attrs:
-            if self.conf_nc['attributes'][attr] is None:
+            if self.conf['attributes'][attr] is None:
                 ds_attrs[attr] = ''
-            if type(self.conf_nc['attributes'][attr])==dict:
-                if 'original_hdf5' in self.conf_nc['attributes'][attr].keys():
-                    hdf5_group = self.conf_nc['attributes'][attr]['original_hdf5']['hdf5_group']
+            if type(self.conf['attributes'][attr])==dict:
+                if 'original_hdf5' in self.conf['attributes'][attr].keys():
+                    hdf5_group = self.conf['attributes'][attr]['original_hdf5']['hdf5_group']
                     if hdf5_group == 'rec':
                         hdf5_ds = self.rec
                     elif hdf5_group == 'glo':
                         hdf5_ds = self.glo
-                    ds_attrs[attr] = hdf5_ds[self.conf_nc['attributes'][attr]['original_hdf5']['hdf5_var_name']].data.item()
+                    ds_attrs[attr] = hdf5_ds[self.conf['attributes'][attr]['original_hdf5']['hdf5_var_name']].data.item()
         self.data.attrs = ds_attrs
 
 
     def load_data(self):
         """load the data from the hdf5 file or config"""
 
-        for var, specs in self.conf_nc['variables'].items():
+        for var, specs in self.conf['variables'].items():
             if var in ['latitude_mie', 'latitude_ray', 'longitude_mie', 'longitude_ray']:
                 print('lat/lon computed at the end')
                 continue

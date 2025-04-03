@@ -3,17 +3,17 @@ from netCDF4 import Dataset
 import pandas as pd
 import yaml
 import numpy as np
-from utils import get_conf, correct_dim_scalar_fields, compute_lat_lon
+from utils import get_conf, correct_dim_scalar_fields
 ENC_NO_FILLVALUE = None
 
 class Writer():
 
-    def __init__(self, data_in, output_file, conf_nc_file):
+    def __init__(self, measurement, output_file, conf_file):
         self.output_file = output_file
-        self.conf_nc = get_conf(conf_nc_file)
-        self.data = data_in
-        self.config_dims = self.conf_nc['dimensions']['unlimited'] + self.conf_nc['dimensions']['fixed']
-        correct_dim_scalar_fields(self.conf_nc['variables'])
+        self.conf = measurement.conf
+        self.data = measurement.data
+        self.config_dims = self.conf['dimensions']['unlimited'] + self.conf['dimensions']['fixed']
+        correct_dim_scalar_fields(self.conf['variables'])
 
     def set_fillvalue(self, var, specs):
         """set the fill value of var by taking care not to remove any fill value for dimensions for CF compliance
@@ -31,13 +31,13 @@ class Writer():
     def write_nc(self):
         """write netCDF file - copied from mwr_raw2l1, for clean nc writing"""
         self.data.encoding.update(
-            unlimited_dims=self.conf_nc['dimensions']['unlimited']
+            unlimited_dims=self.conf['dimensions']['unlimited']
         )
         for var in list(self.data.data_vars)+list(self.data.coords):
-            if not(var in self.conf_nc['variables'].keys()):
+            if not(var in self.conf['variables'].keys()):
                 print('Warning, %s not in config keys'%var)
                 continue
-            specs = self.conf_nc['variables'][var]
+            specs = self.conf['variables'][var]
             self.set_fillvalue(var,specs)
             if 'type' in specs.keys():
                 self.data[var].encoding.update(dtype=specs['type']) # TO DO does this really work
@@ -48,14 +48,16 @@ class Writer():
 
 
 if __name__=='__main__':
+    import os
+    cwd = os.getcwd()
 
-    hdf5file = '/home/bia/Data/IAP/BankExport.h5'
-    config = '/home/bia/euliaa_postproc/configs/config_nc.yaml'
-    config_qc = '/home/bia/euliaa_postproc/configs/config_qc.yaml'
-    output_nc_l2A = '/home/bia/euliaa_postproc/data/TestNC_L2A.nc'
-    output_nc_l2B = '/home/bia/euliaa_postproc/data/TestNC_L2B.nc'
+    hdf5file = '/data/euliaa-test/TESTS/BankExport.h5'
+    config = os.path.join(cwd,'configs/config_nc.yaml')
+    config_qc = os.path.join(cwd,'configs/config_qc.yaml')
+    output_nc_l2A = os.path.join(cwd,'data/TestNC_L2A.nc')
+    output_nc_l2B = os.path.join(cwd,'data/TestNC_L2B.nc')
 
-    from measurement import Measurement, H5Reader
+    from measurement import H5Reader
     meas = H5Reader(config, hdf5file,conf_qc_file=config_qc)
     meas.read_hdf5_file()
     meas.load_attrs()
@@ -63,11 +65,11 @@ if __name__=='__main__':
     meas.add_lat_lon()
     meas.add_quality_flag()
     meas.add_clouds()
-    nc_writer = Writer(meas.data,output_file=output_nc_l2A,conf_nc_file=config)
+    nc_writer = Writer(meas,output_file=output_nc_l2A)
     nc_writer.write_nc()
     print('Wrote L2A successfully\n')
 
     meas.subsel_stripped_profile()
-    nc_writer_l2b = Writer(meas.data,output_file=output_nc_l2B,conf_nc_file=config)
+    nc_writer_l2b = Writer(meas,output_file=output_nc_l2B)
     nc_writer_l2b.write_nc()
     print('Wrote L2B successfully\n')
