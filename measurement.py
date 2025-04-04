@@ -3,7 +3,7 @@ from netCDF4 import Dataset
 import pandas as pd
 import yaml
 import numpy as np
-from utils import get_conf, correct_dim_scalar_fields, check_var_in_ds, compute_lat_lon, flag_var
+from utils import get_conf, correct_dim_scalar_fields, check_var_in_ds, compute_lat_lon, flag_var, get_noise_vect_from_da
 from cloud_detection import in_house_cloud_detection
 
 class Measurement():
@@ -31,6 +31,12 @@ class Measurement():
         self.data['latitude_mie'], self.data['longitude_mie'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_mie)
         self.data['latitude_ray'], self.data['longitude_ray'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_ray)
 
+    def add_noise_and_snr(self):
+        for scat in ['mie', 'ray']:
+            if f'signal_{scat}' in self.data.keys():
+                self.data[f'noise_level_{scat}'] = get_noise_vect_from_da(self.data[f'signal_{scat}'])
+                self.data[f'snr_{scat}'] = self.data[f'signal_{scat}']/self.data[f'noise_level_{scat}']
+
     def add_clouds(self,method='in_house',**kwargs):
         if 'field_of_view' in self.data.keys() and len(self.data.field_of_view)>1:
             data_zen = self.data.sel(field_of_view='zenith')
@@ -40,15 +46,15 @@ class Measurement():
         self.data = xr.merge([self.data, cloud_ds])
 
     def add_quality_flag(self):
-        self.data.w_mie.values = self.data.w_mie.values-self.qc_conf['CORRECTION'] # first file from iap has a velocity bias
-        self.data['w_mie_flag'] = flag_var(self.data, 'w_mie', 'w_mie_err', var_min_thres=-self.qc_conf['W_ABS_THRES'], var_max_thres=self.qc_conf['W_ABS_THRES'], var_err_thres=self.qc_conf['W_ERR_THRES'])
-        self.data['u_mie_flag'] = flag_var(self.data, 'u_mie', 'u_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
-        self.data['v_mie_flag'] = flag_var(self.data, 'v_mie', 'v_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
-        self.data['temperature_int_flag'] = flag_var(self.data, 'temperature_int', 'temperature_int_err', var_min_thres=self.qc_conf['TEMP_MIN_THRES'], var_max_thres=self.qc_conf['TEMP_MAX_THRES'], var_err_thres=self.qc_conf['TEMP_ERR_THRES'])
+        # self.data.w_mie.values = self.data.w_mie.values-self.qc_conf['CORRECTION'] # first file from iap has a velocity bias
+        self.data['w_mie_flag'] = flag_var(self.data, 'w_mie', err_key='w_mie_err', var_min_thres=-self.qc_conf['W_ABS_THRES'], var_max_thres=self.qc_conf['W_ABS_THRES'], var_err_thres=self.qc_conf['W_ERR_THRES'])
+        self.data['u_mie_flag'] = flag_var(self.data, 'u_mie', err_key='u_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
+        self.data['v_mie_flag'] = flag_var(self.data, 'v_mie', err_key='v_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
+        self.data['temperature_int_flag'] = flag_var(self.data, 'temperature_int', err_key='temperature_int_err', var_min_thres=self.qc_conf['TEMP_MIN_THRES'], var_max_thres=self.qc_conf['TEMP_MAX_THRES'], var_err_thres=self.qc_conf['TEMP_ERR_THRES'])
         self.data['u_v_flag']= xr.ufuncs.maximum(self.data.u_mie_flag,self.data.v_mie_flag)
-
+        self.data['backscatter_coef_flag'] = flag_var(self.data, 'backscatter_coef', var_min_thres=self.qc_conf['BSC_MIN_THRES'],snr_key='snr_mie',snr_thres=self.qc_conf['SNR_THRES'])
         if self.qc_conf['INVALID_TO_NAN']:
-            for var in ['u_mie', 'v_mie', 'w_mie', 'temperature_int']:
+            for var in ['u_mie', 'v_mie', 'w_mie', 'temperature_int', 'backscatter_coef']:
                 self.data[var] = self.data[var].where(self.data[var+'_flag']<1, np.nan)
 
 
@@ -78,7 +84,8 @@ class H5Reader(Measurement):
             glo: xarray Dataset with data from 'glo' group of hdf5 file; contains mostly metadata
         """
         nc = Dataset(self.data_file, diskless=True, persist=False)
-        nc2 = Dataset(self.data_file.replace('.h5','2.h5'), diskless=True, persist=False) # For now I had to hardcode this because of an error in the first file - to be removed
+        # nc2 = Dataset(self.data_file.replace('3.h5','2.h5'), diskless=True, persist=False) # For now I had to hardcode this because of an error in the first file - to be removed
+        nc2 = nc
         self.rec = xr.open_dataset(xr.backends.NetCDF4DataStore(nc.groups.get('rec')))
         self.glo = xr.open_dataset(xr.backends.NetCDF4DataStore(nc2.groups.get('glo')))
         if load_units:
@@ -138,12 +145,13 @@ class H5Reader(Measurement):
 
 
 if __name__=='__main__':
+    import os
+    cwd = os.getcwd()
 
-    hdf5file = '/home/bia/Data/IAP/BankExport.h5'
-    config = '/home/bia/euliaa_postproc/config_nc.yaml'
-    # output_nc = 'TestNC_var_per_fov2.nc'
-    output_nc = '/home/bia/euliaa_postproc/data/TestNC2.nc'
-    meas = Measurement_L2A(config,hdf5file)
+    hdf5file = '/data/euliaa-test/TESTS/BankExport.h5'
+    config = os.path.join(cwd,'configs/config_nc.yaml')
+    config_qc = os.path.join(cwd,'configs/config_qc.yaml')
+    meas = H5Reader(config,hdf5file, conf_qc_file = config_qc)
     meas.read_hdf5_file()
     meas.load_attrs()
     meas.load_data()

@@ -6,8 +6,10 @@ U_V_ERR_THRES: 1 # m/s
 TEMP_ERR_THRES: 5 # K
 TEMP_MIN_THRES: 0 # K
 TEMP_MAX_THRES: 409.5 # K
+BSC_MIN_THRES: 0 #  m-1
+SNR_THRES: 1 # -
 CORRECTION: 28.98 # temporary correction to do remove when fixed by IAP
-INVALID_TO_NAN: True
+INVALID_TO_NAN: False
 VARS_TO_KEEP:
 - temperature_int
 - w_mie
