@@ -35,7 +35,7 @@ class Writer():
         )
         for var in list(self.data.data_vars)+list(self.data.coords):
             if not(var in self.conf['variables'].keys()):
-                print('Warning, %s not in config keys'%var)
+                print(f'Warning, {var} not in config keys')
                 continue
             specs = self.conf['variables'][var]
             self.set_fillvalue(var,specs)
@@ -51,25 +51,38 @@ if __name__=='__main__':
     import os
     cwd = os.getcwd()
 
-    hdf5file = '/data/euliaa-test/TESTS/BankExport.h5'
+    hdf5file = '/home/bia/data/s3euliaa/TESTS/BankExport3.h5'
     config = os.path.join(cwd,'configs/config_nc.yaml')
     config_qc = os.path.join(cwd,'configs/config_qc.yaml')
     output_nc_l2A = os.path.join(cwd,'data/TestNC_L2A.nc')
     output_nc_l2B = os.path.join(cwd,'data/TestNC_L2B.nc')
 
     from measurement import H5Reader
+    print('Reading measurement from hdf5 file...')
     meas = H5Reader(config, hdf5file,conf_qc_file=config_qc)
     meas.read_hdf5_file()
     meas.load_attrs()
     meas.load_data()
+
+    print('Adding altitude-dependent lat and lon arrays')
     meas.add_lat_lon()
+
+    print('Computing noise level and SNR...')
+    meas.add_noise_and_snr()
+
+    print('Adding basic quality flag...')
     meas.add_quality_flag()
+
+    print('Cloud detection...')
     meas.add_clouds()
-    nc_writer = Writer(meas,output_file=output_nc_l2A)
+
+    print('Writing L2A...')
+    nc_writer = Writer(meas,output_file=output_nc_l2A,conf_file=config)
     nc_writer.write_nc()
     print('Wrote L2A successfully\n')
 
+    print('Writing L2B...')
     meas.subsel_stripped_profile()
-    nc_writer_l2b = Writer(meas,output_file=output_nc_l2B)
+    nc_writer_l2b = Writer(meas,output_file=output_nc_l2B,conf_file=config)
     nc_writer_l2b.write_nc()
     print('Wrote L2B successfully\n')

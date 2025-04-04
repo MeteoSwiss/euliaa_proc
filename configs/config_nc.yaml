@@ -587,6 +587,102 @@ variables:
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
+  signal_mie:
+    name: signal_mie
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - signalMieC
+      - signalMieE
+      - signalMieN
+    attributes:
+      long_name: Signal strength of Mie channel
+      units: '-'
+      scattering_regime: Mie
+  signal_ray:
+    name: signal_ray
+    dim:
+    - time
+    - altitude_ray
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - signalRayC
+      - signalRayE
+      - signalRayN
+    attributes:
+      long_name: Signal strength of Rayleigh channel
+      units: '-'
+      scattering_regime: Rayleigh
+  noise_level_mie:
+    name: noise_level_mie
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Noise level in Mie channel
+      units: '-'
+      scattering_regime: Mie
+  noise_level_ray:
+    name: noise_level_ray
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Noise level in Rayleigh channel
+      units: '-'
+      scattering_regime: Rayleigh
+  snr_mie:
+    name: snr_mie
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Signal-to-Noise ratio in Mie channel
+      units: '-'
+      scattering_regime: Mie
+  snr_ray:
+    name: snr_ray
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Signal-to-Noise ratio in Rayleigh channel
+      units: '-'
+      scattering_regime: Rayleigh
   time_mean:
     name: time_mean
     dim:
