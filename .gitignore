@@ -3,3 +3,4 @@ __pycache__
 old/
 data/L2*
 tests/test*
+poetry.lock
