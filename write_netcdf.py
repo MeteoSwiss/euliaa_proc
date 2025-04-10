@@ -51,7 +51,7 @@ if __name__=='__main__':
     import os
     cwd = os.getcwd()
 
-    hdf5file = '/home/bia/data/s3euliaa/TESTS/BankExport3.h5'
+    hdf5file = '/data/s3euliaa/TESTS/BankExport3.h5'
     config = os.path.join(cwd,'configs/config_nc.yaml')
     config_qc = os.path.join(cwd,'configs/config_qc.yaml')
     output_nc_l2A = os.path.join(cwd,'data/TestNC_L2A.nc')
