@@ -53,7 +53,7 @@ if __name__=='__main__':
 
     import argparse
     parser = argparse.ArgumentParser(description='Write netCDF file')
-    parser.add_argument('--hdf5file', type=str, help='Path to the HDF5 file', default=os.path.join(cwd,'data/BankExport3.h5'))
+    parser.add_argument('--hdf5_file', type=str, help='Path to the HDF5 file', default=os.path.join(cwd,'data/BankExport3.h5'))
     parser.add_argument('--config', type=str, help='Path to the config file', default=os.path.join(cwd,'configs/config_nc.yaml'))
     parser.add_argument('--config_qc', type=str, help='Path to the config file for quality control', default=os.path.join(cwd,'configs/config_qc.yaml'))
     parser.add_argument('--output_nc_l2A', type=str, help='Path to the output netCDF file for L2A', default=os.path.join(cwd,'data/TestNC_L2A.nc'))
@@ -68,7 +68,7 @@ if __name__=='__main__':
 
     from measurement import H5Reader
     print('Reading measurement from hdf5 file...')
-    meas = H5Reader(args.config, args.hdf5file,conf_qc_file=args.config_qc)
+    meas = H5Reader(args.config, args.hdf5_file,conf_qc_file=args.config_qc)
     meas.read_hdf5_file()
     meas.load_attrs()
     meas.load_data()
