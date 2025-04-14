@@ -51,15 +51,24 @@ if __name__=='__main__':
     import os
     cwd = os.getcwd()
 
-    hdf5file = '/data/s3euliaa/TESTS/BankExport3.h5'
-    config = os.path.join(cwd,'configs/config_nc.yaml')
-    config_qc = os.path.join(cwd,'configs/config_qc.yaml')
-    output_nc_l2A = os.path.join(cwd,'data/TestNC_L2A.nc')
-    output_nc_l2B = os.path.join(cwd,'data/TestNC_L2B.nc')
+    import argparse
+    parser = argparse.ArgumentParser(description='Write netCDF file')
+    parser.add_argument('--hdf5file', type=str, help='Path to the HDF5 file', default=os.path.join(cwd,'data/BankExport3.h5'))
+    parser.add_argument('--config', type=str, help='Path to the config file', default=os.path.join(cwd,'configs/config_nc.yaml'))
+    parser.add_argument('--config_qc', type=str, help='Path to the config file for quality control', default=os.path.join(cwd,'configs/config_qc.yaml'))
+    parser.add_argument('--output_nc_l2A', type=str, help='Path to the output netCDF file for L2A', default=os.path.join(cwd,'data/TestNC_L2A.nc'))
+    parser.add_argument('--output_nc_l2B', type=str, help='Path to the output netCDF file for L2B', default=os.path.join(cwd,'data/TestNC_L2B.nc'))
+    args = parser.parse_args()
+
+    # hdf5file = '/data/s3euliaa/TESTS/BankExport3.h5'
+    # config = os.path.join(cwd,'configs/config_nc.yaml')
+    # config_qc = os.path.join(cwd,'configs/config_qc.yaml')
+    # output_nc_l2A = os.path.join(cwd,'data/TestNC_L2A.nc')
+    # output_nc_l2B = os.path.join(cwd,'data/TestNC_L2B.nc')
 
     from measurement import H5Reader
     print('Reading measurement from hdf5 file...')
-    meas = H5Reader(config, hdf5file,conf_qc_file=config_qc)
+    meas = H5Reader(args.config, args.hdf5file,conf_qc_file=args.config_qc)
     meas.read_hdf5_file()
     meas.load_attrs()
     meas.load_data()
@@ -77,12 +86,12 @@ if __name__=='__main__':
     meas.add_clouds()
 
     print('Writing L2A...')
-    nc_writer = Writer(meas,output_file=output_nc_l2A,conf_file=config)
+    nc_writer = Writer(meas,output_file=args.output_nc_l2A,conf_file=args.config)
     nc_writer.write_nc()
     print('Wrote L2A successfully\n')
 
     print('Writing L2B...')
     meas.subsel_stripped_profile()
-    nc_writer_l2b = Writer(meas,output_file=output_nc_l2B,conf_file=config)
+    nc_writer_l2b = Writer(meas,output_file=args.output_nc_l2B,conf_file=args.config)
     nc_writer_l2b.write_nc()
     print('Wrote L2B successfully\n')
