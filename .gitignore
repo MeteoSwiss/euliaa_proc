@@ -4,3 +4,4 @@ old/
 data/L2*
 tests/test*
 poetry.lock
+**/*.h5
