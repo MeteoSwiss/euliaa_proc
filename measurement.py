@@ -45,6 +45,14 @@ class Measurement():
         cloud_ds = in_house_cloud_detection(data_zen,**kwargs)
         self.data = xr.merge([self.data, cloud_ds])
 
+    def add_quality_flag1(self):
+        var = 'w_mie'
+        flag_err = flag_var(self.data, var, err_key=f'{var}_err', var_err_thres=self.qc_conf['ERR_THRES'][var])
+        flag_snr = flag_var(self.data, var, snr_key='snr_mie',snr_thres=self.qc_conf['SNR_THRES'])
+        flag_invalid = flag_var(self.data, var, var_min_thres=self.qc_conf['THRES_MIN'][var], var_max_thres=self.qc_conf['THRES_MAX'][var])
+        
+    
+
     def add_quality_flag(self):
         # self.data.w_mie.values = self.data.w_mie.values-self.qc_conf['CORRECTION'] # first file from iap has a velocity bias
         self.data['w_mie_flag'] = flag_var(self.data, 'w_mie', err_key='w_mie_err', var_min_thres=-self.qc_conf['W_ABS_THRES'], var_max_thres=self.qc_conf['W_ABS_THRES'], var_err_thres=self.qc_conf['W_ERR_THRES'])
