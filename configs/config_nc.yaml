@@ -199,7 +199,7 @@ variables:
       - BSCMieN
     attributes:
       long_name: Backscatter coefficient
-      units: m-1
+      units: m-1 sr-1
       scattering_regime: Mie
   backscatter_coef_err:
     name: backscatter_coef_err
@@ -217,7 +217,7 @@ variables:
       - BSCMieNErr
     attributes:
       long_name: Uncertainty on backscatter coefficient
-      units: m-1
+      units: m-1 sr-1
       scattering_regime: Mie
       comment: Error propagated from photon count
   backscatter_ratio:
