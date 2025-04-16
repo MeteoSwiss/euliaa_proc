@@ -43,14 +43,16 @@ def compute_lat_lon(lat_station = 0, lon_station = 0, altitude = np.zeros(1), th
 
 def flag_var(dsz,var_key, err_key=None, snr_key=None, var_min_thres = -np.inf, var_max_thres = np.inf, var_err_thres = np.inf, snr_thres = 1.):
     da_flag = xr.zeros_like(dsz[var_key])
-    data_invalid = (dsz[var_key]<var_min_thres ) | (dsz[var_key]>var_max_thres) | (xr.ufuncs.isnan(dsz[var_key]))
+    if (var_min_thres > -np.inf) or (var_max_thres < np.inf):
+        data_invalid = (dsz[var_key]<var_min_thres ) | (dsz[var_key]>var_max_thres) | (xr.ufuncs.isnan(dsz[var_key]))
+        da_flag = da_flag.where(~data_invalid,1)
     if snr_key:
         data_low_snr = dsz[snr_key] < snr_thres
-        da_flag = da_flag.where(~data_low_snr,3)
+        da_flag = da_flag.where(~data_low_snr,2)
     if err_key:
-        data_suspect = dsz[err_key] > var_err_thres
-        da_flag = da_flag.where(~data_suspect,2)
-    da_flag = da_flag.where(~data_invalid,1)
+        data_high_err = dsz[err_key] > var_err_thres
+        da_flag = da_flag.where(~data_high_err,4)
+
     return da_flag
 
 
