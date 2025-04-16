@@ -3,11 +3,18 @@
 SRC=/data/euliaa-l1/TESTS/ #s3://euliaa-l1/TESTS/
 DEST=/data/euliaa-l2/TESTS/ # for now, not directly in s3 but through mounted dir
 
+curr_dir="$PWD"
+base_dir="$HOME" 
+dir=$(dirname "$0")
+
+source $base_dir/.env_euliaa/bin/activate
+cd $dir
+
 # file_list=$(s3cmd ls $SRC_BUCKET | awk '{print $4}')
 file_list=$(ls $SRC)
 # reference_date="2023-10-01 00:00:00"
 echo $file_list
-source $(dirname "$0")/reference_date.sh
+source $dir/reference_date.sh
 
 for file in $file_list; do
     # Skip if the file is not a .h5 file
@@ -29,10 +36,10 @@ for file in $file_list; do
         output_nc_l2A=L2A_${date_time}.nc
         output_nc_l2B=L2B_${date_time}.nc
         echo "Processing $file to $output_nc_l2A and $output_nc_l2B"
-        python3 write_netcdf.py --hdf5_file $SRC/$file --output_nc_l2A $DEST/$output_nc_l2A --output_nc_l2B $DEST/$output_nc_l2B
+        python3 $dir/write_netcdf.py --hdf5_file $SRC/$file --output_nc_l2A $DEST/$output_nc_l2A --output_nc_l2B $DEST/$output_nc_l2B
         if [[ $? -eq 0 ]]; then
             echo "Processing successful. Updating reference date."
-            echo "reference_date='$date_time'" > $(dirname "$0")/reference_date.sh
+            echo "reference_date='$date_time'" > $dir/reference_date.sh
         else
             echo "Processing failed. Reference date not updated."
         fi
@@ -42,3 +49,5 @@ for file in $file_list; do
     fi
 
 done
+
+cd $curr_dir
