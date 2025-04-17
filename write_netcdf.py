@@ -55,7 +55,7 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Write netCDF file')
     parser.add_argument('--hdf5_file', type=str, help='Path to the HDF5 file', default=os.path.join(cwd,'data/BankExport3.h5'))
     parser.add_argument('--config', type=str, help='Path to the config file', default=os.path.join(cwd,'configs/config_nc.yaml'))
-    parser.add_argument('--config_qc', type=str, help='Path to the config file for quality control', default=os.path.join(cwd,'configs/config_qc.yaml'))
+    parser.add_argument('--config_qc', type=str, help='Path to the config file for quality control', default=os.path.join(cwd,'configs/config_qc1.yaml'))
     parser.add_argument('--output_nc_l2A', type=str, help='Path to the output netCDF file for L2A', default=os.path.join(cwd,'data/TestNC_L2A.nc'))
     parser.add_argument('--output_nc_l2B', type=str, help='Path to the output netCDF file for L2B', default=os.path.join(cwd,'data/TestNC_L2B.nc'))
     args = parser.parse_args()
@@ -84,6 +84,10 @@ if __name__=='__main__':
 
     print('Cloud detection...')
     meas.add_clouds()
+
+    print('Completing quality flag...')
+    meas.add_flag_below_cloud_top()
+    meas.add_flag_missing_data()
 
     print('Writing L2A...')
     nc_writer = Writer(meas,output_file=args.output_nc_l2A,conf_file=args.config)
