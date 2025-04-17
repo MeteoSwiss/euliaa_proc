@@ -76,7 +76,10 @@ def detect_cloud_edge(bsc, alt, F = 5, K = 3, bsc_thres = 1e-8, vg_thres = 0.3,b
         else:
             cloud_edge = cloud_edge[:,::-1]
 
+    # try:
     cloud_edge_height = alt.values[1:-1]*np.where(cloud_edge,1,np.nan)#s.where()
+    # except:
+        # cloud_edge_height = alt.values[1:-1][None,:,None]*np.where(cloud_edge,1,np.nan)#s.where()
     if return_height:
         return cloud_edge, cloud_edge_height
     else:
@@ -179,26 +182,34 @@ def plot_cloud(ds,ymax=30000,name_bsc_var = 'attenuated_backscatter_0', savefig=
     if savefig:
         fig.savefig(savefig)
 
-def in_house_cloud_detection(ds,name_bsc_var='backscatter_coef',name_altitude_var = 'altitude_mie',vg_thres_base = 0.25,vg_thres_top = 0.5, remove_below=5):
-    cloud_base = detect_cloud_edge(ds[name_bsc_var], ds[name_altitude_var], return_height = False, vg_thres=vg_thres_base)
-    cloud_top = detect_cloud_edge(ds[name_bsc_var], ds[name_altitude_var], return_height = False, base_or_top='top',vg_thres=vg_thres_top)
+def in_house_cloud_detection(ds,name_altitude_var = 'altitude_mie',vg_thres_base = 0.45,vg_thres_top = 0.6, remove_below=5, return_height=True):
+    cloud_base = detect_cloud_edge(ds, ds[name_altitude_var], return_height = False, vg_thres=vg_thres_base)
+    cloud_top = detect_cloud_edge(ds, ds[name_altitude_var], return_height = False, base_or_top='top',vg_thres=vg_thres_top)
+    # cloud_base = detect_cloud_edge(ds[name_bsc_var], ds[name_altitude_var], return_height = False, vg_thres=vg_thres_base)
+    # cloud_top = detect_cloud_edge(ds[name_bsc_var], ds[name_altitude_var], return_height = False, base_or_top='top',vg_thres=vg_thres_top)
 
     for i in range(len(ds.time)):
         cb = cloud_base[i]
         ct = cloud_top[i]
-        bsc = ds[name_bsc_var].isel(time=i)
+        # bsc = ds[name_bsc_var].isel(time=i)
+        bsc = ds.isel(time=i)
         refine_cloud_detection(bsc,cb,ct)
 
     cloud_base[:,:remove_below] = 0 # the lowest gates are not valid
     cloud_top[:,:remove_below] = 0
 
     cloud_ds = xr.Dataset({})
-    cloud_ds['cloud_mask'], cloud_ds['below_cloud_top'], cloud_ds['above_cloud_base'] = find_cloud_mask(ds[name_bsc_var],cloud_base,cloud_top,
+    cloud_ds['cloud_mask'], cloud_ds['below_cloud_top'], cloud_ds['above_cloud_base'] = find_cloud_mask(ds,cloud_base,cloud_top,
                                         return_below_cloud_top=True, return_above_cloud_base=True)
+    # cloud_ds['cloud_mask'], cloud_ds['below_cloud_top'], cloud_ds['above_cloud_base'] = find_cloud_mask(ds[name_bsc_var],cloud_base,cloud_top,
+    #                                     return_below_cloud_top=True, return_above_cloud_base=True)
     cloud_ds['cloud_base'] = xr.zeros_like(cloud_ds.cloud_mask)
     cloud_ds['cloud_top'] = xr.zeros_like(cloud_ds.cloud_mask)
     cloud_ds['cloud_base'][:,1:-1] = cloud_base
     cloud_ds['cloud_top'][:,1:-1] = cloud_top
+    if return_height:
+        cloud_ds['cloud_base_height'] = ds[name_altitude_var]*xr.where(cloud_ds['cloud_base'],1,np.nan)
+        cloud_ds['cloud_top_height'] = ds[name_altitude_var]*xr.where(cloud_ds['cloud_top'],1,np.nan)
 
     return cloud_ds
 

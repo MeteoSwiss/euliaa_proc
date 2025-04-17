@@ -346,6 +346,7 @@ variables:
       long_name: Upward air velocity from Doppler shift of Mie peak
       units: m s-1
       scattering_regime: Mie
+      field_of_view: zenith
   w_mie_err:
     name: w_mie_err
     dim:
@@ -362,6 +363,7 @@ variables:
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
+      field_of_view: zenith
   u_mie:
     name: u_mie
     dim:
@@ -377,6 +379,7 @@ variables:
       standard_name: eastward_wind
       units: m s-1
       scattering_regime: Mie
+      field_of_view: eastward
   u_mie_err:
     name: u_mie_err
     dim:
@@ -393,6 +396,7 @@ variables:
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
+      field_of_view: eastward
   v_mie:
     name: v_mie
     dim:
@@ -408,6 +412,7 @@ variables:
       standard_name: northward_wind
       units: m s-1
       scattering_regime: Mie
+      field_of_view: northward
   v_mie_err:
     name: v_mie_err
     dim:
@@ -424,6 +429,7 @@ variables:
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
+      field_of_view: northward
   w_ray:
     name: w_ray
     dim:
@@ -438,6 +444,7 @@ variables:
       long_name: Upward air velocity from Doppler shift of Rayleigh peak
       units: m s-1
       scattering_regime: Rayleigh
+      field_of_view: zenith
   w_ray_err:
     name: w_ray_err
     dim:
@@ -455,6 +462,7 @@ variables:
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
+      field_of_view: zenith
   u_ray:
     name: u_ray
     dim:
@@ -470,6 +478,7 @@ variables:
       standard_name: eastward_wind
       units: m s-1
       scattering_regime: Rayleigh
+      field_of_view: eastward
   u_ray_err:
     name: u_ray_err
     dim:
@@ -486,6 +495,7 @@ variables:
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
+      field_of_view: eastward
   v_ray:
     name: v_ray
     dim:
@@ -501,6 +511,7 @@ variables:
       standard_name: northward_wind
       units: m s-1
       scattering_regime: Rayleigh
+      field_of_view: northward
   v_ray_err:
     name: v_ray_err
     dim:
@@ -517,6 +528,7 @@ variables:
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
+      field_of_view: northward
   width_mie:
     name: width_mie
     dim:
@@ -683,23 +695,6 @@ variables:
       long_name: Signal-to-Noise ratio in Rayleigh channel
       units: '-'
       scattering_regime: Rayleigh
-  time_mean:
-    name: time_mean
-    dim:
-    - time
-    - altitude_mie
-    - field_of_view
-    type: float64
-    _FillValue: -999.0
-    original_hdf5:
-      hdf5_group: rec
-      hdf5_var_name: meanTime
-    attributes:
-      long_name: Mean time of measurement
-      standard_name: time
-      units: seconds since 1970-01-01
-      comment: If gaps in measurement, meantime is the mean time of actually used
-        measurements
   time_mean:
     name: time_mean
     dim:

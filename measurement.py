@@ -37,23 +37,84 @@ class Measurement():
                 self.data[f'noise_level_{scat}'] = get_noise_vect_from_da(self.data[f'signal_{scat}'])
                 self.data[f'snr_{scat}'] = self.data[f'signal_{scat}']/self.data[f'noise_level_{scat}']
 
-    def add_clouds(self,method='in_house',**kwargs):
+    def add_clouds(self,**kwargs):
+        """
+        Add cloud detection to the dataset
+        The cloud detection is done by default using the in-house method (others not implemented yet)
+        The self.data dataset is modified in place, with new data_vars corresponding to the cloud fields (cloud_mask, below_cloud_top, above_cloud_base, cloud_base, cloud_top)
+        """
+        # if 'field_of_view' in self.data.keys() and len(self.data.field_of_view)>1:
+        #     data_zen = self.data.backscatter_coef.sel(field_of_view='zenith').copy(deep=True)
+        # else:
+        data_zen = self.data.backscatter_coef.copy(deep=True)
+        if 'backscatter_coef_flag' in self.data.keys():
+            data_zen = data_zen.where(self.data.backscatter_coef_flag==0, np.nan)
+        # self.data['bscnew'] = data_zen
         if 'field_of_view' in self.data.keys() and len(self.data.field_of_view)>1:
-            data_zen = self.data.sel(field_of_view='zenith')
+            cloud_ds_list = []
+            for i, fov in enumerate(self.data.field_of_view.values):
+                cloud_ds_list.append(in_house_cloud_detection(data_zen[:,:,i],**kwargs))
+            self.data = xr.merge([self.data, xr.concat(cloud_ds_list, dim='field_of_view')])
         else:
-            data_zen = self.data
-        cloud_ds = in_house_cloud_detection(data_zen,**kwargs)
-        self.data = xr.merge([self.data, cloud_ds])
+            cloud_ds = in_house_cloud_detection(data_zen,**kwargs)
+            self.data = xr.merge([self.data, cloud_ds])
 
-    def add_quality_flag1(self):
-        var = 'w_mie'
-        flag_err = flag_var(self.data, var, err_key=f'{var}_err', var_err_thres=self.qc_conf['ERR_THRES'][var])
-        flag_snr = flag_var(self.data, var, snr_key='snr_mie',snr_thres=self.qc_conf['SNR_THRES'])
-        flag_invalid = flag_var(self.data, var, var_min_thres=self.qc_conf['THRES_MIN'][var], var_max_thres=self.qc_conf['THRES_MAX'][var])
-        
-    
 
-    def add_quality_flag(self):
+
+    def add_quality_flag(self, var_list = ['u_mie', 'v_mie', 'w_mie', 'temperature_int', 'backscatter_coef']):
+        """
+        Add quality flag to the variables in var_list
+        The flag is computed as follows:
+        - flag_invalid: 1 if the variable is outside the min/max threshold
+        - flag_snr: 2 if the SNR is below the threshold
+        - flag_err: 4 if the error is above the threshold
+        Total flag = flag_invalid + flag_snr + flag_err
+        0 = no flag
+        -9 = missing data
+        """
+        for var in var_list:
+            scat = 'mie' if any('_mie' in d for d in self.data[var].dims) else 'ray'
+            flag_invalid = flag_var(self.data, var, var_min_thres=self.qc_conf['THRES_MIN'][var], var_max_thres=self.qc_conf['THRES_MAX'][var]) # -> flag = 1
+            if not ('field_of_view' in self.data[var].dims):
+                if 'field_of_view' in self.conf['variables'][var]['attributes']:
+                    snr_fov = self.conf['variables'][var]['attributes']['field_of_view']
+                else:
+                    print(f'Warning: field_of_view not found in {var} attributes nor dimensions, setting SNR flag to 0')
+                    # flag_snr = xr.zeros_like(self.data[var])
+                    snr_fov = None
+            else:
+                snr_fov = 'all'
+            flag_snr = flag_var(self.data, var, snr_key=f'snr_{scat}',snr_thres=self.qc_conf['SNR_THRES'][var], snr_fov=snr_fov) # -> flag = 2
+            flag_err = flag_var(self.data, var, err_key=f'{var}_err', var_err_thres=self.qc_conf['ERR_THRES'][var])  # -> flag = 4
+            self.data[f'{var}_flag'] = flag_err + flag_snr + flag_invalid
+
+
+    def add_flag_below_cloud_top(self, var_list = ['temperature_int']):
+        """
+        Add cloud flag to the variables in var_list
+        The flag is computed as follows:
+        - flag_cloud: 8 if the cloud mask is > 0
+        """
+        if not ('below_cloud_top' in self.data.keys()):
+            print('No cloud dataset available')
+            return
+        cloud_flag = xr.where(self.data['below_cloud_top'] > 0, 8, 0)
+        for var in var_list:
+            self.data[f'{var}_flag'] += cloud_flag
+        return
+
+    def add_flag_missing_data(self):
+        for var in self.data.data_vars.keys():
+            if f'{var}_flag' in self.data.keys():
+                self.data[f'{var}_flag'] = self.data[f'{var}_flag'].where(~xr.ufuncs.isnan(self.data[var]), -9) # flag = -9 if NaN
+
+
+    def add_quality_flag_old(self):
+        """
+        Add quality flag
+        The flag is computed as follows, for each variable (with some var-specific adjustments): high error + invalid value + no data + low snr
+        Then if 'INVALID_TO_NAN' is set to True, the variable is set to NaN if the flag is > 0.
+        """
         # self.data.w_mie.values = self.data.w_mie.values-self.qc_conf['CORRECTION'] # first file from iap has a velocity bias
         self.data['w_mie_flag'] = flag_var(self.data, 'w_mie', err_key='w_mie_err', var_min_thres=-self.qc_conf['W_ABS_THRES'], var_max_thres=self.qc_conf['W_ABS_THRES'], var_err_thres=self.qc_conf['W_ERR_THRES'])
         self.data['u_mie_flag'] = flag_var(self.data, 'u_mie', err_key='u_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
@@ -66,8 +127,12 @@ class Measurement():
                 self.data[var] = self.data[var].where(self.data[var+'_flag']<1, np.nan)
 
 
-    def subsel_stripped_profile(self):
-        self.data = self.data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']),field_of_view='zenith')
+    def subsel_stripped_profile(self, fov='zenith'):
+        """
+        Subset the data to keep only a profile in one field of view and the altitude range + variable list specified in the qc config
+        Used to create L2B
+        """
+        self.data = self.data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']),field_of_view=fov)
         self.data = self.data.isel(time=0)
         self.data = self.data[self.qc_conf['VARS_TO_KEEP']]
 
@@ -92,8 +157,9 @@ class H5Reader(Measurement):
             glo: xarray Dataset with data from 'glo' group of hdf5 file; contains mostly metadata
         """
         nc = Dataset(self.data_file, diskless=True, persist=False)
+
         # nc2 = Dataset(self.data_file.replace('3.h5','2.h5'), diskless=True, persist=False) # For now I had to hardcode this because of an error in the first file - to be removed
-        nc2 = nc
+        nc2 = Dataset('/home/bia/Data/IAP/BankExport2.h5', diskless=True, persist=False)
         self.rec = xr.open_dataset(xr.backends.NetCDF4DataStore(nc.groups.get('rec')))
         self.glo = xr.open_dataset(xr.backends.NetCDF4DataStore(nc2.groups.get('glo')))
         if load_units:

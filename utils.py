@@ -41,15 +41,24 @@ def compute_lat_lon(lat_station = 0, lon_station = 0, altitude = np.zeros(1), th
     return (latitude_arr_3fov, longitude_arr_3fov)
 
 
-def flag_var(dsz,var_key, err_key=None, snr_key=None, var_min_thres = -np.inf, var_max_thres = np.inf, var_err_thres = np.inf, snr_thres = 1.):
+def flag_var(dsz,var_key, err_key=None, snr_key=None, var_min_thres = -np.inf, var_max_thres = np.inf, var_err_thres = np.inf, snr_thres = 1., snr_fov='all'):
     da_flag = xr.zeros_like(dsz[var_key])
-    if (var_min_thres > -np.inf) or (var_max_thres < np.inf):
-        data_invalid = (dsz[var_key]<var_min_thres ) | (dsz[var_key]>var_max_thres) | (xr.ufuncs.isnan(dsz[var_key]))
+    if (var_min_thres > -np.inf) or (var_max_thres < np.inf): # Invalid data flag -> 1
+        data_invalid = (dsz[var_key]<var_min_thres ) | (dsz[var_key]>var_max_thres)# | (xr.ufuncs.isnan(dsz[var_key]))
         da_flag = da_flag.where(~data_invalid,1)
-    if snr_key:
-        data_low_snr = dsz[snr_key] < snr_thres
-        da_flag = da_flag.where(~data_low_snr,2)
-    if err_key:
+    if snr_key: # Low SNR flag -> 2
+        if not (snr_fov):
+            da_flag = da_flag*0.
+        else:
+            if snr_fov == 'all':
+                snr = dsz[snr_key]
+            elif snr_fov in ['zenith', 'eastward', 'northward']:
+                snr = dsz[snr_key].sel(field_of_view=snr_fov)
+            else:
+                raise NameError('snr_fov must be "zenith", "eastward", "northward" or "all", or None')
+            data_low_snr = snr < snr_thres
+            da_flag = da_flag.where(~data_low_snr,2)
+    if err_key: # High error flag -> 4
         data_high_err = dsz[err_key] > var_err_thres
         da_flag = da_flag.where(~data_high_err,4)
 
@@ -81,7 +90,7 @@ def get_fov_var(da):
     return fov_var
 
 
-def get_noise_vect_from_da(power_in,n_avg=1, calc_stdv = False,perc = 0.25,perc_to_rm=0.01):
+def get_noise_vect_from_da(power_in,n_avg=1, calc_stdv = False,perc_npts_min = 0.25,perc_to_rm=0.05):
 
     alt_var = get_alt_var(power_in)
     fov_var = get_fov_var(power_in)
@@ -102,7 +111,7 @@ def get_noise_vect_from_da(power_in,n_avg=1, calc_stdv = False,perc = 0.25,perc_
     power[power<=np.expand_dims(np.nanquantile(power,perc_to_rm,axis=axis_alt),1)]=np.nan
     power[power!=power]=0
     sorted_power = np.sort(power,axis=axis_alt)
-    npts_min = np.int64(np.zeros_like(lnoise)+int(len(power_in[alt_var])*perc)+np.sum(power==0,axis=axis_alt))
+    npts_min = np.int64(np.zeros_like(lnoise)+int(len(power_in[alt_var])*perc_npts_min)+np.sum(power==0,axis=axis_alt))
 
     nsamples = np.nancumsum(sorted_power>0,axis=axis_alt)+1
 

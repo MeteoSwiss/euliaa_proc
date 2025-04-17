@@ -1,11 +1,16 @@
 MAX_ALTITUDE: 60e3
-SNR_THRES: 1 # -
+SNR_THRES:
+  w_mie: 1 # -
+  u_mie: 0 # -
+  v_mie: 0 # -
+  temperature_int: 0 # -
+  backscatter_coef: 1 # -
 ERR_THRES:
   w_mie: 1 # m/s
   u_mie: 1 # m/s
   v_mie: 1 # m/s
   temperature_int: 5 # K
-  backscatter_coef: 
+  backscatter_coef: .inf
 THRES_MIN:
   w_mie: -40.96
   u_mie: -409.6
@@ -17,7 +22,7 @@ THRES_MAX:
   u_mie: 409.6
   v_mie: 409.6
   temperature_int: 409.5
-  backscatter_coef: 
+  backscatter_coef: .inf
 
 CORRECTION: 28.98 # temporary correction to do remove when fixed by IAP
 INVALID_TO_NAN: False
@@ -30,7 +35,6 @@ VARS_TO_KEEP:
 - w_mie_flag
 - v_mie_flag
 - u_mie_flag
-- u_v_flag
 - station_latitude
 - station_longitude
 - station_altitude
