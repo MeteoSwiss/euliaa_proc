@@ -25,7 +25,6 @@ THRES_MAX:
   backscatter_coef: .inf
 
 CORRECTION: 28.98 # temporary correction to do remove when fixed by IAP
-INVALID_TO_NAN: False
 VARS_TO_KEEP:
 - temperature_int
 - w_mie

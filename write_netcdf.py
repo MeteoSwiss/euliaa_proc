@@ -96,6 +96,7 @@ if __name__=='__main__':
 
     print('Writing L2B...')
     meas.subsel_stripped_profile()
+    meas.set_invalid_to_nan() # set invalid data to NaN for L2B
     nc_writer_l2b = Writer(meas,output_file=args.output_nc_l2B,conf_file=args.config)
     nc_writer_l2b.write_nc()
     print('Wrote L2B successfully\n')

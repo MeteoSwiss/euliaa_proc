@@ -126,6 +126,15 @@ class Measurement():
             for var in ['u_mie', 'v_mie', 'w_mie', 'temperature_int', 'backscatter_coef']:
                 self.data[var] = self.data[var].where(self.data[var+'_flag']<1, np.nan)
 
+    def set_invalid_to_nan(self):
+        """
+        Set the variables to NaN if the flag is > 0
+        """
+        for var in self.data.data_vars.keys():
+            if not (f'{var}_flag' in self.data.keys()):
+                continue
+            self.data[var] = self.data[var].where(self.data[var+'_flag']==0, np.nan)
+
 
     def subsel_stripped_profile(self, fov='zenith'):
         """
