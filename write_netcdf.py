@@ -59,7 +59,6 @@ if __name__=='__main__':
     parser.add_argument('--output_nc_l2A', type=str, help='Path to the output netCDF file for L2A', default=os.path.join(cwd,'data/TestNC_L2A.nc'))
     parser.add_argument('--output_nc_l2B', type=str, help='Path to the output netCDF file for L2B', default=os.path.join(cwd,'data/TestNC_L2B.nc'))
     args = parser.parse_args()
-    
 
     # hdf5file = '/data/s3euliaa/TESTS/BankExport3.h5'
     # config = os.path.join(cwd,'configs/config_nc.yaml')
