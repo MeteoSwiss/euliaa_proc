@@ -1,4 +1,3 @@
-# Observer and retrieval manager for Doppler Lidar data
 import os
 import sys
 import time
