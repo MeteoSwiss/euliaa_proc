@@ -168,7 +168,7 @@ class H5Reader(Measurement):
         nc = Dataset(self.data_file, diskless=True, persist=False)
 
         # nc2 = Dataset(self.data_file.replace('3.h5','2.h5'), diskless=True, persist=False) # For now I had to hardcode this because of an error in the first file - to be removed
-        nc2 = Dataset('/home/bia/Data/IAP/BankExport2.h5', diskless=True, persist=False)
+        nc2 = nc #Dataset('/home/bia/Data/IAP/BankExport2.h5', diskless=True, persist=False)
         self.rec = xr.open_dataset(xr.backends.NetCDF4DataStore(nc.groups.get('rec')))
         self.glo = xr.open_dataset(xr.backends.NetCDF4DataStore(nc2.groups.get('glo')))
         if load_units:
