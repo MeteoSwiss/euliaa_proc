@@ -10,8 +10,8 @@ class Runner:
         self.meas = None
 
     def run_processing(self):
-        logger.info(f'Reading measurement from hdf5 file {args.hdf5_file}')
-        self.meas = H5Reader(args.config, args.hdf5_file,conf_qc_file=args.config_qc)
+        logger.info(f'Reading measurement from hdf5 file {self.args.hdf5_file}')
+        self.meas = H5Reader(self.args.config, self.args.hdf5_file,conf_qc_file=self.args.config_qc)
         self.meas.read_hdf5_file()
         self.meas.load_attrs()
         self.meas.load_data()
@@ -32,7 +32,9 @@ class Runner:
         
 
     def write_l2a_and_l2b(self):
-
+        """
+        Write L2A and L2B netCDF files
+        """
         logger.info(f'Writing L2A {self.args.output_nc_l2A}')
         nc_writer = Writer(self.meas,output_file=self.args.output_nc_l2A,conf_file=self.args.config)
         nc_writer.write_nc()
@@ -41,12 +43,15 @@ class Runner:
         logger.info(f'Writing L2B {self.args.output_nc_l2B}')
         self.meas.subsel_stripped_profile()
         self.meas.set_invalid_to_nan() # set invalid data to NaN for L2B
-        nc_writer_l2b = Writer(self.meas,output_file=args.output_nc_l2B,conf_file=args.config)
+        nc_writer_l2b = Writer(self.meas,output_file=self.args.output_nc_l2B,conf_file=self.args.config)
         nc_writer_l2b.write_nc()
         logger.info('Wrote L2B successfully\n')
 
 
     def encode_bufr(self):
+        """
+        Encode BUFR file (if specified)
+        """
         if self.args.output_bufr is None:
             logger.warning('No BUFR file specified, skipping encoding')
             return
@@ -56,7 +61,7 @@ class Runner:
         logger.info(f'Writing BUFR message {self.args.output_bufr}')
         self.meas.set_invalid_to_nan() # set invalid data to NaN for BUFR  TO DO refine this, change quality flags for BUFR
         write_bufr(self.meas.data, self.args.output_bufr)
-
+        logger.info('Wrote BUFR message successfully\n')
 
 if __name__=='__main__':
     import os
