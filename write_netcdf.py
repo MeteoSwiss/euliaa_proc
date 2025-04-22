@@ -29,13 +29,13 @@ class Writer():
             self.data[var].encoding.update(_FillValue=specs['_FillValue'])
 
     def write_nc(self):
-        """write netCDF file - copied from mwr_raw2l1, for clean nc writing"""
+        """write netCDF file - for clean nc writing"""
         self.data.encoding.update(
             unlimited_dims=self.conf['dimensions']['unlimited']
         )
         for var in list(self.data.data_vars)+list(self.data.coords):
             if not(var in self.conf['variables'].keys()):
-                print(f'Warning, {var} not in config keys')
+                print(f'Warning, {var} not in config keys') # TO DO in such cases, remove the variable
                 continue
             specs = self.conf['variables'][var]
             self.set_fillvalue(var,specs)
@@ -59,6 +59,7 @@ if __name__=='__main__':
     parser.add_argument('--output_nc_l2A', type=str, help='Path to the output netCDF file for L2A', default=os.path.join(cwd,'data/TestNC_L2A.nc'))
     parser.add_argument('--output_nc_l2B', type=str, help='Path to the output netCDF file for L2B', default=os.path.join(cwd,'data/TestNC_L2B.nc'))
     args = parser.parse_args()
+    
 
     # hdf5file = '/data/s3euliaa/TESTS/BankExport3.h5'
     # config = os.path.join(cwd,'configs/config_nc.yaml')
@@ -82,7 +83,7 @@ if __name__=='__main__':
     print('Adding basic quality flag...')
     meas.add_quality_flag()
 
-    print('Cloud detection...')
+    print('Cloud detection (for now, only transparent clouds)...')
     meas.add_clouds()
 
     print('Completing quality flag...')
