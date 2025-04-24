@@ -37,7 +37,7 @@ VARS_TO_KEEP:
 - station_latitude
 - station_longitude
 - station_altitude
-- vertical_resolution
-- vertical_integration
+- range_resolution
+- range_integration
 - time_integration
 - time_resolution
