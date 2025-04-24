@@ -161,8 +161,8 @@ variables:
       standard_name: altitude
       units: m
     value: 10.
-  vertical_integration:
-    name: vertical_integration
+  range_integration:
+    name: range_integration
     dim:
     - field_of_view
     type: int64
@@ -171,7 +171,7 @@ variables:
       hdf5_group: glo
       hdf5_var_name: DeltaAlt
     attributes:
-      long_name: Vertical integration window
+      long_name: Range integration window
       units: m
   time_integration:
     name: time_integration
@@ -221,6 +221,21 @@ variables:
       units: m-1 sr-1
       scattering_regime: Mie
       comment: Error propagated from photon count
+  backscatter_coef_flag:
+    name: backscatter_coef_flag
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for backscatter coefficient
+      units: '-'
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   backscatter_ratio:
     name: backscatter_ratio
     dim:
@@ -298,6 +313,21 @@ variables:
       scattering_regime: Rayleigh
       retrieval_method: Rayleigh integration
       comment: Error propagated from photon count
+  temperature_int_flag:
+    name: temperature_int_flag
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for temperature from Rayleigh integration
+      units: '-'
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below top of transparent cloud)
   temperature_broad:
     name: temperature_broad
     dim:
@@ -333,6 +363,21 @@ variables:
       retrieval_method: Doppler broadening
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
+  temperature_broad_flag:
+    name: temperature_broad_flag
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for temperature from Doppler broadening
+      units: '-'
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   w_mie:
     name: w_mie
     dim:
@@ -365,6 +410,20 @@ variables:
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
       field_of_view: zenith
+  w_mie_flag:
+    name: w_mie_flag
+    dim:
+    - time
+    - altitude_mie
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for upward air velocity from Doppler shift of Mie peak
+      units: '-'
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   u_mie:
     name: u_mie
     dim:
@@ -398,6 +457,20 @@ variables:
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
       field_of_view: eastward
+  u_mie_flag:
+    name: u_mie_flag
+    dim:
+    - time
+    - altitude_mie
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for eastward wind from Doppler shift of Mie peak
+      units: '-'
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   v_mie:
     name: v_mie
     dim:
@@ -431,6 +504,20 @@ variables:
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
       field_of_view: northward
+  v_mie_flag:
+    name: v_mie_flag
+    dim:
+    - time
+    - altitude_mie
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for northward wind from Doppler shift of Mie peak
+      units: '-'
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   w_ray:
     name: w_ray
     dim:
@@ -464,6 +551,21 @@ variables:
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
       field_of_view: zenith
+  w_ray_flag:
+    name: w_ray_flag
+    dim:
+    - time
+    - altitude_ray
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for upward air velocity from Doppler shift of Rayleigh
+        peak
+      units: '-'
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   u_ray:
     name: u_ray
     dim:
@@ -497,6 +599,20 @@ variables:
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
       field_of_view: eastward
+  u_ray_flag:
+    name: u_ray_flag
+    dim:
+    - time
+    - altitude_ray
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for eastward wind from Doppler shift of Rayleigh peak
+      units: '-'
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   v_ray:
     name: v_ray
     dim:
@@ -530,6 +646,20 @@ variables:
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
       field_of_view: northward
+  v_ray_flag:
+    name: v_ray_flag
+    dim:
+    - time
+    - altitude_ray
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for northward wind from Doppler shift of Rayleigh peak
+      units: '-'
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   width_mie:
     name: width_mie
     dim:
@@ -568,6 +698,21 @@ variables:
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
+  width_mie_flag:
+    name: width_mie_flag
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for spectrum width of Mie peak
+      units: '-'
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   width_ray:
     name: width_ray
     dim:
@@ -600,6 +745,21 @@ variables:
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
+  width_ray_flag:
+    name: width_ray_flag
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for spectrum width of Rayleigh peak
+      units: '-'
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   signal_mie:
     name: signal_mie
     dim:
@@ -696,6 +856,36 @@ variables:
       long_name: Signal-to-Noise ratio in Rayleigh channel
       units: '-'
       scattering_regime: Rayleigh
+  cloud_mask:
+    name: cloud_mask
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Cloud mask
+      units: '-'
+      comment: 0 = no cloud, 1 = transparent cloud detected
+  below_cloud_top:
+    name: below_cloud_top
+    dim:
+    - time
+    - altitude_mie
+    - field_of_view
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Mask for below top of transparent cloud (or strong aerosol layer)
+      units: '-'
+      comment: 0 = above cloud top, 1 = below cloud top. Note that the definition for top of transparent cloud is less strict than cloud mask, so cloud top can be identified without cloud mask
   time_mean:
     name: time_mean
     dim:

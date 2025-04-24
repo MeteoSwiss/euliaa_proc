@@ -35,7 +35,8 @@ class Writer():
         )
         for var in list(self.data.data_vars)+list(self.data.coords):
             if not(var in self.conf['variables'].keys()):
-                print(f'Warning, {var} not in config keys') # TO DO in such cases, remove the variable
+                print(f'Warning, {var} not in config keys, removing from data')
+                self.data = self.data.drop(var)
                 continue
             specs = self.conf['variables'][var]
             self.set_fillvalue(var,specs)
