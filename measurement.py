@@ -217,6 +217,8 @@ class H5Reader(Measurement):
                 continue
             if type(hdf5_var)==list:
                 self.data[var] = (specs['dim'], np.stack([hdf5_ds[var_fov].data for var_fov in hdf5_var],axis=-1))
+            elif hdf5_ds[hdf5_var].ndim == 0 and len(specs['dim'])>0:
+                self.data[var] = (specs['dim'], np.full(tuple([len(self.data[d]) for d in specs['dim']]), hdf5_ds[hdf5_var].data))
             else:
                 self.data[var] = (specs['dim'],  hdf5_ds[hdf5_var].data)
 

@@ -163,7 +163,8 @@ variables:
     value: 10.
   vertical_integration:
     name: vertical_integration
-    dim: ''
+    dim:
+    - field_of_view
     type: int64
     _FillValue: -999.0
     original_hdf5:
@@ -710,9 +711,10 @@ variables:
       units: seconds since 1970-01-01
       comment: If gaps in measurement, meantime is the mean time of actually used
         measurements
-  vertical_resolution:
-    name: vertical_resolution
-    dim: ''
+  range_resolution:
+    name: range_resolution
+    dim:
+    - field_of_view
     type: int64
     _FillValue: -999.0
     original_hdf5:
