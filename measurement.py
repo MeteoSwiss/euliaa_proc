@@ -5,6 +5,7 @@ import yaml
 import numpy as np
 from utils import get_conf, correct_dim_scalar_fields, check_var_in_ds, compute_lat_lon, flag_var, get_noise_vect_from_da
 from cloud_detection import in_house_cloud_detection
+from log import logger
 
 class Measurement():
     def __init__(self, conf_file, data=None, conf_qc_file=None):
@@ -36,7 +37,7 @@ class Measurement():
             time_start = self.data['time'].values - self.data['time_integration'].values/2
             time_stop = self.data['time'].values + self.data['time_integration'].values/2
             self.data['time_bnds'] = (('time', 'bnds'), np.stack([time_start, time_stop], axis=-1))
-            print('Time bounds added to the dataset')
+            logger.info('Time bounds added to the dataset')
 
     def add_noise_and_snr(self):
         for scat in ['mie', 'ray']:
@@ -86,7 +87,7 @@ class Measurement():
                 if 'line_of_sight' in self.conf['variables'][var]['attributes']:
                     snr_los = self.conf['variables'][var]['attributes']['line_of_sight']
                 else:
-                    print(f'Warning: line_of_sight not found in {var} attributes nor dimensions, setting SNR flag to 0')
+                    logger.warning(f'Warning: line_of_sight not found in {var} attributes nor dimensions, setting SNR flag to 0')
                     # flag_snr = xr.zeros_like(self.data[var])
                     snr_los = None
             else:
@@ -103,7 +104,7 @@ class Measurement():
         - flag_cloud: 8 if the cloud mask is > 0
         """
         if not ('below_cloud_top' in self.data.keys()):
-            print('No cloud dataset available')
+            logger.warning('No cloud top data available, skipping cloud flag')
             return
         cloud_flag = xr.where(self.data['below_cloud_top'] > 0, 8, 0)
         for var in var_list:
@@ -205,22 +206,25 @@ class H5Reader(Measurement):
 
         for var, specs in self.conf['variables'].items():
             if var in ['latitude_mie', 'latitude_ray', 'longitude_mie', 'longitude_ray']:
-                print('lat/lon computed at the end')
+                logger.info('lat/lon computed at the end')
                 continue
             # Load value from config if exists
             if 'value' in specs and not(specs['value'] is None):
                 self.data[var] = (specs['dim'], specs['value'])
 
             # Find hdf5 group
-            if (not ('original_hdf5' in specs.keys())) or (not ('hdf5_group' in specs['original_hdf5'].keys()))\
-                  or (not (specs['original_hdf5']['hdf5_group'] in ['rec', 'glo'])) or (not ('hdf5_var_name' in specs['original_hdf5'].keys())) :
-                print(var, ': this variable was not implemented in the hdf5 or the hdf5_group is invalid')
+            if (not ('original_hdf5' in specs.keys())) or (not ('hdf5_group' in specs['original_hdf5'].keys())) or \
+                not(specs['original_hdf5']) or not (specs['original_hdf5']['hdf5_group']) or not (specs['original_hdf5']['hdf5_var_name']):
+                # logger.info(f'{var}: this variable is not part of the hdf5')
+                continue
+            if (not (specs['original_hdf5']['hdf5_group'] in ['rec', 'glo'])) or (not ('hdf5_var_name' in specs['original_hdf5'].keys())) :
+                logger.warning(f'{var}: the hdf5_group or hdf5_var_name is invalid, skipping')
                 continue
             hdf5_ds = self.rec if specs['original_hdf5']['hdf5_group'] == 'rec' else self.glo
 
             hdf5_var = specs['original_hdf5']['hdf5_var_name']
             if not check_var_in_ds(hdf5_ds, hdf5_var):
-                print(var,': No corresponding variable in original hdf5 file')
+                logger.warning(f'{var}: No corresponding variable in original hdf5 file')
                 continue
             if type(hdf5_var)==list:
                 self.data[var] = (specs['dim'], np.stack([hdf5_ds[var_los].data for var_los in hdf5_var],axis=-1))
