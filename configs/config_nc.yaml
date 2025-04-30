@@ -201,6 +201,19 @@ variables:
     attributes:
       long_name: Time integration window
       units: s
+  status:
+    name: status
+    dim:
+    - time
+    type: int64
+    _FillValue: -999
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Status of the measurement
+      units: "1"
+      comment: 0 = running, 1 = paused for rain, 2 = paused for aircraft, 3 = scheduled maintenance, 4 = faulty
   backscatter_coef:
     name: backscatter_coef
     dim:
@@ -216,7 +229,7 @@ variables:
       - BSCMieE
       - BSCMieN
     attributes:
-      long_name: Backscatter coefficient
+      long_name: Total volume backscatter coefficient
       units: m-1 sr-1
       scattering_regime: Mie
   backscatter_coef_err:
@@ -234,7 +247,7 @@ variables:
       - BSCMieEErr
       - BSCMieNErr
     attributes:
-      long_name: Uncertainty on backscatter coefficient
+      long_name: Uncertainty on total volume backscatter coefficient
       units: m-1 sr-1
       scattering_regime: Mie
       comment: Error propagated from photon count
@@ -250,7 +263,7 @@ variables:
       hdf5_group: null
       hdf5_var_name: null
     attributes:
-      long_name: Quality flag for backscatter coefficient
+      long_name: Quality flag for total volume backscatter coefficient
       units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   backscatter_ratio:
@@ -268,7 +281,7 @@ variables:
       - BSRMieE
       - BSRMieN
     attributes:
-      long_name: Backscatter ratio
+      long_name: Total volume backscatter ratio
       units: "1"
       scattering_regime: Mie
   backscatter_ratio_err:
@@ -286,7 +299,7 @@ variables:
       - BSRMieEErr
       - BSRMieNErr
     attributes:
-      long_name: Uncertainty on backscatter ratio
+      long_name: Uncertainty on total volume backscatter ratio
       units: "1"
       scattering_regime: Mie
       comment: Error propagated from photon count
