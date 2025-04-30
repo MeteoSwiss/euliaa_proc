@@ -50,18 +50,18 @@ class Measurement():
         The cloud detection is done by default using the in-house method (others not implemented yet)
         The self.data dataset is modified in place, with new data_vars corresponding to the cloud fields (cloud_mask, below_cloud_top, above_cloud_base, cloud_base, cloud_top)
         """
-        # if 'field_of_view' in self.data.keys() and len(self.data.field_of_view)>1:
-        #     data_zen = self.data.backscatter_coef.sel(field_of_view='zenith').copy(deep=True)
+        # if 'line_of_sight' in self.data.keys() and len(self.data.line_of_sight)>1:
+        #     data_zen = self.data.backscatter_coef.sel(line_of_sight='zenith').copy(deep=True)
         # else:
         data_zen = self.data.backscatter_coef.copy(deep=True)
         if 'backscatter_coef_flag' in self.data.keys():
             data_zen = data_zen.where(self.data.backscatter_coef_flag==0, np.nan)
         # self.data['bscnew'] = data_zen
-        if 'field_of_view' in self.data.keys() and len(self.data.field_of_view)>1:
+        if 'line_of_sight' in self.data.keys() and len(self.data.line_of_sight)>1:
             cloud_ds_list = []
-            for i, fov in enumerate(self.data.field_of_view.values):
+            for i, los in enumerate(self.data.line_of_sight.values):
                 cloud_ds_list.append(in_house_cloud_detection(data_zen[:,:,i],**kwargs))
-            self.data = xr.merge([self.data, xr.concat(cloud_ds_list, dim='field_of_view')])
+            self.data = xr.merge([self.data, xr.concat(cloud_ds_list, dim='line_of_sight')])
         else:
             cloud_ds = in_house_cloud_detection(data_zen,**kwargs)
             self.data = xr.merge([self.data, cloud_ds])
@@ -82,16 +82,16 @@ class Measurement():
         for var in var_list:
             scat = 'mie' if any('_mie' in d for d in self.data[var].dims) else 'ray'
             flag_invalid = flag_var(self.data, var, var_min_thres=self.qc_conf['THRES_MIN'][var], var_max_thres=self.qc_conf['THRES_MAX'][var]) # -> flag = 1
-            if not ('field_of_view' in self.data[var].dims):
-                if 'field_of_view' in self.conf['variables'][var]['attributes']:
-                    snr_fov = self.conf['variables'][var]['attributes']['field_of_view']
+            if not ('line_of_sight' in self.data[var].dims):
+                if 'line_of_sight' in self.conf['variables'][var]['attributes']:
+                    snr_los = self.conf['variables'][var]['attributes']['line_of_sight']
                 else:
-                    print(f'Warning: field_of_view not found in {var} attributes nor dimensions, setting SNR flag to 0')
+                    print(f'Warning: line_of_sight not found in {var} attributes nor dimensions, setting SNR flag to 0')
                     # flag_snr = xr.zeros_like(self.data[var])
-                    snr_fov = None
+                    snr_los = None
             else:
-                snr_fov = 'all'
-            flag_snr = flag_var(self.data, var, snr_key=f'snr_{scat}',snr_thres=self.qc_conf['SNR_THRES'][var], snr_fov=snr_fov) # -> flag = 2
+                snr_los = 'all'
+            flag_snr = flag_var(self.data, var, snr_key=f'snr_{scat}',snr_thres=self.qc_conf['SNR_THRES'][var], snr_los=snr_los) # -> flag = 2
             flag_err = flag_var(self.data, var, err_key=f'{var}_err', var_err_thres=self.qc_conf['ERR_THRES'][var])  # -> flag = 4
             self.data[f'{var}_flag'] = flag_err + flag_snr + flag_invalid
 
@@ -143,13 +143,12 @@ class Measurement():
             self.data[var] = self.data[var].where(self.data[var+'_flag']==0, np.nan)
 
 
-    def subsel_stripped_profile(self, fov=0):
+    def subsel_stripped_profile(self, los=0):
         """
         Subset the data to keep only a profile in one field of view and the altitude range + variable list specified in the qc config
         Used to create L2B
         """
-        # fov_to_index = {'zenith':0, 'eastward':1, 'northward':2}
-        self.data = self.data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']),field_of_view=fov)
+        self.data = self.data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']),line_of_sight=los)
         self.data = self.data.isel(time=0)
         self.data = self.data[self.qc_conf['VARS_TO_KEEP']]
 
@@ -224,7 +223,7 @@ class H5Reader(Measurement):
                 print(var,': No corresponding variable in original hdf5 file')
                 continue
             if type(hdf5_var)==list:
-                self.data[var] = (specs['dim'], np.stack([hdf5_ds[var_fov].data for var_fov in hdf5_var],axis=-1))
+                self.data[var] = (specs['dim'], np.stack([hdf5_ds[var_los].data for var_los in hdf5_var],axis=-1))
             elif hdf5_ds[hdf5_var].ndim == 0 and len(specs['dim'])>0:
                 self.data[var] = (specs['dim'], np.full(tuple([len(self.data[d]) for d in specs['dim']]), hdf5_ds[hdf5_var].data))
             else:
