@@ -141,7 +141,7 @@ def bufr_encode_forloop_309024(ibufr,dst):
         ec.codes_set(ibufr,'#%d#qualityInformation'%(2*i+1), u_v_flag[i])  # 0 33 002 -> Quality information (0: Data not suspect, 1: Data suspect, 2: Reserved, 3: Quality information not given) TO DO adjust with flag in NC
         ec.codes_set(ibufr,'#%d#w'%(i+1), float(dst.w_mie[i].values)) # 0 11 006 -> w-component
         ec.codes_set(ibufr,'#%d#qualityInformation'%(2*i+2), w_flag[i]) # 0 33 002 -> Quality information
-        ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.vertical_resolution.item()) # 0 10 071 -> vertical resolution
+        ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.range_integration.item()) # 0 10 071 -> vertical resolution
         ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), 1)  # 027079 -> horizontal width of sampled volume (m) TO DO CHECK VALUE
 
     ec.codes_set(ibufr, 'pack', 1)  # Required to encode the keys back in the data section
@@ -202,7 +202,7 @@ def bufr_encode_forloop_wind_and_temperature(ibufr,dst):
         ec.codes_set(ibufr,'#%d#qualityInformation'%(3*i+2), w_flag[i]) # 0 33 002 -> Quality information TO DO based on flag
         ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), float(dst.temperature_int[i])) # 0 12 001 -> Temperature / air temperature
         ec.codes_set(ibufr,'#%d#qualityInformation'%(3*i+3), temperature_flag[i]) # 0 33 002 -> Quality information TO DO based on flag
-        ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.vertical_resolution.item()) # 0 10 071 -> vertical resolution
+        ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.range_integration.item()) # 0 10 071 -> vertical resolution
         ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), 1.)  # 027079 -> horizontal width of sampled volume (m) TO DO CHECK VALUE
 
     ec.codes_set(ibufr, 'pack', 1)  # Required to encode the keys back in the data section
@@ -256,7 +256,7 @@ def bufr_encode_forloop_temperature(ibufr,dst):
         ec.codes_set(ibufr,'#%d#longitude'%(i+2), float(dst.station_longitude)) # 0 06 001 -> longitude (high accuracy)
         ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), float(dst.temperature_int[i])) # 0 12 001 -> Temperature / air temperature
         ec.codes_set(ibufr,'#%d#qualityInformation'%(i+1), temperature_flag[i]) # 0 33 002 -> Quality information
-        ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.vertical_resolution.item()) # 0 10 071 -> vertical resolution
+        ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.range_integration.item()) # 0 10 071 -> vertical resolution
         ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), 1.)  # 027079 -> horizontal width of sampled volume (m) TO DO CHECK VALUE
 
     ec.codes_set(ibufr, 'pack', 1)  # Required to encode the keys back in the data section

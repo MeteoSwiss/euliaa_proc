@@ -31,6 +31,13 @@ class Measurement():
         self.data['latitude_mie'], self.data['longitude_mie'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_mie)
         self.data['latitude_ray'], self.data['longitude_ray'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_ray)
 
+    def add_time_bnds(self):
+        if not ('time_bnds' in self.data.keys()) and ('time_integration' in self.data.keys()):
+            time_start = self.data['time'].values - self.data['time_integration'].values/2
+            time_stop = self.data['time'].values + self.data['time_integration'].values/2
+            self.data['time_bnds'] = (('time', 'bnds'), np.stack([time_start, time_stop], axis=-1))
+            print('Time bounds added to the dataset')
+
     def add_noise_and_snr(self):
         for scat in ['mie', 'ray']:
             if f'signal_{scat}' in self.data.keys():
@@ -136,11 +143,12 @@ class Measurement():
             self.data[var] = self.data[var].where(self.data[var+'_flag']==0, np.nan)
 
 
-    def subsel_stripped_profile(self, fov='zenith'):
+    def subsel_stripped_profile(self, fov=0):
         """
         Subset the data to keep only a profile in one field of view and the altitude range + variable list specified in the qc config
         Used to create L2B
         """
+        # fov_to_index = {'zenith':0, 'eastward':1, 'northward':2}
         self.data = self.data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']),field_of_view=fov)
         self.data = self.data.isel(time=0)
         self.data = self.data[self.qc_conf['VARS_TO_KEEP']]

@@ -28,24 +28,36 @@ class Writer():
             self.data[var] = self.data[var].fillna(specs['_FillValue'])  # don't use with _FillValue=None, dtype problem
             self.data[var].encoding.update(_FillValue=specs['_FillValue'])
 
+
     def write_nc(self):
         """write netCDF file - for clean nc writing"""
         self.data.encoding.update(
             unlimited_dims=self.conf['dimensions']['unlimited']
         )
+        encoding_dict = {}
         for var in list(self.data.data_vars)+list(self.data.coords):
+            # check if var is in config, if not, remove it from data
             if not(var in self.conf['variables'].keys()):
                 print(f'Warning, {var} not in config keys, removing from data')
                 self.data = self.data.drop(var)
                 continue
+
+            encoding_dict[var] = {}
             specs = self.conf['variables'][var]
-            self.set_fillvalue(var,specs)
-            if 'type' in specs.keys():
-                self.data[var].encoding.update(dtype=specs['type']) # TO DO does this really work
+            # add attributes from config file
             if 'attributes' in specs.keys():
                 self.data[var].attrs.update(specs['attributes'])
-        self.data.to_netcdf(self.output_file)
 
+            # prepare encoding
+            # self.set_fillvalue(var,specs)
+            if 'type' in specs.keys():
+                # self.data[var].encoding.update(dtype=specs['type']) # TO DO does this really work
+                encoding_dict[var]['dtype']=specs['type']
+            if '_FillValue' in specs.keys():
+                encoding_dict[var]['_FillValue'] = specs['_FillValue']
+            if not (any(encoding_dict[var])):
+                del encoding_dict[var]
+        self.data.to_netcdf(self.output_file, encoding=encoding_dict) # valid encodings: {'least_significant_digit', 'endian', 'compression', 'quantize_mode', 'blosc_shuffle', 'shuffle', 'szip_pixels_per_block', 'contiguous', 'significant_digits', 'zlib', 'fletcher32', 'dtype', 'complevel', 'chunksizes', 'szip_coding', '_FillValue'}
 
 
 if __name__=='__main__':

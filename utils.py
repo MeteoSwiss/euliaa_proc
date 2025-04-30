@@ -53,9 +53,10 @@ def flag_var(dsz,var_key, err_key=None, snr_key=None, var_min_thres = -np.inf, v
             if snr_fov == 'all':
                 snr = dsz[snr_key]
             elif snr_fov in ['zenith', 'eastward', 'northward']:
-                snr = dsz[snr_key].sel(field_of_view=snr_fov)
+                fov_to_index = {'zenith':0, 'eastward':1, 'northward':2}
+                snr = dsz[snr_key].sel(field_of_view=fov_to_index[snr_fov])
             else:
-                raise NameError('snr_fov must be "zenith", "eastward", "northward" or "all", or None')
+                raise NameError(f'snr_fov must be "zenith", "eastward", "northward" or "all", or None, not {snr_fov}')
             data_low_snr = snr < snr_thres
             da_flag = da_flag.where(~data_low_snr,2)
     if err_key: # High error flag -> 4
