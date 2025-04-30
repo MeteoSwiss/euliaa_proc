@@ -2,8 +2,10 @@ import xarray as xr
 from netCDF4 import Dataset
 import pandas as pd
 import yaml
+import os
 import numpy as np
 from utils import get_conf, correct_dim_scalar_fields
+import datetime
 ENC_NO_FILLVALUE = None
 
 class Writer():
@@ -29,6 +31,18 @@ class Writer():
             if not (any(encoding_dict[var])):
                 del encoding_dict[var]
 
+    def add_history_attr(self):
+        """add global attribute 'history' with date and version of code run"""
+        import getpass
+        import socket
+        # get current time in UTC
+        current_time_str = datetime.datetime.now(tz=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')  # ensure UTC
+        username = getpass.getuser()
+        host = socket.gethostname()
+        version = self.conf["attributes"]["version"]
+        hist_str = f'Created {current_time_str} by user {username} on {host}, with euliaa_postproc-V{version}'
+        self.data.attrs['history'] = hist_str
+
 
     def write_nc(self):
         """write netCDF file - for clean nc writing"""
@@ -47,6 +61,9 @@ class Writer():
             # add attributes from config file
             if 'attributes' in specs.keys():
                 self.data[var].attrs.update(specs['attributes'])
+
+        # add history
+        self.add_history_attr()
 
         # load encoding dict
         encoding_dict = self.get_encoding_dict()
