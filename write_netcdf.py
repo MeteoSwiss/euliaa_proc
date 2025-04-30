@@ -15,18 +15,19 @@ class Writer():
         self.config_dims = self.conf['dimensions']['unlimited'] + self.conf['dimensions']['fixed']
         correct_dim_scalar_fields(self.conf['variables'])
 
-    def set_fillvalue(self, var, specs):
-        """set the fill value of var by taking care not to remove any fill value for dimensions for CF compliance
 
-        Args:
-            var (str): the name of the variable of whom the dimension shall be checked
-            specs: specifications for this variable from config. Must contain the key 'dim' with a list of dimensions.
-        """
-        if var in self.config_dims or specs['_FillValue'] is None:  # using None in fillna (else clause) destroys dtype
-            self.data[var].encoding.update(_FillValue=ENC_NO_FILLVALUE)
-        else:
-            self.data[var] = self.data[var].fillna(specs['_FillValue'])  # don't use with _FillValue=None, dtype problem
-            self.data[var].encoding.update(_FillValue=specs['_FillValue'])
+    def get_encoding_dict(self):
+        encoding_dict = {}
+        for var in list(self.data.data_vars)+list(self.data.coords):
+            encoding_dict[var] = {}
+            specs = self.conf['variables'][var]
+            # prepare encoding
+            if 'type' in specs.keys():
+                encoding_dict[var]['dtype']=specs['type']
+            if '_FillValue' in specs.keys():
+                encoding_dict[var]['_FillValue'] = specs['_FillValue']
+            if not (any(encoding_dict[var])):
+                del encoding_dict[var]
 
 
     def write_nc(self):
@@ -34,7 +35,7 @@ class Writer():
         self.data.encoding.update(
             unlimited_dims=self.conf['dimensions']['unlimited']
         )
-        encoding_dict = {}
+
         for var in list(self.data.data_vars)+list(self.data.coords):
             # check if var is in config, if not, remove it from data
             if not(var in self.conf['variables'].keys()):
@@ -42,21 +43,13 @@ class Writer():
                 self.data = self.data.drop(var)
                 continue
 
-            encoding_dict[var] = {}
             specs = self.conf['variables'][var]
             # add attributes from config file
             if 'attributes' in specs.keys():
                 self.data[var].attrs.update(specs['attributes'])
 
-            # prepare encoding
-            # self.set_fillvalue(var,specs)
-            if 'type' in specs.keys():
-                # self.data[var].encoding.update(dtype=specs['type']) # TO DO does this really work
-                encoding_dict[var]['dtype']=specs['type']
-            if '_FillValue' in specs.keys():
-                encoding_dict[var]['_FillValue'] = specs['_FillValue']
-            if not (any(encoding_dict[var])):
-                del encoding_dict[var]
+        # load encoding dict
+        encoding_dict = self.get_encoding_dict()
         self.data.to_netcdf(self.output_file, encoding=encoding_dict) # valid encodings: {'least_significant_digit', 'endian', 'compression', 'quantize_mode', 'blosc_shuffle', 'shuffle', 'szip_pixels_per_block', 'contiguous', 'significant_digits', 'zlib', 'fletcher32', 'dtype', 'complevel', 'chunksizes', 'szip_coding', '_FillValue'}
 
 
