@@ -959,6 +959,7 @@ attributes:
   Conventions: CF-1.8
   campaign_name:
   license:
+  version: 1.0
   references:
   wigos_station_id: 0-20000-0-06610
   wmo_id: '06610'
@@ -977,12 +978,12 @@ attributes:
     original_hdf5:
       hdf5_group: glo
       hdf5_var_name: Mode
-  algorithm_code_version:
+  retrieval_code_version:
     original_hdf5:
       hdf5_group: glo
       hdf5_var_name: Version
-  algorithm_code: # Algorithm should include description of both measurement method, retrieval and correction / postproc (or split into several fields)
-  algorithm_reference:
+  retrieval_code: # Algorithm should include description of both measurement method, retrieval and correction / postproc (or split into several fields)
+  retrieval_reference:
   calibration_status:
   calibration_time:
   height_above_ground:
