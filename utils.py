@@ -27,36 +27,36 @@ def compute_lat_lon(lat_station = 0, lon_station = 0, altitude = np.zeros(1), th
     lon_coef = 111.320 # 1 deg = 111.320 * cos(lat) km
     theta_slant_rad = theta_slant_deg*np.pi/180
 
-    latitude_arr_3fov = ((altitude.dims[0], 'field_of_view'), np.stack((lat_station + 0*altitude,
+    latitude_arr_3los = ((altitude.dims[0], 'line_of_sight'), np.stack((lat_station + 0*altitude,
                                                        lat_station + 0*altitude,
                                                        lat_station + altitude*np.tan(theta_slant_rad)*1e-3/lat_coef
                                                        ),
                                                        axis=-1))
 
-    longitude_arr_3fov = ((altitude.dims[0], 'field_of_view'), np.stack((lon_station + 0*altitude,
+    longitude_arr_3los = ((altitude.dims[0], 'line_of_sight'), np.stack((lon_station + 0*altitude,
                                                         lon_station + altitude*np.tan(theta_slant_rad)*1e-3/(lon_coef*np.cos(lat_station*np.pi/180)),
                                                         lon_station + 0*altitude
                                                         ), axis = -1))
 
-    return (latitude_arr_3fov, longitude_arr_3fov)
+    return (latitude_arr_3los, longitude_arr_3los)
 
 
-def flag_var(dsz,var_key, err_key=None, snr_key=None, var_min_thres = -np.inf, var_max_thres = np.inf, var_err_thres = np.inf, snr_thres = 1., snr_fov='all'):
+def flag_var(dsz,var_key, err_key=None, snr_key=None, var_min_thres = -np.inf, var_max_thres = np.inf, var_err_thres = np.inf, snr_thres = 1., snr_los='all'):
     da_flag = xr.zeros_like(dsz[var_key])
     if (var_min_thres > -np.inf) or (var_max_thres < np.inf): # Invalid data flag -> 1
         data_invalid = (dsz[var_key]<var_min_thres ) | (dsz[var_key]>var_max_thres)# | (xr.ufuncs.isnan(dsz[var_key]))
         da_flag = da_flag.where(~data_invalid,1)
     if snr_key: # Low SNR flag -> 2
-        if not (snr_fov):
+        if not (snr_los):
             da_flag = da_flag*0.
         else:
-            if snr_fov == 'all':
+            if snr_los == 'all':
                 snr = dsz[snr_key]
-            elif snr_fov in ['zenith', 'eastward', 'northward']:
-                fov_to_index = {'zenith':0, 'eastward':1, 'northward':2}
-                snr = dsz[snr_key].sel(field_of_view=fov_to_index[snr_fov])
+            elif snr_los in ['zenith', 'eastward', 'northward']:
+                los_to_index = {'zenith':0, 'eastward':1, 'northward':2}
+                snr = dsz[snr_key].sel(line_of_sight=los_to_index[snr_los])
             else:
-                raise NameError(f'snr_fov must be "zenith", "eastward", "northward" or "all", or None, not {snr_fov}')
+                raise NameError(f'snr_los must be "zenith", "eastward", "northward" or "all", or None, not {snr_los}')
             data_low_snr = snr < snr_thres
             da_flag = da_flag.where(~data_low_snr,2)
     if err_key: # High error flag -> 4
@@ -80,31 +80,31 @@ def get_alt_var(da):
     return alt_var
 
 
-def get_fov_var(da):
-    fov_var = None
-    if 'field_of_view' in da.dims:
-        fov_var = 'field_of_view'
-    elif 'fov' in da.dims:
-        fov_var = 'fov'
+def get_los_var(da):
+    los_var = None
+    if 'line_of_sight' in da.dims:
+        los_var = 'line_of_sight'
+    elif 'los' in da.dims:
+        los_var = 'los'
     else:
-        warnings.warn('Did not find field of view dimension ("fov" or "field_of_view"). Assuming no such field.', UserWarning)
-    return fov_var
+        warnings.warn('Did not find field of view dimension ("los" or "line_of_sight"). Assuming no such field.', UserWarning)
+    return los_var
 
 
 def get_noise_vect_from_da(power_in,n_avg=1, calc_stdv = False,perc_npts_min = 0.25,perc_to_rm=0.05):
 
     alt_var = get_alt_var(power_in)
-    fov_var = get_fov_var(power_in)
+    los_var = get_los_var(power_in)
     axis_alt = power_in.dims.index(alt_var)
     axis_time = power_in.dims.index('time')
-    axis_fov = power_in.dims.index(fov_var)
+    axis_los = power_in.dims.index(los_var)
 
-    if not axis_fov:
+    if not axis_los:
         lnoise = np.zeros((len(power_in['time'])))+np.nan
         var = np.zeros((len(power_in['time'])))+np.nan
     else:
-        lnoise = np.zeros((len(power_in['time']), len(power_in[fov_var])))+np.nan
-        var = np.zeros((len(power_in['time']), len(power_in[fov_var])))+np.nan
+        lnoise = np.zeros((len(power_in['time']), len(power_in[los_var])))+np.nan
+        var = np.zeros((len(power_in['time']), len(power_in[los_var])))+np.nan
 
     power = power_in.values*1.
 
@@ -136,9 +136,9 @@ def get_noise_vect_from_da(power_in,n_avg=1, calc_stdv = False,perc_npts_min = 0
             var[condi_npts[:,i],i] = var_rolling[condi_npts[:,i],npts_min[condi_npts[:,i],i]-1,i]
 
     if calc_stdv:
-        return (('time', fov_var),lnoise), (('time', fov_var),var)
+        return (('time', los_var),lnoise), (('time', los_var),var)
     else:
-        return (('time', fov_var),lnoise)
+        return (('time', los_var),lnoise)
 
 
 

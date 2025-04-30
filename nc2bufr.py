@@ -291,7 +291,7 @@ if __name__=='__main__':
     if False:
         ds = ds.isel(time=0)
         ds = ds.sel(altitude_mie=slice(0,60e3))
-        ds = ds.sel(field_of_view='zenith')
+        ds = ds.sel(line_of_sight='zenith')
         # Subselection with valid data (following BUFR min/max) - TO DO implement in prior QC / LV1 stripped file
         ds.w_mie[(ds.w_mie < -40.96)| (ds.w_mie > 40.96)]=np.nan
         ds.v_mie[(ds.v_mie < -409.6)|(ds.v_mie > 409.6)] = np.nan

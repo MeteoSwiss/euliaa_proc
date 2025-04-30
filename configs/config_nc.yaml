@@ -4,7 +4,7 @@ dimensions:
   fixed:
   - altitude_mie
   - altitude_ray
-  - field_of_view
+  - line_of_sight
   - bnds
 variables:
   time:
@@ -61,10 +61,10 @@ variables:
       long_name: Altitude above mean sea level, for Rayleigh peak measurements
       units: m
       comment: Altitude coordinate is at the center of integration window
-  field_of_view:
-    name: field_of_view
+  line_of_sight:
+    name: line_of_sight
     dim:
-    - field_of_view
+    - line_of_sight
     type: int64
     _FillValue: null
     original_hdf5:
@@ -82,7 +82,7 @@ variables:
     name: latitude_mie
     dim:
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -97,7 +97,7 @@ variables:
     name: latitude_ray
     dim:
     - altitude_ray
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -113,7 +113,7 @@ variables:
     name: longitude_mie
     dim:
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -129,7 +129,7 @@ variables:
     name: longitude_ray
     dim:
     - altitude_ray
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -181,7 +181,7 @@ variables:
   range_integration:
     name: range_integration
     dim:
-    - field_of_view
+    - line_of_sight
     type: int64
     _FillValue: -999.0
     original_hdf5:
@@ -206,7 +206,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -224,7 +224,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -243,7 +243,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: int64
     _FillValue: -999.0
     original_hdf5:
@@ -258,7 +258,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -276,7 +276,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -295,7 +295,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -315,7 +315,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -335,7 +335,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: int64
     _FillValue: -999.0
     original_hdf5:
@@ -350,7 +350,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -367,7 +367,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -385,7 +385,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: int64
     _FillValue: -999.0
     original_hdf5:
@@ -409,7 +409,7 @@ variables:
       long_name: Upward air velocity from Doppler shift of Mie peak
       units: m s-1
       scattering_regime: Mie
-      field_of_view: zenith
+      line_of_sight: zenith
   w_mie_err:
     name: w_mie_err
     dim:
@@ -426,7 +426,7 @@ variables:
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
-      field_of_view: zenith
+      line_of_sight: zenith
   w_mie_flag:
     name: w_mie_flag
     dim:
@@ -456,7 +456,7 @@ variables:
       standard_name: eastward_wind
       units: m s-1
       scattering_regime: Mie
-      field_of_view: eastward
+      line_of_sight: eastward
   u_mie_err:
     name: u_mie_err
     dim:
@@ -473,7 +473,7 @@ variables:
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
-      field_of_view: eastward
+      line_of_sight: eastward
   u_mie_flag:
     name: u_mie_flag
     dim:
@@ -503,7 +503,7 @@ variables:
       standard_name: northward_wind
       units: m s-1
       scattering_regime: Mie
-      field_of_view: northward
+      line_of_sight: northward
   v_mie_err:
     name: v_mie_err
     dim:
@@ -520,7 +520,7 @@ variables:
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
-      field_of_view: northward
+      line_of_sight: northward
   v_mie_flag:
     name: v_mie_flag
     dim:
@@ -549,7 +549,7 @@ variables:
       long_name: Upward air velocity from Doppler shift of Rayleigh peak
       units: m s-1
       scattering_regime: Rayleigh
-      field_of_view: zenith
+      line_of_sight: zenith
   w_ray_err:
     name: w_ray_err
     dim:
@@ -567,7 +567,7 @@ variables:
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
-      field_of_view: zenith
+      line_of_sight: zenith
   w_ray_flag:
     name: w_ray_flag
     dim:
@@ -598,7 +598,7 @@ variables:
       standard_name: eastward_wind
       units: m s-1
       scattering_regime: Rayleigh
-      field_of_view: eastward
+      line_of_sight: eastward
   u_ray_err:
     name: u_ray_err
     dim:
@@ -615,7 +615,7 @@ variables:
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
-      field_of_view: eastward
+      line_of_sight: eastward
   u_ray_flag:
     name: u_ray_flag
     dim:
@@ -645,7 +645,7 @@ variables:
       standard_name: northward_wind
       units: m s-1
       scattering_regime: Rayleigh
-      field_of_view: northward
+      line_of_sight: northward
   v_ray_err:
     name: v_ray_err
     dim:
@@ -662,7 +662,7 @@ variables:
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
-      field_of_view: northward
+      line_of_sight: northward
   v_ray_flag:
     name: v_ray_flag
     dim:
@@ -682,7 +682,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -700,7 +700,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -720,7 +720,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: int64
     _FillValue: -999.0
     original_hdf5:
@@ -735,7 +735,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -750,7 +750,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -767,7 +767,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: int64
     _FillValue: -999.0
     original_hdf5:
@@ -782,7 +782,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -800,7 +800,7 @@ variables:
     dim:
     - time
     - altitude_ray
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -818,7 +818,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -833,7 +833,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -848,7 +848,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -863,7 +863,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: float32
     _FillValue: -999.0
     original_hdf5:
@@ -878,7 +878,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: int64
     _FillValue: -999.0
     original_hdf5:
@@ -893,7 +893,7 @@ variables:
     dim:
     - time
     - altitude_mie
-    - field_of_view
+    - line_of_sight
     type: int64
     _FillValue: -999.0
     original_hdf5:
@@ -921,7 +921,7 @@ variables:
   # range_resolution:
   #   name: range_resolution
   #   dim:
-  #   - field_of_view
+  #   - line_of_sight
   #   type: int64
   #   _FillValue: -999.0
   #   original_hdf5:
