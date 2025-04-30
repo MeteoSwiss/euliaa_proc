@@ -5,6 +5,7 @@ import matplotlib.colors as colors
 from scipy import signal
 from scipy import special
 import aprofiles as apro
+from log import logger
 
 def cloud_aprofiles(path, zmin=0, thr_noise = 1.5, thr_clouds = 2, verbose = False, time_avg = 0):
     """
@@ -122,7 +123,7 @@ def refine_cloud_detection(bsc, cb, ct, F0 = 5, K0 = 3,bsc_thres = 1e-8, vg_thre
 
         if np.nanmax(y[1:-1])<vg_thres: # max gradient below threshold, no satisfactory cloud top
             cb[ii] = 0 # no cloud top detected, removing cloud base
-            print('no cloud top detected, removing cloud base')
+            logger.info('no cloud top detected, removing cloud base')
 
         else: # different dimensions depending on the number of cloud layers
             if len(cti[1:-1])==len(y[1:-1]):

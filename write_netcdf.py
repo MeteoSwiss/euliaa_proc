@@ -6,6 +6,7 @@ import os
 import numpy as np
 from utils import get_conf, correct_dim_scalar_fields
 import datetime
+from log import logger
 ENC_NO_FILLVALUE = None
 
 class Writer():
@@ -53,8 +54,8 @@ class Writer():
         for var in list(self.data.data_vars)+list(self.data.coords):
             # check if var is in config, if not, remove it from data
             if not(var in self.conf['variables'].keys()):
-                print(f'Warning, {var} not in config keys, removing from data')
-                self.data = self.data.drop(var)
+                logger.warning(f'{var} not in config keys, removing from data')
+                self.data = self.data.drop_vars(var)
                 continue
 
             specs = self.conf['variables'][var]
@@ -90,36 +91,36 @@ if __name__=='__main__':
     # output_nc_l2B = os.path.join(cwd,'data/TestNC_L2B.nc')
 
     from measurement import H5Reader
-    print('Reading measurement from hdf5 file...')
+    logger.info('Reading measurement from hdf5 file...')
     meas = H5Reader(args.config, args.hdf5_file,conf_qc_file=args.config_qc)
     meas.read_hdf5_file()
     meas.load_attrs()
     meas.load_data()
 
-    print('Adding altitude-dependent lat and lon arrays')
+    logger.info('Adding altitude-dependent lat and lon arrays')
     meas.add_lat_lon()
 
-    print('Computing noise level and SNR...')
+    logger.info('Computing noise level and SNR...')
     meas.add_noise_and_snr()
 
-    print('Adding basic quality flag...')
+    logger.info('Adding basic quality flag...')
     meas.add_quality_flag()
 
-    print('Cloud detection (for now, only transparent clouds)...')
+    logger.info('Cloud detection (for now, only transparent clouds)...')
     meas.add_clouds()
 
-    print('Completing quality flag...')
+    logger.info('Completing quality flag...')
     meas.add_flag_below_cloud_top()
     meas.add_flag_missing_data()
 
-    print('Writing L2A...')
+    logger.info('Writing L2A...')
     nc_writer = Writer(meas,output_file=args.output_nc_l2A,conf_file=args.config)
     nc_writer.write_nc()
-    print('Wrote L2A successfully\n')
+    logger.info('Wrote L2A successfully\n')
 
-    print('Writing L2B...')
+    logger.info('Writing L2B...')
     meas.subsel_stripped_profile()
     meas.set_invalid_to_nan() # set invalid data to NaN for L2B
     nc_writer_l2b = Writer(meas,output_file=args.output_nc_l2B,conf_file=args.config)
     nc_writer_l2b.write_nc()
-    print('Wrote L2B successfully\n')
+    logger.info('Wrote L2B successfully\n')

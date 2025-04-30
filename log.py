@@ -1,12 +1,10 @@
 import datetime as dt
 import os
-from logging import DEBUG, FileHandler, Formatter, StreamHandler, getLogger
+import logging
+import warnings
 from logging.handlers import TimedRotatingFileHandler
 from sys import stdout
 from utils import get_conf
-# from dl_toolbox_runner.utils.config_utils import get_log_config
-# from dl_toolbox_runner.utils.file_utils import abs_file_path
-
 
 # get logs config
 log_config_file = ('configs/config_log.yaml')
@@ -23,7 +21,6 @@ LOG_COLORS = {
     }
 
 try:
-    # TODO: solve bug with colorlog package
     import colorlog
 
     formatter = colorlog.ColoredFormatter(
@@ -39,25 +36,32 @@ try:
 
 except Exception as e:  # noqa E841
     print(e)
-    get_logger = getLogger
-    formatter = Formatter(
+    get_logger = logging.getLogger
+    formatter = logging.Formatter(
         ' '
         '%(levelname)-8s %(message)s',
         '%Y-%m-%d %H:%M:%S',
     )
 
+# capture warnings in the logger
+logging.captureWarnings(True)
 
 # general settings
 logger = get_logger(conf['logger_name'])
-logger.setLevel(DEBUG)  # set to the lowest possible level, using handler-specific levels for output
-
+logger.setLevel(logging.DEBUG)  # set to the lowest possible level, using handler-specific levels for output
 
 # logging to stdout
-console_handler = StreamHandler(stdout)
+console_handler = logging.StreamHandler(stdout)
 console_formatter = formatter
 console_handler.setFormatter(console_formatter)
 console_handler.setLevel(conf['loglevel_stdout'])
 logger.addHandler(console_handler)
+
+# add the built-in warnings logger to the console handler
+# this will capture all warnings and send them to the console
+warnings_logger = logging.getLogger("py.warnings")
+warnings_logger.addHandler(console_handler)
+warnings_logger.setLevel(logging.WARNING)
 
 
 # logging to file
@@ -73,3 +77,12 @@ if conf['write_logfile']:
     file_handler.setFormatter(file_handler_formatter)
     file_handler.setLevel(conf['loglevel_file'])
     logger.addHandler(file_handler)
+
+    # add the built-in warnings logger to the file handler
+    # this will capture all warnings and send them to the file
+    warnings_logger = logging.getLogger("py.warnings")
+    warnings_logger.addHandler(file_handler)
+    warnings_logger.setLevel(logging.WARNING)
+
+
+logging.captureWarnings(True)  # capture warnings in the logger
