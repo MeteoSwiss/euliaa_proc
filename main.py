@@ -16,6 +16,7 @@ class Runner:
         self.meas.load_attrs()
         self.meas.load_data()
         self.meas.add_lat_lon()
+        self.meas.add_time_bnds()
 
         logger.info('Computing noise level and SNR')
         self.meas.add_noise_and_snr()

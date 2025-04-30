@@ -5,6 +5,7 @@ dimensions:
   - altitude_mie
   - altitude_ray
   - field_of_view
+  - bnds
 variables:
   time:
     name: time
@@ -20,6 +21,20 @@ variables:
       standard_name: time
       units: seconds since 1970-01-01
       comment: Time indication of samples is at the center of integration time
+  time_bnds:
+    name: time_bnds
+    dim:
+    - time
+    - bnds
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Time bounds (UTC) of the measurement
+      standard_name: time
+      units: seconds since 1970-01-01
   altitude_mie:
     name: altitude_mie
     dim:
@@ -50,17 +65,19 @@ variables:
     name: field_of_view
     dim:
     - field_of_view
-    type: str
+    type: int64
     _FillValue: null
     original_hdf5:
       hdf5_group: null
       hdf5_var_name: null
     attributes:
-      long_name: Measurement fields of view (off-zenith are 30deg slanted)
+      long_name: Measurement fields of view
+      comment: 0=zenith, 1=eastward, 2=northward (off-zenith are 30deg slanted)
+      units: "1"
     value:
-    - zenith
-    - eastward
-    - northward
+    - 0
+    - 1
+    - 2
   latitude_mie:
     name: latitude_mie
     dim:
@@ -234,7 +251,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Quality flag for backscatter coefficient
-      units: '-'
+      units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   backscatter_ratio:
     name: backscatter_ratio
@@ -252,7 +269,7 @@ variables:
       - BSRMieN
     attributes:
       long_name: Backscatter ratio
-      units: '-'
+      units: "1"
       scattering_regime: Mie
   backscatter_ratio_err:
     name: backscatter_ratio_err
@@ -270,7 +287,7 @@ variables:
       - BSRMieNErr
     attributes:
       long_name: Uncertainty on backscatter ratio
-      units: '-'
+      units: "1"
       scattering_regime: Mie
       comment: Error propagated from photon count
   temperature_int:
@@ -326,7 +343,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Quality flag for temperature from Rayleigh integration
-      units: '-'
+      units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below top of transparent cloud)
   temperature_broad:
     name: temperature_broad
@@ -376,7 +393,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Quality flag for temperature from Doppler broadening
-      units: '-'
+      units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   w_mie:
     name: w_mie
@@ -422,7 +439,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Quality flag for upward air velocity from Doppler shift of Mie peak
-      units: '-'
+      units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   u_mie:
     name: u_mie
@@ -469,7 +486,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Quality flag for eastward wind from Doppler shift of Mie peak
-      units: '-'
+      units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   v_mie:
     name: v_mie
@@ -516,7 +533,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Quality flag for northward wind from Doppler shift of Mie peak
-      units: '-'
+      units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   w_ray:
     name: w_ray
@@ -564,7 +581,7 @@ variables:
     attributes:
       long_name: Quality flag for upward air velocity from Doppler shift of Rayleigh
         peak
-      units: '-'
+      units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   u_ray:
     name: u_ray
@@ -611,7 +628,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Quality flag for eastward wind from Doppler shift of Rayleigh peak
-      units: '-'
+      units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   v_ray:
     name: v_ray
@@ -658,7 +675,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Quality flag for northward wind from Doppler shift of Rayleigh peak
-      units: '-'
+      units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   width_mie:
     name: width_mie
@@ -711,7 +728,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Quality flag for spectrum width of Mie peak
-      units: '-'
+      units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   width_ray:
     name: width_ray
@@ -758,7 +775,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Quality flag for spectrum width of Rayleigh peak
-      units: '-'
+      units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   signal_mie:
     name: signal_mie
@@ -776,7 +793,7 @@ variables:
       - signalMieN
     attributes:
       long_name: Signal strength of Mie channel
-      units: '-'
+      units: "1"
       scattering_regime: Mie
   signal_ray:
     name: signal_ray
@@ -794,7 +811,7 @@ variables:
       - signalRayN
     attributes:
       long_name: Signal strength of Rayleigh channel
-      units: '-'
+      units: "1"
       scattering_regime: Rayleigh
   noise_level_mie:
     name: noise_level_mie
@@ -809,7 +826,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Noise level in Mie channel
-      units: '-'
+      units: "1"
       scattering_regime: Mie
   noise_level_ray:
     name: noise_level_ray
@@ -824,7 +841,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Noise level in Rayleigh channel
-      units: '-'
+      units: "1"
       scattering_regime: Rayleigh
   snr_mie:
     name: snr_mie
@@ -839,7 +856,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Signal-to-Noise ratio in Mie channel
-      units: '-'
+      units: "1"
       scattering_regime: Mie
   snr_ray:
     name: snr_ray
@@ -854,7 +871,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Signal-to-Noise ratio in Rayleigh channel
-      units: '-'
+      units: "1"
       scattering_regime: Rayleigh
   cloud_mask:
     name: cloud_mask
@@ -869,7 +886,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Cloud mask
-      units: '-'
+      units: "1"
       comment: 0 = no cloud, 1 = transparent cloud detected
   below_cloud_top:
     name: below_cloud_top
@@ -884,7 +901,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Mask for below top of transparent cloud (or strong aerosol layer)
-      units: '-'
+      units: "1"
       comment: 0 = above cloud top, 1 = below cloud top. Note that the definition for top of transparent cloud is less strict than cloud mask, so cloud top can be identified without cloud mask
   time_mean:
     name: time_mean
@@ -901,29 +918,29 @@ variables:
       units: seconds since 1970-01-01
       comment: If gaps in measurement, meantime is the mean time of actually used
         measurements
-  range_resolution:
-    name: range_resolution
-    dim:
-    - field_of_view
-    type: int64
-    _FillValue: -999.0
-    original_hdf5:
-      hdf5_group: glo
-      hdf5_var_name: ShiftAlt
-    attributes:
-      long_name: Shift step of the integration window
-      units: m
-  time_resolution:
-    name: time_resolution
-    dim: ''
-    type: int64
-    _FillValue: -999.0
-    original_hdf5:
-      hdf5_group: glo
-      hdf5_var_name: ShiftTime
-    attributes:
-      long_name: Shift step of the time integration window
-      units: s
+  # range_resolution:
+  #   name: range_resolution
+  #   dim:
+  #   - field_of_view
+  #   type: int64
+  #   _FillValue: -999.0
+  #   original_hdf5:
+  #     hdf5_group: glo
+  #     hdf5_var_name: ShiftAlt
+  #   attributes:
+  #     long_name: Shift step of the integration window
+  #     units: m
+  # time_resolution:
+  #   name: time_resolution
+  #   dim: ''
+  #   type: int64
+  #   _FillValue: -999.0
+  #   original_hdf5:
+  #     hdf5_group: glo
+  #     hdf5_var_name: ShiftTime
+  #   attributes:
+  #     long_name: Shift step of the time integration window
+  #     units: s
 
 attributes:
   Conventions: CF-1.8
