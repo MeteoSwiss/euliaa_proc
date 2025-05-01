@@ -4,10 +4,11 @@ import logging
 import warnings
 from logging.handlers import TimedRotatingFileHandler
 from sys import stdout
-from utils import get_conf
+from euliaa_proc.utils.conf_utils import get_conf
+from euliaa_proc.utils.file_utils import abs_file_path
 
 # get logs config
-log_config_file = ('configs/config_log.yaml')
+log_config_file = abs_file_path('euliaa_proc/config/config_log.yaml')
 conf = get_conf(log_config_file)
 
 
@@ -69,7 +70,7 @@ if conf['write_logfile']:
     act_time_str = dt.datetime.now(tz=dt.timezone(dt.timedelta(0))).strftime(conf['logfile_timestamp_format'])
     log_filename = conf['logfile_basename'] + conf['logfile_ext']
     # log_filename = conf['logfile_basename'] + format(act_time_str) + conf['logfile_ext']
-    log_file = str(os.path.join(conf['logfile_path'], log_filename))
+    log_file = str(os.path.join(abs_file_path(conf['logfile_path']), log_filename))
 
     file_handler = TimedRotatingFileHandler(log_file, when='M', interval=1, utc=True)
     file_handler.suffix = "%Y-%m-%d_%H-%M-%S"

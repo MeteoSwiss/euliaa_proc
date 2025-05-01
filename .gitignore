@@ -1,10 +1,11 @@
 **/*.plain
 __pycache__
 old/
-data/L2*
-data/Test*
-data/BUFR*
+**/data/L2*
+**/data/Test*
+**/data/BUFR*
 tests/test*
 poetry.lock
 **/*.h5
 **/logs
+**/figures
