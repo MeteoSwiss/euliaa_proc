@@ -283,7 +283,7 @@ def write_bufr(ds, output_name, bufr_type='wind') :
 
 if __name__=='__main__':
 
-    inputFilename = '/home/bia/euliaa_postproc/data/TestNC_L2B.nc'
+    inputFilename = '/home/bia/euliaa_proc/euliaa_proc/data/TestNC_L2B.nc'
 
     ds = xr.open_dataset(inputFilename,decode_times=False)# Otherwise xarray converts time to ns
 
@@ -299,5 +299,5 @@ if __name__=='__main__':
         ds.temperature_int[(ds.temperature_int > 409.5) | (ds.temperature_int < 0)]=np.nan
 
     for bufr_type in ['wind', 'wind_and_temperature', 'temperature']:
-        outFilename = f'/home/bia/euliaa_postproc/data/Test_{bufr_type}.bufr'
+        outFilename = f'/home/bia/euliaa_proc/euliaa_proc/data/Test_{bufr_type}.bufr'
         write_bufr(ds, outFilename, bufr_type=bufr_type)

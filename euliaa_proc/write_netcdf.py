@@ -1,12 +1,6 @@
-import xarray as xr
-from netCDF4 import Dataset
-import pandas as pd
-import yaml
-import os
-import numpy as np
-from utils import get_conf, correct_dim_scalar_fields
+from euliaa_proc.utils.conf_utils import correct_dim_scalar_fields
 import datetime
-from log import logger
+from euliaa_proc.log import logger
 ENC_NO_FILLVALUE = None
 
 class Writer():
@@ -41,7 +35,7 @@ class Writer():
         username = getpass.getuser()
         host = socket.gethostname()
         version = self.conf["attributes"]["version"]
-        hist_str = f'Created {current_time_str} by user {username} on {host}, with euliaa_postproc-V{version}'
+        hist_str = f'Created {current_time_str} by user {username} on {host}, with euliaa_proc-V{version}'
         self.data.attrs['history'] = hist_str
 
 
@@ -78,15 +72,15 @@ if __name__=='__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Write netCDF file')
     parser.add_argument('--hdf5_file', type=str, help='Path to the HDF5 file', default=os.path.join(cwd,'data/BankExport3.h5'))
-    parser.add_argument('--config', type=str, help='Path to the config file', default=os.path.join(cwd,'configs/config_nc.yaml'))
-    parser.add_argument('--config_qc', type=str, help='Path to the config file for quality control', default=os.path.join(cwd,'configs/config_qc1.yaml'))
+    parser.add_argument('--config', type=str, help='Path to the config file', default=os.path.join(cwd,'config/config_nc.yaml'))
+    parser.add_argument('--config_qc', type=str, help='Path to the config file for quality control', default=os.path.join(cwd,'config/config_qc1.yaml'))
     parser.add_argument('--output_nc_l2A', type=str, help='Path to the output netCDF file for L2A', default=os.path.join(cwd,'data/TestNC_L2A.nc'))
     parser.add_argument('--output_nc_l2B', type=str, help='Path to the output netCDF file for L2B', default=os.path.join(cwd,'data/TestNC_L2B.nc'))
     args = parser.parse_args()
 
     # hdf5file = '/data/s3euliaa/TESTS/BankExport3.h5'
-    # config = os.path.join(cwd,'configs/config_nc.yaml')
-    # config_qc = os.path.join(cwd,'configs/config_qc.yaml')
+    # config = os.path.join(cwd,'config/config_nc.yaml')
+    # config_qc = os.path.join(cwd,'config/config_qc.yaml')
     # output_nc_l2A = os.path.join(cwd,'data/TestNC_L2A.nc')
     # output_nc_l2B = os.path.join(cwd,'data/TestNC_L2B.nc')
 

@@ -1,11 +1,11 @@
 import xarray as xr
 from netCDF4 import Dataset
 import pandas as pd
-import yaml
 import numpy as np
-from utils import get_conf, correct_dim_scalar_fields, check_var_in_ds, compute_lat_lon, flag_var, get_noise_vect_from_da
-from cloud_detection import in_house_cloud_detection
-from log import logger
+from euliaa_proc.utils.conf_utils import get_conf, correct_dim_scalar_fields
+from euliaa_proc.utils.data_utils import check_var_in_ds, compute_lat_lon, flag_var, get_noise_vect_from_da
+from euliaa_proc.utils.cloud_detection import in_house_cloud_detection
+from euliaa_proc.log import logger
 
 class Measurement():
     def __init__(self, conf_file, data=None, conf_qc_file=None):
@@ -245,8 +245,8 @@ if __name__=='__main__':
     cwd = os.getcwd()
 
     hdf5file = '/data/euliaa-test/TESTS/BankExport.h5'
-    config = os.path.join(cwd,'configs/config_nc.yaml')
-    config_qc = os.path.join(cwd,'configs/config_qc.yaml')
+    config = os.path.join(cwd,'config/config_nc.yaml')
+    config_qc = os.path.join(cwd,'config/config_qc.yaml')
     meas = H5Reader(config,hdf5file, conf_qc_file = config_qc)
     meas.read_hdf5_file()
     meas.load_attrs()
