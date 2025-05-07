@@ -15,7 +15,7 @@ from watchdog.observers.polling import PollingObserver
 from log import logger
 from main import Runner
 from types import SimpleNamespace
-from utils import get_conf
+from euliaa_proc.utils.conf_utils import get_conf
 import re
 
 
@@ -135,7 +135,7 @@ def start_watchdog_queue(watch_path, config_template):
 
 if __name__ == '__main__':
     watch_path = '/data/euliaa-l1/TESTS/'  # Directory to watch
-    main_path = '/home/acbr/euliaa_proc/'
+    main_path = '/home/acbr/euliaa_proc/euliaa_proc/'
     config_template = os.path.join(main_path, 'config/config_main.yaml')
     #watch_path = "s3://eprofile-dl-raw/"
     start_watchdog_queue(watch_path, config_template)

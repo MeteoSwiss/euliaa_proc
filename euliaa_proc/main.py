@@ -59,10 +59,11 @@ class Runner:
         elif not (self.args.output_bufr[-5:] == '.bufr'):
             logger.warning(f'BUFR file name must end with ".bufr", skipping encoding')
             return
-        logger.info(f'Writing BUFR message {self.args.output_bufr}')
         self.meas.set_invalid_to_nan() # set invalid data to NaN for BUFR  TO DO refine this, change quality flags for BUFR
         for bufr_type in self.args.bufr_types:
-            write_bufr(self.meas.data, self.args.output_bufr.replace('.bufr', f'_{bufr_type}.bufr'), bufr_type=bufr_type)
+            bufr_name=self.args.output_bufr.replace('.bufr', f'_{bufr_type}.bufr')
+            logger.info(f'Writing BUFR message {bufr_name}')
+            # write_bufr(self.meas.data, bufr_name, bufr_type=bufr_type)
         logger.info('Wrote BUFR message successfully\n')
 
 if __name__=='__main__':
@@ -71,7 +72,7 @@ if __name__=='__main__':
 
     import argparse
     parser = argparse.ArgumentParser(description='Write netCDF file')
-    parser.add_argument('--hdf5_file', type=str, help='Path to the HDF5 file', default=os.path.join(cwd,'data/BankExport3.h5'))
+    parser.add_argument('--hdf5_file', type=str, help='Path to the HDF5 file', default='/data/euliaa-l1/TESTS/BankExport_2025-05-07_10-28-28.h5')
     parser.add_argument('--config', type=str, help='Path to the config file', default=os.path.join(cwd,'config/config_nc.yaml'))
     parser.add_argument('--config_qc', type=str, help='Path to the config file for quality control', default=os.path.join(cwd,'config/config_qc1.yaml'))
     parser.add_argument('--output_nc_l2A', type=str, help='Path to the output netCDF file for L2A', default=os.path.join(cwd,'data/TestNC_L2A.nc'))

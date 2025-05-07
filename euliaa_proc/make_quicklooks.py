@@ -3,16 +3,19 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.dates as mdates
 import re
-
+import numpy as np
 
 def plot_quicklooks(fname, fig_dir, fig_name, ylim):
     ds = xr.load_dataset(fname)
     fig,axs = plt.subplots(5,figsize=(12,14))
-    ds.backscatter_coef.sel(field_of_view='zenith').plot(x='time',norm=colors.LogNorm(vmin=1e-9,vmax=1e-5),ax=axs[0], cbar_kwargs={'label': 'Backscatter coefficient [m-1 sr-1]', 'extend':'both'})
+    for var in ['backscatter_coef','w_mie','u_mie','v_mie','temperature_int']:
+        ds[var] = ds[var].where(ds[var+'_flag']==0, np.nan)
+
+    ds.backscatter_coef.sel(line_of_sight=0).plot(x='time',norm=colors.LogNorm(vmin=1e-9,vmax=1e-5),ax=axs[0], cbar_kwargs={'label': 'Backscatter coefficient [m-1 sr-1]', 'extend':'both'})
     ds.w_mie.plot(x='time',vmin=-6,vmax=6,ax=axs[1],cmap='seismic')
     ds.u_mie.plot(x='time',ax=axs[2])
     ds.v_mie.plot(x='time',ax=axs[3])
-    (ds.temperature_int.sel(field_of_view='zenith')-273.15).plot(x='time',ax=axs[4],cbar_kwargs={'label': 'Temperature from\n Rayleigh integration [deg C]'},vmin=-60,vmax=30,cmap='turbo')
+    (ds.temperature_int.sel(line_of_sight=0)-273.15).plot(x='time',ax=axs[4],cbar_kwargs={'label': 'Temperature from\n Rayleigh integration [deg C]'},vmin=-60,vmax=30,cmap='turbo')
     for ax in axs:
         ax.set_ylim(0, ylim)  # Updated to use ylim argument
         ax.set_title('')
