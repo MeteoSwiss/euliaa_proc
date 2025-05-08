@@ -5,7 +5,7 @@ import matplotlib.dates as mdates
 import re
 import numpy as np
 
-def plot_quicklooks(fname, fig_dir, fig_name, ylim):
+def plot_quicklooks(fname, fig_dir, fig_name, ylim=50000):
     ds = xr.load_dataset(fname)
     fig,axs = plt.subplots(5,figsize=(12,14))
     for var in ['backscatter_coef','w_mie','u_mie','v_mie','temperature_int']:

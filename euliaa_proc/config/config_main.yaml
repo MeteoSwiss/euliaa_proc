@@ -6,3 +6,5 @@ output_bufr_dir: /data/euliaa-l2/TESTS_BUFR/
 bufr_types:
   - wind
   - temperature
+fig_dir: /data/euliaa-quicklooks/TESTS/
+fig_prefix: euliaa_
