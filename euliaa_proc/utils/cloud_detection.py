@@ -3,9 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from scipy import signal
-from scipy import special
 import aprofiles as apro
-from log import logger
+from euliaa_proc.log import logger
 
 def cloud_aprofiles(path, zmin=0, thr_noise = 1.5, thr_clouds = 2, verbose = False, time_avg = 0):
     """

@@ -1,8 +1,5 @@
 import os
-import sys
 import time
-import datetime
-import pandas as pd
 from threading import Thread
 from pathlib import Path
 from queue import Queue
@@ -12,8 +9,8 @@ from multiprocessing import Pool
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver
 
-from log import logger
-from main import Runner
+from euliaa_proc.log import logger
+from euliaa_proc.main import Runner
 from types import SimpleNamespace
 from euliaa_proc.utils.conf_utils import get_conf
 import re
@@ -90,6 +87,7 @@ def run_pipeline(filepath, config_template):
         runner.run_processing()
         runner.write_l2a_and_l2b()
         runner.encode_bufr()
+        runner.make_quicklooks()
 
     except Exception as error:
         logger.error(f"{str(error)}, Ignoring this file: {filepath}")

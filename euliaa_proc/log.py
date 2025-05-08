@@ -1,7 +1,6 @@
 import datetime as dt
 import os
 import logging
-import warnings
 from logging.handlers import TimedRotatingFileHandler
 from sys import stdout
 from euliaa_proc.utils.conf_utils import get_conf

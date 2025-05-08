@@ -2,6 +2,7 @@ from euliaa_proc.measurement import H5Reader
 from euliaa_proc.write_netcdf import Writer
 from euliaa_proc.log import logger
 from euliaa_proc.nc2bufr import write_bufr
+from euliaa_proc.quicklooks import plot_quicklooks
 
 class Runner:
 
@@ -31,6 +32,15 @@ class Runner:
         self.meas.add_flag_below_cloud_top()
         self.meas.add_flag_missing_data()
 
+    def make_quicklooks(self):
+        """
+        Plot quicklooks for L2A and L2B
+        """
+        logger.info('Plotting quicklooks')
+        fig_name = self.args.fig_prefix+self.args.output_nc_l2A.split('/')[-1].replace('.nc', '')
+        plot_quicklooks(self.args.output_nc_l2A, self.args.fig_dir, fig_name)
+        # plot_quicklooks(self.args.output_nc_l2B, self.args.fig_dir, self.args.fig_name, self.args.ylim)
+        logger.info('Plotted quicklooks successfully\n')
 
     def write_l2a_and_l2b(self):
         """
@@ -63,7 +73,7 @@ class Runner:
         for bufr_type in self.args.bufr_types:
             bufr_name=self.args.output_bufr.replace('.bufr', f'_{bufr_type}.bufr')
             logger.info(f'Writing BUFR message {bufr_name}')
-            # write_bufr(self.meas.data, bufr_name, bufr_type=bufr_type)
+            write_bufr(self.meas.data, bufr_name, bufr_type=bufr_type)
         logger.info('Wrote BUFR message successfully\n')
 
 if __name__=='__main__':
@@ -79,9 +89,12 @@ if __name__=='__main__':
     parser.add_argument('--output_nc_l2B', type=str, help='Path to the output netCDF file for L2B', default=os.path.join(cwd,'data/TestNC_L2B.nc'))
     parser.add_argument('--bufr_types', nargs='+', default=['wind', 'temperature'])
     parser.add_argument('--output_bufr', type=str, help='Path to the output BUFR file', default=os.path.join(cwd,'data/Test_BUFR.bufr'))
+    parser.add_argument('--fig_dir', type=str, help='Path to the directory where quicklooks are saved', default=os.path.join(cwd,'quicklooks/'))
+    parser.add_argument('--fig_prefix', type=str, help='Prefix of the quicklook figure', default='quicklook')
     args = parser.parse_args()
 
     runner = Runner(args)
     runner.run_processing()
     runner.write_l2a_and_l2b()
     runner.encode_bufr()
+    runner._plot_quicklooks()
