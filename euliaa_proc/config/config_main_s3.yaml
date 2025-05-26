@@ -1,0 +1,9 @@
+hdf5_file:
+config: /home/acbr/euliaa_proc/euliaa_proc/config/config_nc.yaml
+config_qc: /home/acbr/euliaa_proc/euliaa_proc/config/config_qc1.yaml
+output_nc_dir: s3://data/euliaa-l2/TESTS/
+output_bufr_dir: s3://euliaa-l2/TESTS_BUFR/
+bufr_types:
+  #- wind
+  - temperature
+fig_dir: s3://euliaa-quicklooks/TESTS/
