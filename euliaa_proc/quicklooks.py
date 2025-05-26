@@ -4,9 +4,16 @@ import matplotlib.colors as colors
 import matplotlib.dates as mdates
 import re
 import numpy as np
+import os 
 
-def plot_quicklooks(fname, fig_dir, fig_name, ylim=50000):
-    ds = xr.load_dataset(fname)
+def plot_quicklooks(fname, fig_dir, fig_title, ylim=50000):
+    
+    if not os.path.exists(fig_dir) and not fig_dir.startswith('s3://'):
+    # Create the directory if it does not exist
+        os.makedirs(fig_dir)
+    fig_name = os.path.join(fig_dir, os.path.basename(fname).replace('.nc', '.png'))
+
+    ds = xr.load_dataset(fname, engine='h5netcdf')
     fig,axs = plt.subplots(5,figsize=(12,14))
     for var in ['backscatter_coef','w_mie','u_mie','v_mie','temperature_int']:
         ds[var] = ds[var].where(ds[var+'_flag']==0, np.nan)
@@ -22,9 +29,30 @@ def plot_quicklooks(fname, fig_dir, fig_name, ylim=50000):
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
         ax.set_xlabel('Time [UTC]')
 
-    axs[0].set_title(fig_name)
+    axs[0].set_title(fig_title)
     fig.tight_layout()
-    fig.savefig(fig_dir+fig_name,dpi=300,bbox_inches='tight',facecolor='w')
+
+    if fig_name.startswith('s3://'):
+        # Save the figure to an in-memory buffer
+        import boto3
+        from io import BytesIO
+
+        buffer = BytesIO()
+        fig.savefig(buffer, dpi=300, bbox_inches='tight', facecolor='w', format='png')
+        buffer.seek(0)
+
+        # Parse the S3 bucket and key from the fig_name
+        s3 = boto3.client('s3')
+        bucket_name = fig_name.split('/')[2]
+        key = '/'.join(fig_name.split('/')[3:])
+
+        # Upload the figure to the S3 bucket
+        s3.upload_fileobj(buffer, bucket_name, key)
+        buffer.close()
+
+    else:
+        # Save the figure locally
+        fig.savefig(fig_name,dpi=300,bbox_inches='tight',facecolor='w')
 
 if __name__=='__main__':
     import argparse

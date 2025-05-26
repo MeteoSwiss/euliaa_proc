@@ -37,8 +37,8 @@ class Runner:
         Plot quicklooks for L2A and L2B
         """
         logger.info('Plotting quicklooks')
-        fig_name = self.args.fig_prefix+self.args.output_nc_l2A.split('/')[-1].replace('.nc', '')
-        plot_quicklooks(self.args.output_nc_l2A, self.args.fig_dir, fig_name)
+        fig_title = self.args.output_nc_l2A.split('/')[-1].replace('.nc', '')
+        plot_quicklooks(self.args.output_nc_l2A, self.args.fig_dir, fig_title)
         # plot_quicklooks(self.args.output_nc_l2B, self.args.fig_dir, self.args.fig_name, self.args.ylim)
         logger.info('Plotted quicklooks successfully\n')
 

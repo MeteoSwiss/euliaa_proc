@@ -1,6 +1,7 @@
 from euliaa_proc.utils.conf_utils import correct_dim_scalar_fields
 import datetime
 from euliaa_proc.log import logger
+import tempfile
 ENC_NO_FILLVALUE = None
 
 class Writer():
@@ -62,7 +63,18 @@ class Writer():
 
         # load encoding dict
         encoding_dict = self.get_encoding_dict()
-        self.data.to_netcdf(self.output_file, encoding=encoding_dict) # valid encodings: {'least_significant_digit', 'endian', 'compression', 'quantize_mode', 'blosc_shuffle', 'shuffle', 'szip_pixels_per_block', 'contiguous', 'significant_digits', 'zlib', 'fletcher32', 'dtype', 'complevel', 'chunksizes', 'szip_coding', '_FillValue'}
+        if self.output_file.startswith('s3://'):
+            import fsspec
+            with tempfile.NamedTemporaryFile(suffix=".nc") as tmpfile:
+                self.data.to_netcdf(tmpfile.name, encoding=encoding_dict)
+                tmpfile.seek(0)
+                # write to S3 using fsspec
+                with fsspec.open(self.output_file, mode='wb',s3=dict(profile='default')) as outfile:
+                    outfile.write(tmpfile.read())
+                tmpfile.flush()
+        else:
+            # write to local file
+            self.data.to_netcdf(self.output_file, encoding=encoding_dict) # valid encodings: {'least_significant_digit', 'endian', 'compression', 'quantize_mode', 'blosc_shuffle', 'shuffle', 'szip_pixels_per_block', 'contiguous', 'significant_digits', 'zlib', 'fletcher32', 'dtype', 'complevel', 'chunksizes', 'szip_coding', '_FillValue'}
 
 
 if __name__=='__main__':
