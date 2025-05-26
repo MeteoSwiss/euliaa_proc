@@ -1,0 +1,7 @@
+access_key_id: YOUR-ACCESS-KEY-ID # replace with your access key ID
+secret_access_key: YOUR-SECRET-ACCESS-KEY # replace with your secret access key
+topic_name: MyTopicName # replace with your topic name
+endpoint: http://136.156.XXX.XX:8080/ # your own http endpoint
+ceph_endpoint: https://object-store.os-api.cci1.ecmwf.int
+region_name: default # required by boto3, any value works
+bucket_name: MY-BUCKET-NAME # replace with your bucket name
