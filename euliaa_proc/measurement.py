@@ -173,6 +173,7 @@ class H5Reader(Measurement):
             rec: xarray Dataset with data from 'rec' group of hdf5 file; contains measurement data
             glo: xarray Dataset with data from 'glo' group of hdf5 file; contains mostly metadata
         """
+        print(f'Loading hdf5 file {self.data_file}')
         nc = Dataset(self.data_file, diskless=True, persist=False)
 
         # nc2 = Dataset(self.data_file.replace('3.h5','2.h5'), diskless=True, persist=False) # For now I had to hardcode this because of an error in the first file - to be removed
@@ -244,7 +245,7 @@ if __name__=='__main__':
     import os
     cwd = os.getcwd()
 
-    hdf5file = '/data/euliaa-test/TESTS/BankExport.h5'
+    hdf5file = '/tmp/BankExport_20250522_1638.h5' #'/data/euliaa-test/TESTS/BankExport.h5'
     config = os.path.join(cwd,'config/config_nc.yaml')
     config_qc = os.path.join(cwd,'config/config_qc.yaml')
     meas = H5Reader(config,hdf5file, conf_qc_file = config_qc)
