@@ -136,10 +136,22 @@ def bufr_encode_forloop_309024(ibufr,dst):
         ec.codes_set(ibufr,'#%d#height'%(i+2), altitudes[i]) # 0 07 007 Height
         ec.codes_set(ibufr,'#%d#latitude'%(i+2), float(dst.station_latitude)) # 0 05 001 -> latitude (high accuracy)
         ec.codes_set(ibufr,'#%d#longitude'%(i+2), float(dst.station_longitude)) # 0 06 001 -> longitude (high accuracy)
-        ec.codes_set(ibufr,'#%d#u'%(i+1), float(dst.u_mie[i].values)) # 0 11 003 -> u-component
-        ec.codes_set(ibufr,'#%d#v'%(i+1), float(dst.v_mie[i].values)) # 0 11 004 -> v-component
+        if dst.u_mie[i].item()!=dst.u_mie[i].item():
+            # If u-component is NaN, set it to the default value
+            ec.codes_set(ibufr,'#%d#u'%(i+1), ec.CODES_MISSING_DOUBLE)
+        else:
+            ec.codes_set(ibufr,'#%d#u'%(i+1), float(dst.u_mie[i].values)) # 0 11 003 -> u-component
+        if dst.v_mie[i].item()!=dst.v_mie[i].item():
+            # If v-component is NaN, set it to the default value
+            ec.codes_set(ibufr,'#%d#v'%(i+1), ec.CODES_MISSING_DOUBLE)
+        else:
+            ec.codes_set(ibufr,'#%d#v'%(i+1), float(dst.v_mie[i].values)) # 0 11 004 -> v-component
         ec.codes_set(ibufr,'#%d#qualityInformation'%(2*i+1), u_v_flag[i])  # 0 33 002 -> Quality information (0: Data not suspect, 1: Data suspect, 2: Reserved, 3: Quality information not given) TO DO adjust with flag in NC
-        ec.codes_set(ibufr,'#%d#w'%(i+1), float(dst.w_mie[i].values)) # 0 11 006 -> w-component
+        if dst.w_mie[i].item()!=dst.w_mie[i].item():
+            # If w-component is NaN, set it to the default value
+            ec.codes_set(ibufr,'#%d#w'%(i+1), ec.CODES_MISSING_DOUBLE)
+        else:
+            ec.codes_set(ibufr,'#%d#w'%(i+1), float(dst.w_mie[i].values)) # 0 11 006 -> w-component
         ec.codes_set(ibufr,'#%d#qualityInformation'%(2*i+2), w_flag[i]) # 0 33 002 -> Quality information
         ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.range_integration.item()) # 0 10 071 -> vertical resolution
         ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), 1)  # 027079 -> horizontal width of sampled volume (m) TO DO CHECK VALUE
@@ -195,12 +207,28 @@ def bufr_encode_forloop_wind_and_temperature(ibufr,dst):
         ec.codes_set(ibufr,'#%d#height'%(i+2), altitudes[i]) # 0 07 007 Height
         ec.codes_set(ibufr,'#%d#latitude'%(i+2), float(dst.station_latitude)) # 0 05 001 -> latitude (high accuracy)
         ec.codes_set(ibufr,'#%d#longitude'%(i+2), float(dst.station_longitude)) # 0 06 001 -> longitude (high accuracy)
-        ec.codes_set(ibufr,'#%d#u'%(i+1), float(dst.u_mie[i].values)) # 0 11 003 -> u-component
-        ec.codes_set(ibufr,'#%d#v'%(i+1), float(dst.v_mie[i].values)) # 0 11 004 -> v-component
+        if dst.u_mie[i].item()!=dst.u_mie[i].item():
+            # If u-component is NaN, set it to the default value
+            ec.codes_set(ibufr,'#%d#u'%(i+1), ec.CODES_MISSING_DOUBLE)
+        else:
+            ec.codes_set(ibufr,'#%d#u'%(i+1), float(dst.u_mie[i].values)) # 0 11 003 -> u-component
+        if dst.v_mie[i].item()!=dst.v_mie[i].item():
+            # If v-component is NaN, set it to the default value
+            ec.codes_set(ibufr,'#%d#v'%(i+1), ec.CODES_MISSING_DOUBLE)
+        else:
+            ec.codes_set(ibufr,'#%d#v'%(i+1), float(dst.v_mie[i].values)) # 0 11 004 -> v-component
         ec.codes_set(ibufr,'#%d#qualityInformation'%(3*i+1), u_v_flag[i])  # 0 33 002 -> Quality information (0: Data not suspect, 1: Data suspect, 2: Reserved, 3: Quality information not given) TO DO adjust with flag in NC
-        ec.codes_set(ibufr,'#%d#w'%(i+1), float(dst.w_mie[i].values)) # 0 11 006 -> w-component
+        if dst.w_mie[i].item()!=dst.w_mie[i].item():
+            # If w-component is NaN, set it to the default value
+            ec.codes_set(ibufr,'#%d#w'%(i+1), ec.CODES_MISSING_DOUBLE) 
+        else:
+            ec.codes_set(ibufr,'#%d#w'%(i+1), float(dst.w_mie[i].values)) # 0 11 006 -> w-component
         ec.codes_set(ibufr,'#%d#qualityInformation'%(3*i+2), w_flag[i]) # 0 33 002 -> Quality information TO DO based on flag
-        ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), float(dst.temperature_int[i])) # 0 12 001 -> Temperature / air temperature
+        if dst.temperature_int[i].item()!=dst.temperature_int[i].item():
+            # If temperature is NaN, set it to the default value
+            ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), ec.CODES_MISSING_DOUBLE)
+        else:
+            ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), float(dst.temperature_int[i])) # 0 12 001 -> Temperature / air temperature
         ec.codes_set(ibufr,'#%d#qualityInformation'%(3*i+3), temperature_flag[i]) # 0 33 002 -> Quality information TO DO based on flag
         ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.range_integration.item()) # 0 10 071 -> vertical resolution
         ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), 1.)  # 027079 -> horizontal width of sampled volume (m) TO DO CHECK VALUE
@@ -254,7 +282,11 @@ def bufr_encode_forloop_temperature(ibufr,dst):
         ec.codes_set(ibufr,'#%d#height'%(i+2), altitudes[i]) # 0 07 007 Height
         ec.codes_set(ibufr,'#%d#latitude'%(i+2), float(dst.station_latitude)) # 0 05 001 -> latitude (high accuracy)
         ec.codes_set(ibufr,'#%d#longitude'%(i+2), float(dst.station_longitude)) # 0 06 001 -> longitude (high accuracy)
-        ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), float(dst.temperature_int[i])) # 0 12 001 -> Temperature / air temperature
+        if dst.temperature_int[i].item()!=dst.temperature_int[i].item():
+            # If temperature is NaN, set it to a default value (e.g., 0)
+            ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), ec.CODES_MISSING_DOUBLE)
+        else:
+            ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), float(dst.temperature_int[i].item())) # 0 12 001 -> Temperature / air temperature
         ec.codes_set(ibufr,'#%d#qualityInformation'%(i+1), temperature_flag[i]) # 0 33 002 -> Quality information
         ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.range_integration.item()) # 0 10 071 -> vertical resolution
         ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), 1.)  # 027079 -> horizontal width of sampled volume (m) TO DO CHECK VALUE
@@ -263,14 +295,10 @@ def bufr_encode_forloop_temperature(ibufr,dst):
 
 
 def write_bufr(ds, output_name, bufr_type='wind') :
-    # TO DO add option to select template
     # convert to BUFR
-    fout = open(output_name, "wb")
     bid = ec.codes_bufr_new_from_samples('BUFR4')
     bufr_encode_header(bid,ds)
 
-    # bufr_encode_forloop_309024(bid,ds)
-    # bufr_encode_forloop_wind_and_temperature(bid,ds)
     if bufr_type=='wind':
         bufr_encode_forloop_309024(bid,ds)
     elif bufr_type=='wind_and_temperature':
@@ -278,7 +306,20 @@ def write_bufr(ds, output_name, bufr_type='wind') :
     elif bufr_type=='temperature':
         bufr_encode_forloop_temperature(bid,ds)
 
-    ec.codes_write(bid,fout)
+    if output_name.startswith('s3://'):
+        import fsspec
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".bufr") as tmpfile:
+            ec.codes_write(bid,tmpfile)
+            tmpfile.seek(0)
+            # write to S3 using fsspec
+            with fsspec.open(output_name, mode='wb',s3=dict(profile='default')) as outfile:
+                outfile.write(tmpfile.read())
+            tmpfile.flush()
+    else:
+        with open(output_name, "wb") as fout:
+            ec.codes_write(bid,fout)
+
 
 
 if __name__=='__main__':
