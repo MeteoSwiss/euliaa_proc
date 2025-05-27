@@ -59,6 +59,7 @@ class Writer():
                 self.data[var].attrs.update(specs['attributes'])
 
         # add history
+        logger.info('Adding history attribute to netCDF file')
         self.add_history_attr()
 
         # load encoding dict
@@ -69,8 +70,18 @@ class Writer():
                 self.data.to_netcdf(tmpfile.name, encoding=encoding_dict)
                 tmpfile.seek(0)
                 # write to S3 using fsspec
-                with fsspec.open(self.output_file, mode='wb',s3=dict(profile='default')) as outfile:
-                    outfile.write(tmpfile.read())
+                try:
+                    # This works when called by the service, maybe also in other cases
+                    with fsspec.open(self.output_file, mode='wb', s3={}) as outfile: 
+                        outfile.write(tmpfile.read())
+                except Exception as e:
+                    try:
+                        # This is known to work when called by the user, not sure about the service
+                        with fsspec.open(self.output_file, mode='wb', s3=dict(profile='default')) as outfile: 
+                            outfile.write(tmpfile.read())
+                    except Exception as e2:
+                        logger.error(f'Error writing to S3: {e, e2}')
+                        raise e2
                 tmpfile.flush()
         else:
             # write to local file
