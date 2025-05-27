@@ -31,7 +31,8 @@ def catch_root_post():
             return 'OK', 200
         filepath= f's3://{bucket_name}/{key}'
         
-        run_processing_pipeline(filepath, 'config/config_main_s3.yaml')
+        curr_file_path = os.path.dirname(os.path.abspath(__file__))
+        run_processing_pipeline(filepath, os.path.join(curr_file_path,'config/config_main_s3.yaml'))
         
 
 
@@ -53,7 +54,7 @@ def run_processing_pipeline(filepath, config_template):
 
         remove_file = False
         if filepath.startswith('s3://'): # if we read from S3, then make a local copy because loading properly the h5 file from S3 is not working
-            subprocess.call(['s3cmd', 'get', filepath, '/tmp/'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.call(['s3cmd', 'get', filepath, '/tmp/', '--config=/home/acbr/.s3cfg'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             filepath = os.path.join('/tmp/', os.path.basename(filepath))
             logger.info(f'File downloaded to: {filepath}')
             remove_file = True
@@ -71,7 +72,9 @@ def run_processing_pipeline(filepath, config_template):
 
         runner = Runner(args)
         runner.run_processing()
+        print("Run processing completed.")
         runner.write_l2a_and_l2b()
+        print("L2A and L2B files written.")
         runner.encode_bufr()
         runner.make_quicklooks()
         # a = 1/0  # This is just to test the error handling, remove this line in production
