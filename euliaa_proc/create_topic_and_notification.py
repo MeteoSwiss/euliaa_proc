@@ -39,6 +39,7 @@ for topic in existing_topics.get('Topics', []):
     existing_topic_name = topic['TopicArn'].split(':')[-1]  # Extract the topic name from the ARN
     if topic_name==existing_topic_name:
         print(f"Topic '{topic_name}' already exists with ARN: {topic['TopicArn']}")
+        topic_arn = topic['TopicArn']
         continue
 
 if not topic_arn:

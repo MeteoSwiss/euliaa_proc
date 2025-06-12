@@ -67,12 +67,15 @@ def run_processing_pipeline(filepath, config_template):
         config['hdf5_file'] = filepath
         config['output_nc_l2A'] = os.path.join(config['output_nc_dir'], 'L2A_' + date_str.group(1) + '.nc')
         config['output_nc_l2B'] = os.path.join(config['output_nc_dir'], 'L2B_' + date_str.group(1) + '.nc')
+        config['output_nc_eprofile'] = os.path.join(config['output_nc_dir'], 'L1_EU1WL_' + date_str.group(1)[:-2] + '.nc')
         config['output_bufr'] = os.path.join(config['output_bufr_dir'], 'BUFR_' + date_str.group(1) + '.bufr')
         args = SimpleNamespace(**config)
 
         runner = Runner(args)
         runner.run_processing()
         print("Run processing completed.")
+        runner.write_dwl_eprofile()
+        print("DWL eprofile written.")
         runner.write_l2a_and_l2b()
         print("L2A and L2B files written.")
         runner.encode_bufr()
