@@ -1,0 +1,231 @@
+dimensions:
+  unlimited:
+  fixed:
+  - time
+  - height
+  - nv
+
+variables:
+  nv:
+    dim:
+    - nv
+    type: int8
+  height:
+    dim:
+    - height
+    units: m
+    standard_name: height
+    comments: vertical distance from sensor to centre of range gate
+    bounds: height_bnds
+  time:
+    dim:
+    - time
+    comments: Timestamp at the end of the averaging interval
+    units: seconds since 1970-01-01 00:00:00
+    standard_name: time
+    long_name: Time
+    bounds: time_bnds
+    _CoordinateAxisType: Time
+    _FillValue: NaN
+    calendar: gregorian
+    type: double
+  config:
+    dim:
+    standard_name: configuration_file
+  wspeed:
+    dim:
+    - time
+    - height
+    units: m s-1
+    standard_name: wind_speed
+    long_name: Wind Speed
+    comments: Scalar wind speed (amount of vector)
+  qwind:
+    dim:
+    - time  
+    - height
+    long_name: wind_quality_flag
+    flag_values: [0 1]
+    flag_meanings: [quality_bad quality_good]
+    comments: quality flag 0 or 1 for u, v, w, wspeed, wdir and corresponding errors
+  qu:
+    dim:
+    - time
+    - height
+    long_name: quality_flag_u
+    flag_values: [0 1]
+    flag_meanings: [quality_bad quality_good]
+    comments: quality flag 0 or 1 for u
+  qv:
+    dim:
+    - time
+    - height
+    long_name: quality_flag_v
+    flag_values: [0 1]
+    flag_meanings: [quality_bad quality_good]
+    comments: quality flag 0 or 1 for v
+  qw:
+    dim:
+    - time
+    - height
+    long_name: quality_flag_w
+    flag_values: [0 1]
+    flag_meanings: [quality_bad quality_good]
+    comments: quality flag 0 or 1 for w
+  errwspeed:
+    dim:
+    - time
+    - height
+    units: m s-1
+    standard_name: wind_speed_uncertainty
+    long_name: Wind Speed Uncertainty
+  u:
+    dim:
+    - time
+    - height
+    units: m s-1
+    standard_name: eastward_wind
+    long_name: Zonal Wind
+    comments: '"Eastward" indicates a vector component which is positive when directed eastward (negative westward). Wind is defined as a two-dimensional (horizontal) air velocity vector, with no vertical component'
+  erru:
+    dim:
+    - time
+    - height
+    units: m s-1
+    standard_name: eastward_wind_uncertainty
+    long_name: Zonal Wind Uncertainty
+  v: 
+    dim:
+    - time
+    - height
+    units: m s-1
+    standard_name: northward_wind
+    long_name: Meridional Wind
+    comments: '"Northward" indicates a vector component which is positive when directed northward (negative southward). Wind is defined as a two-dimensional (horizontal) air velocity vector, with no vertical component'
+  errv:
+    dim:
+    - time
+    - height
+    units: m s-1
+    standard_name: northward_wind_uncertainty
+    long_name: Meridional Wind Uncertainty
+  w:
+    dim:
+    - time
+    - height
+    units: m s-1
+    standard_name: upward_air_velocity
+    long_name: Upward Air Velocity
+    comments: Vertical wind component, positive when directed upward (negative downward)
+  errw:
+    dim:
+    - time
+    - height
+    units: m s-1
+    standard_name: upward_air_velocity_uncertainty
+    long_name: Upward Air Velocity Uncertainty
+  wdir:
+    dim:
+    - time
+    - height
+    units: degree
+    standard_name: wind_from_direction
+    long_name: Wind Direction
+    comments: Wind direction
+  errwdir:
+    dim:
+    - time
+    - height
+    units: degree
+    standard_name: wind_direction_uncertainty
+    long_name: Wind Direction Uncertainty
+  r2:
+    dim:
+    - time
+    - height
+    units: 1
+    standard_name: coefficient_of_determination
+    long_name: coefficient of determination
+    comments: coefficient of determination - provides a measure of how well observed radial velocities are replicated by the model used to determine u,v,w wind components from the measured line of sight radial velocities
+  nvrad:
+    dim:
+    - time
+    - height
+    units: 1
+    standard_name: no_radial_velocities
+    long_name: number of radial velocities
+    comments: number of (averaged) radial velocities used for wind calculation
+  cn:
+    dim:
+    - time
+    - height
+    units: 1
+    standard_name: condition_number
+    long_name: Condition Number
+    comments: condition number - provides a measure for the degree of collinearity among the Doppler velocity measurements used for the retrieval of the wind variables (u,v,w,speed,direction).
+  lat:
+    dim:
+    units: degrees_north
+    standard_name: latitude
+    long_name: latitude
+    comments: latitude of sensor
+  lon:
+    dim:
+    units: degrees_east
+    standard_name: longitude
+    long_name: longitude
+    comments: longitude of sensor
+  zsl:
+    dim:
+    units: m
+    standard_name: altitude
+    comments: Altitude of sensor above mean sea level
+  frequency:
+    dim:
+    units: Hz
+    long_name: instrument_frequency
+    comments: lidar operating frequency
+  vert_res:
+    dim:
+    units: m
+    long_name: Vertical_resolution_measurement
+    comments: Calculated from pulse wdth and beam elevation
+  hor_width:
+    dim:
+    units: m
+    standard_name: horizontal_sample_width
+    comments: Calculated from beam elevation and height
+  time_bnds:
+    dim:
+    - time
+    - nv
+    units: seconds since 1970-01-01 00:00:00UTC
+    type: double
+    _FillValue: NaN
+  height_bnds:
+    dim:
+    - height
+    - nv
+    type: double
+    _FillValue: NaN
+
+attributes:
+  title: 'SET BY HUB'
+  institution: 'SET BY HUB'
+  site_location: 'SET BY HUB'
+  source: 'ground based remote sensing'
+  instrument_type: 'SET BY HUB'
+  instrument_mode: 'N/A'
+  instrument_firmware_version: 'N/A'
+  instrument_id: 'EU1WL'
+  instrument_contact: 'SET BY HUB'
+  conventions: 'CF-1.8'
+  # processing_date: ''
+  data_policy: ''
+  wigos_station_id: 'SET BY HUB'
+  wmo_id: 'SET BY HUB'
+  principal_investigator: 'N/A'
+  instrument_serial_number: 'SET BY HUB'
+  # history: ''
+  comments: 'This is a test file for EULIAA.'
+  scan_type: 'N/A'

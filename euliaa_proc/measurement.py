@@ -16,7 +16,14 @@ class Measurement():
             self.data = xr.Dataset()
         if conf_qc_file:
             self.qc_conf = get_conf(conf_qc_file)
-        self.config_dims = self.conf['dimensions']['unlimited'] + self.conf['dimensions']['fixed']
+        if self.conf['dimensions']['unlimited'] and self.conf['dimensions']['fixed']:
+            self.config_dims = self.conf['dimensions']['unlimited'] + self.conf['dimensions']['fixed']
+        elif self.conf['dimensions']['unlimited']:
+            self.config_dims = self.conf['dimensions']['unlimited']
+        elif self.conf['dimensions']['fixed']:
+            self.config_dims = self.conf['dimensions']['fixed']
+        else:
+            raise ValueError('No dimensions defined in the config file')
         correct_dim_scalar_fields(self.conf['variables'])
 
 
@@ -149,13 +156,31 @@ class Measurement():
         Subset the data to keep only a profile in one field of view and the altitude range + variable list specified in the qc config
         Used to create L2B
         """
-        self.data = self.data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']),line_of_sight=los)
+        self.data = self.data.sel(line_of_sight=los)
+        self.data = self.data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']))
         self.data = self.data.isel(time=0)
         self.data = self.data[self.qc_conf['VARS_TO_KEEP']]
 
 
+    def set_var_attrs_from_conf(self):
+        """
+        Set the attributes of the variables in the dataset from the config file
+        """
+        for var in self.conf['variables'].keys():
+            var_attrs = {}
+            for key in self.conf['variables'][var].keys():
+                if (key=='type') | (key=='_FillValue') | (key=='dim'):
+                    continue
+                else:
+                    var_attrs[key] = self.conf['variables'][var][key]
+            self.data[var].attrs.update(var_attrs)
 
-
+    def set_global_attrs_from_conf(self):
+        """
+        Set the global attributes of the dataset from the config file
+        """
+        global_attrs = self.conf['attributes']
+        self.data.attrs.update(global_attrs)
 
 class H5Reader(Measurement):
 

@@ -4,6 +4,7 @@ old/
 **/data/L2*
 **/data/Test*
 **/data/BUFR*
+**/data/DWL_*
 tests/test*
 poetry.lock
 **/*.h5
