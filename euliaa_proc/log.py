@@ -86,3 +86,11 @@ if conf['write_logfile']:
 
 
 logging.captureWarnings(True)  # capture warnings in the logger
+
+# Ensure clean shutdown
+import atexit
+@atexit.register
+def cleanup_logger():
+    for h in logger.handlers[:]:
+        h.close()
+        logger.removeHandler(h)
