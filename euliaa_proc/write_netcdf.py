@@ -6,12 +6,12 @@ ENC_NO_FILLVALUE = None
 
 class Writer():
 
-    def __init__(self, measurement, output_file, conf_file):
+    def __init__(self, measurement, output_file):#, conf_file):
         self.output_file = output_file
         self.conf = measurement.conf
         self.data = measurement.data
-        self.config_dims = self.conf['dimensions']['unlimited'] + self.conf['dimensions']['fixed']
-        correct_dim_scalar_fields(self.conf['variables'])
+        # self.config_dims = self.conf['dimensions']['unlimited'] + self.conf['dimensions']['fixed']
+        # correct_dim_scalar_fields(self.conf['variables'])
 
 
     def get_encoding_dict(self):
@@ -26,18 +26,24 @@ class Writer():
                 encoding_dict[var]['_FillValue'] = specs['_FillValue']
             if not (any(encoding_dict[var])):
                 del encoding_dict[var]
+        return encoding_dict
 
     def add_history_attr(self):
         """add global attribute 'history' with date and version of code run"""
         import getpass
         import socket
         # get current time in UTC
-        current_time_str = datetime.datetime.now(tz=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')  # ensure UTC
+        current_time_str = datetime.datetime.now(tz=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')  # ensure UTC
         username = getpass.getuser()
         host = socket.gethostname()
-        version = self.conf["attributes"]["version"]
+        if "version" in self.conf["attributes"].keys():
+            version = self.conf["attributes"]["version"]
+        else:
+            logger.warning('No version found in config attributes')
+            version = ""
         hist_str = f'Created {current_time_str} by user {username} on {host}, with euliaa_proc-V{version}'
         self.data.attrs['history'] = hist_str
+        self.data.attrs['processing_date'] = current_time_str
 
 
     def write_nc(self):
@@ -131,13 +137,13 @@ if __name__=='__main__':
     meas.add_flag_missing_data()
 
     logger.info('Writing L2A...')
-    nc_writer = Writer(meas,output_file=args.output_nc_l2A,conf_file=args.config)
+    nc_writer = Writer(meas,output_file=args.output_nc_l2A)#,conf_file=args.config)
     nc_writer.write_nc()
     logger.info('Wrote L2A successfully\n')
 
     logger.info('Writing L2B...')
     meas.subsel_stripped_profile()
     meas.set_invalid_to_nan() # set invalid data to NaN for L2B
-    nc_writer_l2b = Writer(meas,output_file=args.output_nc_l2B,conf_file=args.config)
+    nc_writer_l2b = Writer(meas,output_file=args.output_nc_l2B)#,conf_file=args.config)
     nc_writer_l2b.write_nc()
     logger.info('Wrote L2B successfully\n')
