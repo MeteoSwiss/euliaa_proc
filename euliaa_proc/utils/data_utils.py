@@ -184,3 +184,16 @@ def get_noise(power_in,n_avg=1, calc_stdv = False, perc = 0.1):
         return lnoise, stdv
     else:
         return lnoise
+
+
+def compute_wind_speed(u, v):
+    """Compute wind speed from u and v components."""
+    return np.sqrt(u**2 + v**2)
+
+def compute_wind_direction(u, v):
+    """Compute wind direction from u and v components."""
+    return (180+np.arctan2(u, v) * (180 / np.pi))%360  
+    # Note: This returns the direction (from which the wind blows) in degrees from North (0°)
+
+def compute_hor_width(height, theta=30):
+    return height*np.tan(theta*np.pi/180)*np.sqrt(2)
