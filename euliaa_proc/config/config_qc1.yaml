@@ -1,10 +1,10 @@
 MAX_ALTITUDE: 60e3
 SNR_THRES:
-  w_mie: 1 # -
+  w_mie: 5 # -
   u_mie: 0 # -
   v_mie: 0 # -
   temperature_int: 0 # -
-  backscatter_coef: 1 # -
+  backscatter_coef: 5 # -
 ERR_THRES:
   w_mie: 1 # m/s
   u_mie: 1 # m/s

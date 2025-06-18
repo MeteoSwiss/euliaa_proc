@@ -185,6 +185,38 @@ def get_noise(power_in,n_avg=1, calc_stdv = False, perc = 0.1):
     else:
         return lnoise
 
+def get_noise_from_da(power_in, calc_stdv = False, perc_npts_noise = 0.15, perc_to_rm=0.05):
+
+    alt_var = get_alt_var(power_in)
+    los_var = get_los_var(power_in)
+    axis_alt = power_in.dims.index(alt_var)
+    axis_los = power_in.dims.index(los_var)
+
+    if not axis_los:
+        lnoise = np.zeros((len(power_in['time'])))+np.nan
+        std = np.zeros((len(power_in['time'])))+np.nan
+    else:
+        lnoise = np.zeros((len(power_in['time']), len(power_in[los_var])))+np.nan
+        std = np.zeros((len(power_in['time']), len(power_in[los_var])))+np.nan
+
+    power = power_in.values*1.
+
+    power[power==0]=np.nan
+    power[power<=np.expand_dims(np.nanquantile(power,perc_to_rm,axis=axis_alt),1)]=np.nan
+    power[power!=power]=0
+    npts_start = np.int64(np.sum(power==0,axis=axis_alt))
+
+    npts_noise = int(len(power_in[alt_var])*perc_npts_noise)
+
+    for i in range(len(power_in[los_var])):
+        for j in range(len(power_in['time'])):
+            lnoise[j,i] = np.nanmean(power[j,-(npts_start[j,i]+npts_noise):-npts_start[j,i], i])
+            std[j,i] = np.nanstd(power[j,-(npts_start[j,i]+npts_noise):-npts_start[j,i], i])
+
+    if calc_stdv:
+        return (('time', los_var),lnoise), (('time', los_var),std)
+    else:
+        return (('time', los_var),lnoise)
 
 def compute_wind_speed(u, v):
     """Compute wind speed from u and v components."""
@@ -192,7 +224,7 @@ def compute_wind_speed(u, v):
 
 def compute_wind_direction(u, v):
     """Compute wind direction from u and v components."""
-    return (180+np.arctan2(u, v) * (180 / np.pi))%360  
+    return (180+np.arctan2(u, v) * (180 / np.pi))%360
     # Note: This returns the direction (from which the wind blows) in degrees from North (0°)
 
 def compute_hor_width(height, theta=30):

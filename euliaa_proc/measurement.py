@@ -3,7 +3,7 @@ from netCDF4 import Dataset
 import pandas as pd
 import numpy as np
 from euliaa_proc.utils.conf_utils import get_conf, correct_dim_scalar_fields
-from euliaa_proc.utils.data_utils import check_var_in_ds, compute_lat_lon, flag_var, get_noise_vect_from_da
+from euliaa_proc.utils.data_utils import check_var_in_ds, compute_lat_lon, flag_var, get_noise_from_da
 from euliaa_proc.utils.cloud_detection import in_house_cloud_detection
 from euliaa_proc.log import logger
 
@@ -49,8 +49,8 @@ class Measurement():
     def add_noise_and_snr(self):
         for scat in ['mie', 'ray']:
             if f'signal_{scat}' in self.data.keys():
-                self.data[f'noise_level_{scat}'] = get_noise_vect_from_da(self.data[f'signal_{scat}'])
-                self.data[f'snr_{scat}'] = self.data[f'signal_{scat}']/self.data[f'noise_level_{scat}']
+                self.data[f'noise_background_{scat}'], self.data[f'noise_stdv_{scat}']  = get_noise_from_da(self.data[f'signal_{scat}'], calc_stdv=1)
+                self.data[f'snr_{scat}'] = (self.data[f'signal_{scat}']-self.data[f'noise_background_{scat}'])/self.data[f'noise_stdv_{scat}']
 
     def add_clouds(self,**kwargs):
         """
