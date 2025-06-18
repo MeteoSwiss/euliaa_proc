@@ -95,9 +95,9 @@ def run_processing_pipeline(filepath, config_template):
     logger.info('####################################################################################')
 
 
-def process_uploaded_file(filename):
-    # Your custom processing logic here
-    logger.info(f"Processing file: {filename}")
+# def process_uploaded_file(filename):
+#     # Your custom processing logic here
+#     logger.info(f"Processing file: {filename}")
 
 
 

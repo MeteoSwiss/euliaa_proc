@@ -14,7 +14,8 @@ To run these code snippets on the European Weather Cloud, we must allow http acc
 - Then this security group must be chosen @ setup of your VM.
 
 ### Nginx server 
-I found this useful but might not be completely necessary.
+I found this useful but might not be completely necessary. 
+Note 2025-06-17 following ES feedback: this is indeed not necessary.
 ```
 sudo apt install nginx
 sudo nano /etc/nginx/sites-available/flask_app

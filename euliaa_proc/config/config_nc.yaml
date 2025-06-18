@@ -965,7 +965,7 @@ attributes:
   wmo_id: '06610'
   instrument_type: 'high_spectral_resolution_lidar'
   instrument_id: EULIAA_1
-  instrument_serial_number: # also laser serial number?
+  instrument_serial_number: 
   instrument_wavelength: 386 # wavelength of the laser in nm
   instrument_model: EULIAA
   instrument_manufacturer:
