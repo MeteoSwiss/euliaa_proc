@@ -6,12 +6,12 @@ import re
 import numpy as np
 import os 
 
-def plot_quicklooks(fname, fig_dir, fig_title, ylim=50000):
+def plot_quicklooks(fname, fig_dir, fig_title, fig_prefix='', ylim=50000):
     
     if not os.path.exists(fig_dir) and not fig_dir.startswith('s3://'):
     # Create the directory if it does not exist
         os.makedirs(fig_dir)
-    fig_name = os.path.join(fig_dir, os.path.basename(fname).replace('.nc', '.png'))
+    fig_name = os.path.join(fig_dir, fig_prefix+os.path.basename(fname).replace('.nc', '.png'))
 
     ds = xr.load_dataset(fname, engine='h5netcdf')
     fig,axs = plt.subplots(5,figsize=(12,14))

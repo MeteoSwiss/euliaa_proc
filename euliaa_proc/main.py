@@ -39,7 +39,7 @@ class Runner:
         """
         logger.info('Plotting quicklooks')
         fig_title = self.args.output_nc_l2A.split('/')[-1].replace('.nc', '')
-        plot_quicklooks(self.args.output_nc_l2A, self.args.fig_dir, fig_title)
+        plot_quicklooks(self.args.output_nc_l2A, self.args.fig_dir, fig_title, fig_prefix=self.args.fig_prefix)
         # plot_quicklooks(self.args.output_nc_l2B, self.args.fig_dir, self.args.fig_name, self.args.ylim)
         logger.info('Plotted quicklooks successfully\n')
 
@@ -114,7 +114,7 @@ if __name__=='__main__':
     parser.add_argument('--bufr_types', nargs='+', default=['wind', 'temperature'])
     parser.add_argument('--output_bufr', type=str, help='Path to the output BUFR file', default=os.path.join(cwd,'data/Test_BUFR.bufr'))
     parser.add_argument('--fig_dir', type=str, help='Path to the directory where quicklooks are saved', default=os.path.join(cwd,'quicklooks/'))
-    parser.add_argument('--fig_prefix', type=str, help='Prefix of the quicklook figure', default='quicklook')
+    parser.add_argument('--fig_prefix', type=str, help='Prefix of the quicklook figure', default='quicklook_')
     args = parser.parse_args()
 
     runner = Runner(args)

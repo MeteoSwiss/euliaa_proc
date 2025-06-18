@@ -8,3 +8,4 @@ bufr_types:
   #- wind
   - temperature
 fig_dir: s3://euliaa-quicklooks/TESTS/
+fig_prefix: euliaa_quicklook_
