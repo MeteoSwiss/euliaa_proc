@@ -1,0 +1,26 @@
+import boto3
+from botocore.client import Config
+
+import yaml
+
+config_credentials_file = 'credentials.yaml'
+with open(config_credentials_file, 'r') as file:
+    config = yaml.safe_load(file)
+
+# Extract the necessary values from the configuration
+access_key = config['access_key_id']
+secret_key = config['secret_access_key']
+ceph_endpoint = 'https://object-store.os-api.cci1.ecmwf.int'
+region_name = 'default' # required by boto3, any value works
+ 
+arn = 'arn:aws:sns:default::my-topic-test'
+ 
+sns = boto3.client('sns',
+  region_name=region_name,
+  endpoint_url= ceph_endpoint,
+  aws_access_key_id=access_key_id,
+  aws_secret_access_key=secret_access_key,
+  config=Config(signature_version='s3'))
+ 
+# Delete the SNS topic
+response = sns.delete_topic(TopicArn=arn)
