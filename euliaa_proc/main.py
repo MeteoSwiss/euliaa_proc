@@ -55,7 +55,7 @@ class Runner:
 
         logger.info(f'Writing L2B {self.args.output_nc_l2B}')
         self.meas.subsel_stripped_profile()
-        self.meas.set_invalid_to_nan() # set invalid data to NaN for L2B
+        # self.meas.set_invalid_to_nan() # set invalid data to NaN for L2B
         nc_writer_l2b = Writer(self.meas,output_file=self.args.output_nc_l2B)#,conf_file=self.args.config)
         nc_writer_l2b.write_nc()
         logger.info('Wrote L2B successfully\n')
