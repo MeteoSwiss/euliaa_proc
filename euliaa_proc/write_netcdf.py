@@ -80,7 +80,9 @@ class Writer():
                     # This works when called by the service, maybe also in other cases
                     with fsspec.open(self.output_file, mode='wb', s3={}) as outfile: 
                         outfile.write(tmpfile.read())
+                        logger.info(f'Wrote netCDF file to S3: {self.output_file}')
                 except Exception as e:
+                    logger.info(e)
                     try:
                         # This is known to work when called by the user, not sure about the service
                         with fsspec.open(self.output_file, mode='wb', s3=dict(profile='default')) as outfile: 

@@ -79,7 +79,7 @@ def run_processing_pipeline(filepath, config_template):
         runner.write_l2a_and_l2b()
         print("L2A and L2B files written.")
         runner.encode_bufr()
-        runner.make_quicklooks()
+        # runner.make_quicklooks()
         # a = 1/0  # This is just to test the error handling, remove this line in production
         logger.info('Processing completed successfully.')
         if remove_file:
