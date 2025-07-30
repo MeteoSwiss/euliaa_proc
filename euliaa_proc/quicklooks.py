@@ -25,7 +25,7 @@ def plot_quicklooks(fname, fig_dir, fig_title, fig_prefix='', ylim=50000):
     wind_speed = compute_wind_speed(ds.u_mie, ds.v_mie)
 
     ds.backscatter_coef.sel(line_of_sight=0).plot(x='time',norm=colors.LogNorm(vmin=1e-9,vmax=1e-5),ax=axs[0], cbar_kwargs={'label': 'Backscatter coefficient [m-1 sr-1]', 'extend':'both'})
-    im=axs[1].barbs(ds.time.values[::2], ds.altitude_mie.values[::2], ds.u_mie.values[::2,::2].T, ds.v_mie.values[::2,::2].T,wind_speed.values[::2,::2].T,
+    im=axs[1].barbs(ds.time.values[:], ds.altitude_mie.values[::3], ds.u_mie.values[:,::3].T, ds.v_mie.values[:,::3].T,wind_speed.values[:,::3].T,
           length=3.5, pivot='middle', cmap='turbo', linewidth=.5)
     axs[1].set_ylabel('Altitude above mean sea level, for Mie peak measurements [m]')
     plt.colorbar(im, ax=axs[1], label='Wind speed [m s-1]')
@@ -82,7 +82,7 @@ def plot_daily_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L2A_', yli
 
         im0=axs[0].pcolormesh(ds.time.values, ds.altitude_mie.values, ds.backscatter_coef.sel(line_of_sight=0).T,norm=colors.LogNorm(vmin=1e-9,vmax=1e-5),shading='nearest')
         axs[0].pcolormesh(ds.time.values, ds.altitude_mie.values, mask.backscatter_coef.sel(line_of_sight=0).T, cmap='Greys', vmin=0,vmax=5, shading='nearest')
-        im1=axs[1].barbs(ds.time.values[::2], ds.altitude_mie.values[::2], ds.u_mie.values[::2,::2].T, ds.v_mie.values[::2,::2].T,wind_speed.values[::2,::2].T,
+        im1=axs[1].barbs(ds.time.values[:], ds.altitude_mie.values[::3], ds.u_mie.values[:,::3].T, ds.v_mie.values[:,::3].T,wind_speed.values[:,::3].T,
             length=3.5, pivot='middle', cmap='turbo', linewidth=.5, norm = colors.Normalize(vmin=0, vmax=50,clip=True))
         axs[1].pcolormesh(ds.time.values, ds.altitude_mie.values, np.fmax(mask.u_mie.values,mask.v_mie.values).T, cmap='Greys', vmin=0,vmax=5, shading='nearest')
         im2=axs[2].pcolormesh(ds.time.values, ds.altitude_mie.values, ds.w_mie.T,vmin=-6,vmax=6,cmap='RdBu_r',shading='nearest')
@@ -101,9 +101,18 @@ def plot_daily_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L2A_', yli
     plt.colorbar(im4, ax=axs[4], label='Northward wind [m s-1]')
     plt.colorbar(im5, ax=axs[5], label='Temperature from\n Rayleigh integration [deg C]')
     ds0 = xr.load_dataset(fname_list[0], engine='h5netcdf')
-    # ds1 = xr.load_dataset(fname_list[-1], engine='h5netcdf')
-    dt_start = pd.Timestamp(ds0.time[0].values).date()
-    dt_end = dt_start + pd.Timedelta(days=1)
+    ds1 = xr.load_dataset(fname_list[-1], engine='h5netcdf')
+    
+    if (pd.Timestamp(ds1.time[-1].values) - pd.Timestamp(ds0.time[0].values)).total_seconds() < 12*3600:
+        dt_start = pd.Timestamp(ds0.time[0].values)
+        if dt_start.hour < 12:
+            dt_end = dt_start + pd.Timedelta(hours=12)
+        else:
+            dt_end = pd.Timestamp(ds0.time[0].values).date() + pd.Timedelta(days=1)
+    else:
+        dt_start = pd.Timestamp(ds0.time[0].values).date()
+        dt_end = dt_start + pd.Timedelta(days=1)
+        
     for ax in axs:
         ax.set_ylim(0, ylim)  # Updated to use ylim argument
         ax.set_title('')
