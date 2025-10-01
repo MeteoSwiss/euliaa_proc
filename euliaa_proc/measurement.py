@@ -150,6 +150,91 @@ class Measurement():
                 continue
             self.data[var] = self.data[var].where(self.data[var+'_flag']==0, np.nan)
 
+    def combine_ray_mie(self):
+        """
+        Combine the ray and mie variables into a single variable
+        The ray variables are averaged with the mie variables, and the flag is set to the maximum of the two
+        """
+        # self.data['altitude'] = self.data['altitude_mie']  # Set altitude to mie altitude for consistency # TO DO THIS IS FOR TESTS
+        
+        for var in self.data.variables.keys():
+            if not ('ray' in var or 'mie' in var):
+                continue
+            if ('flag' in var or 'err' in var):
+                continue
+            if f'{var}_flag' in self.data.keys():
+                flag_var_exists = True
+            else:
+                flag_var_exists = False
+            
+            if 'ray' in var:
+                mie_var = var.replace('ray', 'mie')
+                combined_var = var.replace('_ray', '')
+                combined_flag_var = combined_var + '_flag'
+                if mie_var in self.data.keys():
+                    combined_data = (self.data[var].values + self.data[mie_var].values) / 2
+                    if flag_var_exists:
+                        combined_flag = xr.ufuncs.maximum(self.data[var+'_flag'], self.data[mie_var+'_flag']).values
+                else:
+                    combined_data = self.data[var].values
+                    if flag_var_exists:
+                        combined_flag = self.data[var+'_flag'].values
+                new_dims = tuple(d.replace('_ray', '') for d in self.data[var].dims)
+            elif 'mie' in var:
+                ray_var = var.replace('mie', 'ray')
+                if ray_var in self.data.keys():
+                    continue # skip if ray variable exists, as it will be combined with mie in the loop above
+                combined_var = var.replace('_mie', '')
+                combined_flag_var = combined_var + '_flag'
+                combined_data = self.data[var].values
+                if flag_var_exists:
+                    combined_flag = self.data[var+'_flag'].values
+                new_dims = tuple(d.replace('_mie', '') for d in self.data[var].dims)
+            
+            logger.info(f'Combining {var} and {combined_var} into {combined_var}')
+            self.data[combined_var] = (new_dims, combined_data)
+            if flag_var_exists:
+                self.data[combined_flag_var] = (new_dims, combined_flag)
+
+    def combine_int_broad(self):
+        """
+        Combine the integrated and broadened variables into a single variable
+        The integrated variables are averaged with the broadened variables, and the flag is set to the maximum of the two
+        """
+        for var in ['temperature_int', 'temperature_broad']:
+            if f'{var}_flag' in self.data.keys():
+                flag_var_exists = True
+            else:
+                flag_var_exists = False
+
+            if 'int' in var:
+                broad_var = var.replace('int', 'broad')
+                combined_var = var.replace('_int', '')
+                combined_flag_var = combined_var + '_flag'
+                if broad_var in self.data.keys():
+                    combined_data = (self.data[var].values + self.data[broad_var].values) / 2
+                    if flag_var_exists:
+                        combined_flag = xr.ufuncs.maximum(self.data[var+'_flag'], self.data[broad_var+'_flag']).values
+                else:
+                    combined_data = self.data[var].values
+                    if flag_var_exists:
+                        combined_flag = self.data[var+'_flag'].values    
+            elif 'broad' in var:
+                int_var = var.replace('broad', 'int')
+                if int_var in self.data.keys():
+                    continue
+                combined_var = var.replace('_broad', '')
+                combined_data = self.data[var].values
+                if flag_var_exists:
+                    combined_flag_var = combined_var + '_flag'
+                    combined_flag = self.data[var+'_flag'].values
+            new_dims = tuple(d.replace('altitude_mie', 'altitude') for d in self.data[var].dims)
+            new_dims = tuple(d.replace('altitude_ray', 'altitude') for d in new_dims)
+
+            logger.info(f'Combining INT/BROAD {var} and {combined_var} into {combined_var}')
+            self.data[combined_var] = (new_dims, combined_data)
+            if flag_var_exists:
+                self.data[combined_flag_var] = (new_dims, combined_flag)
 
     def subsel_stripped_profile(self, los=0):
         """
@@ -158,6 +243,7 @@ class Measurement():
         """
         self.data = self.data.sel(line_of_sight=los)
         self.data = self.data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']))
+        self.data = self.data.sel(altitude=slice(0,self.qc_conf['MAX_ALTITUDE']))
         self.data = self.data.isel(time=0)
         self.data = self.data[self.qc_conf['VARS_TO_KEEP']]
 

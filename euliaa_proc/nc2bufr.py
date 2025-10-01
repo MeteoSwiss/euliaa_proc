@@ -2,12 +2,17 @@ import xarray as xr
 import eccodes as ec
 import datetime
 import numpy as np
-
+from euliaa_proc.utils.data_utils import compute_beam_diameter, compute_hor_width
 
 def bufr_encode_header(ibufr, dst):
     """ Generic BUFR headers """
     # set header keys and values
-    levels = dst.altitude_mie.size+1
+    if 'altitude_mie' in dst.keys():
+        levels = dst.altitude_mie.size+1
+    elif 'altitude' in dst.keys():
+        levels = dst.altitude.size+1
+    else:
+        raise KeyError('No altitude_mie or altitude found in dataset')
     ivalues = (levels,)
     ec.codes_set_array(ibufr, 'inputExtendedDelayedDescriptorReplicationFactor',ivalues) # This sets the delayed replication factor value (used later)
     ec.codes_set(ibufr, 'edition', 4)
@@ -122,39 +127,73 @@ def bufr_encode_forloop_309024(ibufr,dst):
     ############################################
 
     ec.codes_set(ibufr, '#2#timeSignificance', 2) # 0 08 021 -> time significance, see p. 820 of wmo code book (2: Time averaged)
-    ec.codes_set(ibufr, 'timePeriod', 1) # 0 04 025 -> Time period indicates the duration in minutes over which the measurements have been averaged
+    ec.codes_set(ibufr, 'timePeriod', -int(dst.time_integration/60)) # 0 04 025 -> Time period indicates the duration in minutes over which the measurements have been averaged
 
     # 1 09 000 -> Delayed replication of 9 descriptors (defined in the template)
     # 0 31 002: Extended delayed description replication factor -> this is read only
+    if 'altitude_mie' in dst.keys():
+        altitudes = dst.altitude_mie.values
+    elif 'altitude' in dst.keys():
+        altitudes = dst.altitude.values
+    else:
+        raise KeyError('No altitude_mie or altitude found in dataset')
+    
+    if 'u_mie_flag' in dst.keys() and 'v_mie_flag' in dst.keys() and 'w_mie_flag' in dst.keys():
+        u_v_flag = ((dst.u_mie_flag.values!=0) + (dst.v_mie_flag.values!=0)).astype('int') # 0 33 002 -> Quality information (0: Data not suspect, 1: Data suspect, 2: Reserved, 3: Quality information not given) TO DO adjust with flag in NC
+        w_flag = (dst.w_mie_flag.values!=0).astype('int')
+    elif 'u_flag' in dst.keys() and 'v_flag' in dst.keys() and 'w_flag' in dst.keys():
+        u_v_flag = ((dst.u_flag.values!=0) + (dst.v_flag.values!=0)).astype('int') # 0 33 002 -> Quality information (0: Data not suspect, 1: Data suspect, 2: Reserved, 3: Quality information not given) TO DO adjust with flag in NC
+        w_flag = (dst.w_flag.values!=0).astype('int')
+    else:
+        raise KeyError('No u_mie_flag, v_mie_flag and w_mie_flag or u_flag, v_flag and w_flag found in dataset')
 
-    altitudes = dst.altitude_mie.values
-    u_v_flag = ((dst.u_mie_flag.values!=0) + (dst.v_mie_flag.values!=0)).astype('int') # 0 33 002 -> Quality information (0: Data not suspect, 1: Data suspect, 2: Reserved, 3: Quality information not given) TO DO adjust with flag in NC
-    w_flag = (dst.w_mie_flag.values!=0).astype('int')
+    if 'u_mie' in dst.keys():
+        u = dst.u_mie.values
+    elif 'u' in dst.keys():
+        u = dst.u.values
+    else:
+        raise KeyError('No u_mie or u found in dataset')
+    
+    if 'v_mie' in dst.keys():
+        v = dst.v_mie.values
+    elif 'v' in dst.keys():
+        v = dst.v.values
+    else:
+        raise KeyError('No v_mie or v found in dataset')
+    
+    if 'w_mie' in dst.keys():
+        w = dst.w_mie.values
+    elif 'w' in dst.keys():
+        w = dst.w.values
+    else:
+        raise KeyError('No w_mie or w found in dataset')
+    
+
 
     for i in range(len(altitudes)):
         # print(i)
         ec.codes_set(ibufr,'#%d#height'%(i+2), altitudes[i]) # 0 07 007 Height
         ec.codes_set(ibufr,'#%d#latitude'%(i+2), float(dst.station_latitude)) # 0 05 001 -> latitude (high accuracy)
         ec.codes_set(ibufr,'#%d#longitude'%(i+2), float(dst.station_longitude)) # 0 06 001 -> longitude (high accuracy)
-        if dst.u_mie[i].item()!=dst.u_mie[i].item():
+        if u[i].item()!=u[i].item():
             # If u-component is NaN, set it to the default value
             ec.codes_set(ibufr,'#%d#u'%(i+1), ec.CODES_MISSING_DOUBLE)
         else:
-            ec.codes_set(ibufr,'#%d#u'%(i+1), float(dst.u_mie[i].values)) # 0 11 003 -> u-component
-        if dst.v_mie[i].item()!=dst.v_mie[i].item():
+            ec.codes_set(ibufr,'#%d#u'%(i+1), float(u[i])) # 0 11 003 -> u-component
+        if v[i].item()!=v[i].item():
             # If v-component is NaN, set it to the default value
             ec.codes_set(ibufr,'#%d#v'%(i+1), ec.CODES_MISSING_DOUBLE)
         else:
-            ec.codes_set(ibufr,'#%d#v'%(i+1), float(dst.v_mie[i].values)) # 0 11 004 -> v-component
+            ec.codes_set(ibufr,'#%d#v'%(i+1), float(v[i])) # 0 11 004 -> v-component
         ec.codes_set(ibufr,'#%d#qualityInformation'%(2*i+1), u_v_flag[i])  # 0 33 002 -> Quality information (0: Data not suspect, 1: Data suspect, 2: Reserved, 3: Quality information not given) TO DO adjust with flag in NC
-        if dst.w_mie[i].item()!=dst.w_mie[i].item():
+        if w[i].item()!=w[i].item():
             # If w-component is NaN, set it to the default value
             ec.codes_set(ibufr,'#%d#w'%(i+1), ec.CODES_MISSING_DOUBLE)
         else:
-            ec.codes_set(ibufr,'#%d#w'%(i+1), float(dst.w_mie[i].values)) # 0 11 006 -> w-component
+            ec.codes_set(ibufr,'#%d#w'%(i+1), float(w[i])) # 0 11 006 -> w-component
         ec.codes_set(ibufr,'#%d#qualityInformation'%(2*i+2), w_flag[i]) # 0 33 002 -> Quality information
         ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.range_integration.item()) # 0 10 071 -> vertical resolution
-        ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), 1)  # 027079 -> horizontal width of sampled volume (m) TO DO CHECK VALUE
+        ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), compute_hor_width(altitudes[i]-dst.station_altitude))  # 027079 -> horizontal width of sampled volume (m) for wind this is the horizontal width of the area sampled by the 3 telescopes at a given height
 
     ec.codes_set(ibufr, 'pack', 1)  # Required to encode the keys back in the data section
 
@@ -193,45 +232,90 @@ def bufr_encode_forloop_wind_and_temperature(ibufr,dst):
     ############################################
 
     ec.codes_set(ibufr, '#2#timeSignificance', 2) # 0 08 021 -> time significance, see p. 820 of wmo code book (2: Time averaged)
-    ec.codes_set(ibufr, 'timePeriod', int(dst.time_integration/60)) # 0 04 025 -> Time period indicates the duration in minutes over which the measurements have been averaged
+    ec.codes_set(ibufr, 'timePeriod', -int(dst.time_integration/60)) # 0 04 025 -> Time period indicates the duration in minutes over which the measurements have been averaged
 
     # 1 11 000 -> Delayed replication of 11 descriptors (defined before)
     # 0 31 002: Extended delayed description replication factor -> this is read only
 
-    altitudes = dst.altitude_mie.values
-    u_v_flag = ((dst.u_mie_flag.values!=0) + (dst.v_mie_flag.values!=0)).astype('int') # 0 33 002 -> Quality information (0: Data not suspect, 1: Data suspect, 2: Reserved, 3: Quality information not given) TO DO adjust with flag in NC
-    w_flag = (dst.w_mie_flag.values!=0).astype('int')
-    temperature_flag = (dst.temperature_int_flag.values!=0).astype('int') # TO DO eventually use generic temperature and not temperature_int
+    if 'altitude_mie' in dst.keys():
+        altitudes = dst.altitude_mie.values
+    elif 'altitude' in dst.keys():
+        altitudes = dst.altitude.values
+    else:
+        raise KeyError('No altitude_mie or altitude found in dataset')
+    if 'u_mie_flag' in dst.keys() and 'v_mie_flag' in dst.keys() and 'w_mie_flag' in dst.keys():
+        u_v_flag = ((dst.u_mie_flag.values!=0) + (dst.v_mie_flag.values!=0)).astype('int') # 0 33 002 -> Quality information (0: Data not suspect, 1: Data suspect, 2: Reserved, 3: Quality information not given) TO DO adjust with flag in NC
+        w_flag = (dst.w_mie_flag.values!=0).astype('int')
+    elif 'u_flag' in dst.keys() and 'v_flag' in dst.keys() and 'w_flag' in dst.keys():
+        u_v_flag = ((dst.u_flag.values!=0) + (dst.v_flag.values!=0)).astype('int') # 0 33 002 -> Quality information (0: Data not suspect, 1: Data suspect, 2: Reserved, 3: Quality information not given) TO DO adjust with flag in NC
+        w_flag = (dst.w_flag.values!=0).astype('int')
+    else:
+        raise KeyError('No u_mie_flag, v_mie_flag and w_mie_flag or u_flag, v_flag and w_flag found in dataset')
+    
+    if 'temperature_int_flag' in dst.keys():
+        temperature_flag = (dst.temperature_int_flag.values!=0).astype('int') # TO DO eventually use generic temperature and not temperature_int
+    elif 'temperature_flag' in dst.keys():
+        temperature_flag = (dst.temperature_flag.values!=0).astype('int') # TO DO eventually use generic temperature and not temperature_int
+    else:
+        raise KeyError('No temperature_int_flag or temperature_flag found in dataset')
+
+    if 'temperature_int' in dst.keys():
+        temperature = dst.temperature_int.values
+    elif 'temperature' in dst.keys():
+        temperature = dst.temperature.values
+    else:
+        raise KeyError('No temperature_int or temperature found in dataset')
+
+    if 'u_mie' in dst.keys():
+        u = dst.u_mie.values
+    elif 'u' in dst.keys():
+        u = dst.u.values
+    else:
+        raise KeyError('No u_mie or u found in dataset')
+    
+    if 'v_mie' in dst.keys():
+        v = dst.v_mie.values
+    elif 'v' in dst.keys():
+        v = dst.v.values
+    else:
+        raise KeyError('No v_mie or v found in dataset')
+
+    if 'w_mie' in dst.keys():
+        w = dst.w_mie.values
+    elif 'w' in dst.keys():
+        w = dst.w.values
+    else:
+        raise KeyError('No w_mie or w found in dataset')
 
     for i in range(len(altitudes)):
         ec.codes_set(ibufr,'#%d#height'%(i+2), altitudes[i]) # 0 07 007 Height
         ec.codes_set(ibufr,'#%d#latitude'%(i+2), float(dst.station_latitude)) # 0 05 001 -> latitude (high accuracy)
         ec.codes_set(ibufr,'#%d#longitude'%(i+2), float(dst.station_longitude)) # 0 06 001 -> longitude (high accuracy)
-        if dst.u_mie[i].item()!=dst.u_mie[i].item():
+        if u[i].item()!=u[i].item():
             # If u-component is NaN, set it to the default value
             ec.codes_set(ibufr,'#%d#u'%(i+1), ec.CODES_MISSING_DOUBLE)
         else:
-            ec.codes_set(ibufr,'#%d#u'%(i+1), float(dst.u_mie[i].values)) # 0 11 003 -> u-component
-        if dst.v_mie[i].item()!=dst.v_mie[i].item():
+            ec.codes_set(ibufr,'#%d#u'%(i+1), float(u[i])) # 0 11 003 -> u-component
+        if v[i].item()!=v[i].item():
             # If v-component is NaN, set it to the default value
             ec.codes_set(ibufr,'#%d#v'%(i+1), ec.CODES_MISSING_DOUBLE)
         else:
-            ec.codes_set(ibufr,'#%d#v'%(i+1), float(dst.v_mie[i].values)) # 0 11 004 -> v-component
+            ec.codes_set(ibufr,'#%d#v'%(i+1), float(v[i])) # 0 11 004 -> v-component
         ec.codes_set(ibufr,'#%d#qualityInformation'%(3*i+1), u_v_flag[i])  # 0 33 002 -> Quality information (0: Data not suspect, 1: Data suspect, 2: Reserved, 3: Quality information not given) TO DO adjust with flag in NC
-        if dst.w_mie[i].item()!=dst.w_mie[i].item():
+        if w[i].item()!=w[i].item():
             # If w-component is NaN, set it to the default value
             ec.codes_set(ibufr,'#%d#w'%(i+1), ec.CODES_MISSING_DOUBLE) 
         else:
-            ec.codes_set(ibufr,'#%d#w'%(i+1), float(dst.w_mie[i].values)) # 0 11 006 -> w-component
+            ec.codes_set(ibufr,'#%d#w'%(i+1), float(w[i])) # 0 11 006 -> w-component
         ec.codes_set(ibufr,'#%d#qualityInformation'%(3*i+2), w_flag[i]) # 0 33 002 -> Quality information TO DO based on flag
-        if dst.temperature_int[i].item()!=dst.temperature_int[i].item():
+        if temperature[i].item()!=temperature[i].item():
             # If temperature is NaN, set it to the default value
             ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), ec.CODES_MISSING_DOUBLE)
         else:
-            ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), float(dst.temperature_int[i])) # 0 12 001 -> Temperature / air temperature
+            ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), float(temperature[i])) # 0 12 001 -> Temperature / air temperature
         ec.codes_set(ibufr,'#%d#qualityInformation'%(3*i+3), temperature_flag[i]) # 0 33 002 -> Quality information TO DO based on flag
         ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.range_integration.item()) # 0 10 071 -> vertical resolution
-        ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), 1.)  # 027079 -> horizontal width of sampled volume (m) TO DO CHECK VALUE
+        ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), compute_hor_width(altitudes[i]-dst.station_altitude))  # 027079 -> horizontal width of sampled volume (m) TO DO CHECK VALUE
 
     ec.codes_set(ibufr, 'pack', 1)  # Required to encode the keys back in the data section
 
@@ -270,26 +354,44 @@ def bufr_encode_forloop_temperature(ibufr,dst):
     ############################################
 
     ec.codes_set(ibufr, '#2#timeSignificance', 2) # 0 08 021 -> time significance, see p. 820 of wmo code book (2: Time averaged)
-    ec.codes_set(ibufr, 'timePeriod', int(dst.time_integration/60)) # 0 04 025 -> Time period indicates the duration in minutes over which the measurements have been averaged
+    ec.codes_set(ibufr, 'timePeriod', -int(dst.time_integration/60)) # 0 04 025 -> Time period indicates the duration in minutes over which the measurements have been averaged
 
     # 1 06 000 -> Delayed replication of 6 descriptors (defined before)
     # 0 31 002: Extended delayed description replication factor -> this is read only
 
-    altitudes = dst.altitude_mie.values
-    temperature_flag = (dst.temperature_int_flag.values!=0).astype('int') # TO DO eventually use generic temperature and not temperature_int
+    if 'altitude_mie' in dst.keys():
+        altitudes = dst.altitude_mie.values
+    elif 'altitude' in dst.keys():
+        altitudes = dst.altitude.values
+    else:
+        raise KeyError('No altitude_mie or altitude found in dataset')
+    
+    if 'temperature_int_flag' in dst.keys():
+        temperature_flag = (dst.temperature_int_flag.values!=0).astype('int') # TO DO eventually use generic temperature and not temperature_int
+    elif 'temperature_flag' in dst.keys():
+        temperature_flag = (dst.temperature_flag.values!=0).astype('int')
+    else:
+        raise KeyError('No temperature_int_flag or temperature_flag found in dataset')
+
+    if 'temperature_int' in dst.keys():
+        temperature = dst.temperature_int.values
+    elif 'temperature' in dst.keys():
+        temperature = dst.temperature.values
+    else:
+        raise KeyError('No temperature_int or temperature found in dataset')
 
     for i in range(len(altitudes)):
         ec.codes_set(ibufr,'#%d#height'%(i+2), altitudes[i]) # 0 07 007 Height
         ec.codes_set(ibufr,'#%d#latitude'%(i+2), float(dst.station_latitude)) # 0 05 001 -> latitude (high accuracy)
         ec.codes_set(ibufr,'#%d#longitude'%(i+2), float(dst.station_longitude)) # 0 06 001 -> longitude (high accuracy)
-        if dst.temperature_int[i].item()!=dst.temperature_int[i].item():
+        if temperature[i].item()!=temperature[i].item():
             # If temperature is NaN, set it to a default value (e.g., 0)
             ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), ec.CODES_MISSING_DOUBLE)
         else:
-            ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), float(dst.temperature_int[i].item())) # 0 12 001 -> Temperature / air temperature
+            ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), float(temperature[i].item())) # 0 12 001 -> Temperature / air temperature
         ec.codes_set(ibufr,'#%d#qualityInformation'%(i+1), temperature_flag[i]) # 0 33 002 -> Quality information
         ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.range_integration.item()) # 0 10 071 -> vertical resolution
-        ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), 1.)  # 027079 -> horizontal width of sampled volume (m) TO DO CHECK VALUE
+        ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), compute_beam_diameter(altitudes-dst.station_altitude))  # 027079 -> horizontal width of sampled volume (m) for temperature this is the beam diameter (only vertical telescope used)
 
     ec.codes_set(ibufr, 'pack', 1)  # Required to encode the keys back in the data section
 
@@ -331,7 +433,12 @@ if __name__=='__main__':
     # following steps: if the file is the full LV1
     if False:
         ds = ds.isel(time=0)
-        ds = ds.sel(altitude_mie=slice(0,60e3))
+        if 'altitude_mie' in ds.keys():
+            ds = ds.sel(altitude_mie=slice(0,60e3))
+        elif 'altitude' in ds.keys():
+            ds = ds.sel(altitude=slice(0,60e3))
+        else:
+            raise KeyError('No altitude_mie or altitude found in dataset')
         ds = ds.sel(line_of_sight='zenith')
         # Subselection with valid data (following BUFR min/max) - TO DO implement in prior QC / LV1 stripped file
         ds.w_mie[(ds.w_mie < -40.96)| (ds.w_mie > 40.96)]=np.nan

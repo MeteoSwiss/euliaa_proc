@@ -228,4 +228,18 @@ def compute_wind_direction(u, v):
     # Note: This returns the direction (from which the wind blows) in degrees from North (0°)
 
 def compute_hor_width(height, theta=30):
+    """Compute horizontal width of the area sampled by the 3 telescopes at a given height."""
     return height*np.tan(theta*np.pi/180)*np.sqrt(2)
+
+def compute_beam_diameter(height, theta=3.25e-5, d_ini=10e-2):
+    """Compute the diameter of the beam at a given height.
+
+    Parameters:
+    - height: Height at which to compute the beam diameter (in meters).
+    - theta: Angle in radians (default is 3.25e-5, which is approximately 0.00186 degrees).
+    - d_ini: Initial diameter of the beam at the telescope (default is 10 cm).
+
+    Returns:
+    - The diameter of the beam at the specified height.
+    """    
+    return d_ini + 2 * height * np.tan(theta)

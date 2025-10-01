@@ -4,6 +4,7 @@ dimensions:
   fixed:
   - altitude_mie
   - altitude_ray
+  - altitude
   - line_of_sight
   - bnds
 variables:
@@ -35,6 +36,19 @@ variables:
       long_name: Time bounds (UTC) of the measurement
       standard_name: time
       units: seconds since 1970-01-01
+  altitude:
+    name: altitude
+    dim:
+    - altitude
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Altitude above mean sea level, for combined Rayleigh/Mie peak measurements
+      units: m
+      comment: Altitude coordinate is at the center of integration window
   altitude_mie:
     name: altitude_mie
     dim:
@@ -408,6 +422,38 @@ variables:
       long_name: Quality flag for temperature from Doppler broadening
       units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  temperature:
+    name: temperature
+    dim:
+    - time
+    - altitude
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Temperature combined from Doppler broadening and Rayleigh integration
+      standard_name: air_temperature
+      units: K
+      scattering_regime: Rayleigh
+      retrieval_method: Doppler broadening and Rayleigh integration combined
+  temperature_flag:
+    name: temperature_flag
+    dim:
+    - time
+    - altitude
+    - line_of_sight
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for temperature combined from Doppler broadening and Rayleigh integration
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   w_mie:
     name: w_mie
     dim:
@@ -452,6 +498,35 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Quality flag for upward air velocity from Doppler shift of Mie peak
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  w:
+    name: w
+    dim:
+    - time
+    - altitude
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Upward air velocity combined from Doppler shift of Mie and Rayleigh peak
+      units: m s-1
+      scattering_regime: Mie and Rayleigh combined
+      line_of_sight: zenith
+  w_flag:
+    name: w_flag
+    dim:
+    - time
+    - altitude
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for upward air velocity combined from Doppler shift of Mie and Rayleigh peak
       units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   u_mie:
@@ -501,6 +576,36 @@ variables:
       long_name: Quality flag for eastward wind from Doppler shift of Mie peak
       units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  u:
+    name: u
+    dim:
+    - time
+    - altitude
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Eastward wind combined from Doppler shift of Mie and Rayleigh peak
+      standard_name: eastward_wind
+      units: m s-1
+      scattering_regime: Mie and Rayleigh combined
+      line_of_sight: eastward
+  u_flag:
+    name: u_flag
+    dim:
+    - time
+    - altitude
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for eastward wind combined from Doppler shift of Mie and Rayleigh peak
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   v_mie:
     name: v_mie
     dim:
@@ -546,6 +651,36 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Quality flag for northward wind from Doppler shift of Mie peak
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  v:
+    name: v
+    dim:
+    - time
+    - altitude
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Northward wind combined from Doppler shift of Mie and Rayleigh peak
+      standard_name: northward_wind
+      units: m s-1
+      scattering_regime: Mie and Rayleigh combined
+      line_of_sight: northward
+  v_flag:
+    name: v_flag
+    dim:
+    - time
+    - altitude
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for northward wind combined from Doppler shift of Mie and Rayleigh peak
       units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   w_ray:

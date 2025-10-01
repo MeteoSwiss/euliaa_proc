@@ -43,6 +43,27 @@ class Runner:
         # plot_quicklooks(self.args.output_nc_l2B, self.args.fig_dir, self.args.fig_name, self.args.ylim)
         logger.info('Plotted quicklooks successfully\n')
 
+    def write_l2a(self):
+        """
+        Write L2A netCDF files
+        """
+        logger.info(f'Writing L2A {self.args.output_nc_l2A}')
+        nc_writer = Writer(self.meas,output_file=self.args.output_nc_l2A)#,conf_file=self.args.config)
+        nc_writer.write_nc()
+        logger.info('Wrote L2A successfully\n')
+
+    def write_l2b(self):
+        """
+        Write L2B netCDF files
+        """
+        logger.info(f'Writing L2B {self.args.output_nc_l2B}')
+        self.meas.combine_ray_mie()
+        self.meas.combine_int_broad()
+        self.meas.subsel_stripped_profile()
+        # self.meas.set_invalid_to_nan() # set invalid data to NaN for L2B
+        nc_writer_l2b = Writer(self.meas,output_file=self.args.output_nc_l2B)
+        nc_writer_l2b.write_nc()
+        logger.info('Wrote L2B successfully\n')
 
     def write_l2a_and_l2b(self):
         """
@@ -106,7 +127,7 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Write netCDF file')
     parser.add_argument('--hdf5_file', type=str, help='Path to the HDF5 file', default='/data/euliaa-l1/TESTS/BankExport_20250527_085200.h5')
     parser.add_argument('--config', type=str, help='Path to the config file', default=os.path.join(cwd,'config/config_nc.yaml'))
-    parser.add_argument('--config_qc', type=str, help='Path to the config file for quality control', default=os.path.join(cwd,'config/config_qc1.yaml'))
+    parser.add_argument('--config_qc', type=str, help='Path to the config file for quality control', default=os.path.join(cwd,'config/config_qc2.yaml'))
     parser.add_argument('--config_eprofile', type=str, help='Path to the config file for DWL eprofile', default=os.path.join(cwd,'config/config_eprofile.yaml'))
     parser.add_argument('--output_nc_l2A', type=str, help='Path to the output netCDF file for L2A', default=os.path.join(cwd,'data/TestNC_L2A.nc'))
     parser.add_argument('--output_nc_l2B', type=str, help='Path to the output netCDF file for L2B', default=os.path.join(cwd,'data/TestNC_L2B.nc'))
@@ -120,6 +141,10 @@ if __name__=='__main__':
     runner = Runner(args)
     runner.run_processing()
     runner.write_dwl_eprofile()
-    runner.write_l2a_and_l2b()
+    # runner.write_l2a_and_l2b()
+    runner.write_l2a()
+    
+    # exit()
+    runner.write_l2b()
     runner.encode_bufr()
     runner.make_quicklooks()
