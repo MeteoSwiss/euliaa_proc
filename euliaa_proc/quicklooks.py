@@ -80,7 +80,7 @@ def plot_daily_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L2A_', yli
         
         wind_speed = compute_wind_speed(ds.u_mie, ds.v_mie)
 
-        im0=axs[0].pcolormesh(ds.time.values, ds.altitude_mie.values, ds.backscatter_coef.sel(line_of_sight=0).T,norm=colors.LogNorm(vmin=1e-9,vmax=1e-5),shading='nearest')
+        im0=axs[0].pcolormesh(ds.time.values, ds.altitude_mie.values, ds.backscatter_coef.sel(line_of_sight=0).T,norm=colors.LogNorm(vmin=1e-9,vmax=1e-5),shading='nearest',cmap='viridis')
         axs[0].pcolormesh(ds.time.values, ds.altitude_mie.values, mask.backscatter_coef.sel(line_of_sight=0).T, cmap='Greys', vmin=0,vmax=5, shading='nearest')
         im1=axs[1].barbs(ds.time.values[:], ds.altitude_mie.values[::3], ds.u_mie.values[:,::3].T, ds.v_mie.values[:,::3].T,wind_speed.values[:,::3].T,
             length=3.5, pivot='middle', cmap='turbo', linewidth=.5, norm = colors.Normalize(vmin=0, vmax=50,clip=True))
@@ -123,7 +123,10 @@ def plot_daily_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L2A_', yli
     try:
         date_from_fname = re.search("([0-9]{4}\-[0-9]{2}\-[0-9]{2})", fname_list[0]).group(1)
     except:
-        date_from_fname = re.search("([0-9]{4}[0-9]{2}[0-9]{2})", fname_list[0]).group(1)
+        try:
+            date_from_fname = re.search("([0-9]{4}[0-9]{2}[0-9]{2})", fname_list[0]).group(1)
+        except:
+            date_from_fname='20251006'
     if not date_from_fname:
         raise ValueError("Could not extract date from filename. Please check the filename format.")
     fig_name = os.path.join(fig_dir, fig_prefix+pd.Timestamp(date_from_fname).strftime('%Y-%m-%d')+'.png')

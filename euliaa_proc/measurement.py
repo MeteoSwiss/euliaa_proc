@@ -40,11 +40,75 @@ class Measurement():
         self.data['latitude_ray'], self.data['longitude_ray'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_ray)
 
     def add_time_bnds(self):
-        if not ('time_bnds' in self.data.keys()) and ('time_integration' in self.data.keys()):
+        if ('time_bnds' in self.data.keys()):
+            logger.info('Time bounds variable already in dataset')
+        elif ('time_integration' in self.data.keys()):
             time_start = self.data['time'].values - self.data['time_integration'].values/2
             time_stop = self.data['time'].values + self.data['time_integration'].values/2
             self.data['time_bnds'] = (('time', 'bnds'), np.stack([time_start, time_stop], axis=-1))
             logger.info('Time bounds added to the dataset')
+        else:
+            dt = np.mean(self.data['time'].values[1:]-self.data['time'].values[:-1])
+            time_start = self.data['time'].values - dt/2
+            time_stop = self.data['time'].values + dt/2
+            self.data['time_bnds'] = (('time', 'bnds'), np.stack([time_start, time_stop], axis=-1))
+            self.data['time_integration'] = dt
+            logger.warning('Time bounds inferred from time resolution. Time integration missing in original dataset, setting it with time increment')
+        
+    def add_height_bnds(self):
+        """
+        TO DO check this with final data format, depending on how the altitude var / dim is etc some bits should be changed / removed
+        """
+        if 'height_bnds' not in self.conf['variables']:
+            logger.info('height_bnds not defined in configuration, skipping')
+            return
+        if 'height_bnds' in self.data.keys():
+            logger.info('Height bounds variable already in dataset')
+            return
+        
+        altitude = self.data['altitude'] if 'altitude' in self.data.keys() else self.data['altitude_mie']
+        hb_dims = ('altitude', 'bnds') if 'altitude' in self.data.keys() else ('altitude_mie', 'bnds')
+            
+        if 'range_integration' in self.data.keys(): # Method 1: Use range_integration if available
+            range_int = self.data['range_integration']
+            # Handle different dimension scenarios
+            if 'line_of_sight' in range_int.dims:
+                if 'line_of_sight' in altitude.dims:
+                    # Altitude also varies by line of sight - direct calculation
+                    alt_start = altitude - range_int / 2
+                    alt_stop = altitude + range_int / 2
+                else:
+                    # Altitude doesn't vary by line of sight - use mean range integration
+                    range_int_mean = range_int.mean('line_of_sight') 
+                    alt_start = altitude - range_int_mean / 2
+                    alt_stop = altitude + range_int_mean / 2
+            else:
+                # Range integration is scalar or doesn't vary by line of sight
+                alt_start = altitude - range_int / 2
+                alt_stop = altitude + range_int / 2
+            
+            # Create the bounds array
+            self.data['height_bnds'] = (hb_dims, np.stack([alt_start, alt_stop], axis=-1))
+            logger.info('Height bounds added to the dataset using range_integration')
+        
+        # Method 2: Infer from altitude resolution
+        else:
+            alt_values = altitude.values    
+            if len(alt_values) > 1:
+                # Calculate mean altitude difference
+                dh = np.mean(alt_values[1:] - alt_values[:-1])
+                alt_start = alt_values - dh / 2
+                alt_stop = alt_values + dh / 2
+                
+                # Create the bounds array
+                self.data['height_bnds'] = (hb_dims, np.stack([alt_start, alt_stop], axis=-1))
+                self.data['range_integration'] = dh
+                logger.warning('Height bounds inferred from altitude resolution. Range integration missing in original dataset, setting it with height increment.')
+                # print(self.data['height_bnds'].dims)
+            else:
+                logger.error('Cannot create height_bnds: insufficient altitude points and no range_integration available')
+                return
+        
 
     def add_noise_and_snr(self):
         for scat in ['mie', 'ray']:
@@ -243,9 +307,30 @@ class Measurement():
         """
         self.data = self.data.sel(line_of_sight=los)
         self.data = self.data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']))
-        self.data = self.data.sel(altitude=slice(0,self.qc_conf['MAX_ALTITUDE']))
+        self.data = self.data.sel(altitude=slice(0,self.qc_conf['MAX_ALTITUDE']))        
         self.data = self.data.isel(time=0)
-        self.data = self.data[self.qc_conf['VARS_TO_KEEP']]
+        # self.data = self.data[self.qc_conf['VARS_TO_KEEP']] # -> this crashes if missing variables
+        
+        # Check which variables from VARS_TO_KEEP actually exist in the dataset
+        vars_to_keep = self.qc_conf['VARS_TO_KEEP']
+        existing_vars = []
+        missing_vars = []
+        
+        for var in vars_to_keep:
+            if var in self.data.data_vars or var in self.data.coords:
+                existing_vars.append(var)
+            else:
+                missing_vars.append(var)
+        # Log warnings for missing variables
+        if missing_vars:
+            logger.warning(f"Variables specified in VARS_TO_KEEP but not found in dataset: {missing_vars}")
+        
+        # Keep only the variables that exist
+        if existing_vars:
+            self.data = self.data[existing_vars]
+        else:
+            logger.error("None of the variables in VARS_TO_KEEP exist in the dataset!")
+            raise ValueError("No valid variables found in VARS_TO_KEEP")
 
 
     def set_var_attrs_from_conf(self):

@@ -213,6 +213,23 @@ def in_house_cloud_detection(ds,name_altitude_var = 'altitude_mie',vg_thres_base
 
     return cloud_ds
 
+def compute_cbh(ds, line_of_sight_idx=0):
+    if 'cloud_mask' not in ds:
+        logger.warning("cloud_mask not found in L2A data, cannot compute cloud base height")
+        return None
+    
+    cloud_mask = ds.cloud_mask
+        
+    # Use altitude if exists, otherwise altitude_mie
+    altitude_dim = 'altitude' if 'altitude' in ds else 'altitude_mie'
+    altitude_coord = ds[altitude_dim]    
+        
+    # Compute cloud base height
+    alt_in_cloud = cloud_mask * altitude_coord - 999999 * (1 - cloud_mask)
+    cbh = abs(alt_in_cloud).min(dim=altitude_dim)
+    cbh.data[cbh > altitude_coord.max()] = np.nan
+    
+    return cbh.isel(line_of_sight=line_of_sight_idx)    
 
 if __name__=='__main__':
     path_l2 = '/home/bia/euliaa_postproc/data/L2Test_NC_for_Aprofiles.nc'

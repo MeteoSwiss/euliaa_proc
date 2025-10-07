@@ -53,9 +53,12 @@ def run_processing_pipeline(filepath, config_template):
         logger.info(f'Retrieval triggered for file: {filepath}')
 
         remove_file = False
+        from pathlib import Path
+        home_dir = str(Path.home())
+        s3cfg_path = os.path.join(home_dir,'.s3cfg')
         if filepath.startswith('s3://'): # if we read from S3, then make a local copy because loading properly the h5 file from S3 is not working
-            subprocess.call(['s3cmd', 'get', filepath, '/tmp/', '--config=/home/acbr/.s3cfg'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            filepath = os.path.join('/tmp/', os.path.basename(filepath))
+            subprocess.call(['s3cmd', 'get', filepath, os.path.join(home_dir,'tmp/'), f'--config={s3cfg_path}'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            filepath = os.path.join(home_dir, 'tmp/', os.path.basename(filepath))
             logger.info(f'File downloaded to: {filepath}')
             remove_file = True
         
@@ -67,19 +70,22 @@ def run_processing_pipeline(filepath, config_template):
         config['hdf5_file'] = filepath
         config['output_nc_l2A'] = os.path.join(config['output_nc_dir'], 'L2A_' + date_str.group(1) + '.nc')
         config['output_nc_l2B'] = os.path.join(config['output_nc_dir'], 'L2B_' + date_str.group(1) + '.nc')
-        config['output_nc_eprofile'] = os.path.join(config['output_nc_dir'], 'L1_EU1WL_' + date_str.group(1)[:-2] + '.nc')
+        config['output_nc_eprofile_wind'] = os.path.join(config['output_nc_eprofile_wind_dir'], config['eprofile_wind_prefix'] + date_str.group(1)[:-2] + '.nc')
+        config['output_nc_eprofile_bsc'] = os.path.join(config['output_nc_eprofile_bsc_dir'], config['eprofile_bsc_prefix'] + date_str.group(1)[:-2] + '.nc')
         config['output_bufr'] = os.path.join(config['output_bufr_dir'], 'BUFR_' + date_str.group(1) + '.bufr')
         args = SimpleNamespace(**config)
 
         runner = Runner(args)
         runner.run_processing()
-        print("Run processing completed.")
+        logger.info("Run processing completed.")
         runner.write_dwl_eprofile()
-        print("DWL eprofile written.")
+        logger.info("DWL E-Profile written.")
+        runner.write_alc_eprofile()
+        logger.info("ALC E-Profile written")
         runner.write_l2a()
-        print("L2A file written.")
+        logger.info("L2A file written.")
         runner.write_l2b()
-        print("L2B file written.")
+        logger.info("L2B file written.")
         # runner.write_l2a_and_l2b()
         # print("L2A and L2B files written.")
         runner.encode_bufr()

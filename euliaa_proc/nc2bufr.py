@@ -193,7 +193,7 @@ def bufr_encode_forloop_309024(ibufr,dst):
             ec.codes_set(ibufr,'#%d#w'%(i+1), float(w[i])) # 0 11 006 -> w-component
         ec.codes_set(ibufr,'#%d#qualityInformation'%(2*i+2), w_flag[i]) # 0 33 002 -> Quality information
         ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.range_integration.item()) # 0 10 071 -> vertical resolution
-        ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), compute_hor_width(altitudes[i]-dst.station_altitude))  # 027079 -> horizontal width of sampled volume (m) for wind this is the horizontal width of the area sampled by the 3 telescopes at a given height
+        ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), compute_hor_width(altitudes[i]-dst.station_altitude).values.item())  # 027079 -> horizontal width of sampled volume (m) for wind this is the horizontal width of the area sampled by the 3 telescopes at a given height
 
     ec.codes_set(ibufr, 'pack', 1)  # Required to encode the keys back in the data section
 
@@ -315,7 +315,7 @@ def bufr_encode_forloop_wind_and_temperature(ibufr,dst):
             ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), float(temperature[i])) # 0 12 001 -> Temperature / air temperature
         ec.codes_set(ibufr,'#%d#qualityInformation'%(3*i+3), temperature_flag[i]) # 0 33 002 -> Quality information TO DO based on flag
         ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.range_integration.item()) # 0 10 071 -> vertical resolution
-        ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), compute_hor_width(altitudes[i]-dst.station_altitude))  # 027079 -> horizontal width of sampled volume (m) TO DO CHECK VALUE
+        ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), compute_hor_width(altitudes[i]-dst.station_altitude).values.item())  # 027079 -> horizontal width of sampled volume (m) TO DO CHECK VALUE
 
     ec.codes_set(ibufr, 'pack', 1)  # Required to encode the keys back in the data section
 
@@ -391,7 +391,7 @@ def bufr_encode_forloop_temperature(ibufr,dst):
             ec.codes_set(ibufr,'#%d#airTemperature'%(i+1), float(temperature[i].item())) # 0 12 001 -> Temperature / air temperature
         ec.codes_set(ibufr,'#%d#qualityInformation'%(i+1), temperature_flag[i]) # 0 33 002 -> Quality information
         ec.codes_set(ibufr,'#%d#verticalResolution'%(i+1), dst.range_integration.item()) # 0 10 071 -> vertical resolution
-        ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), compute_beam_diameter(altitudes-dst.station_altitude))  # 027079 -> horizontal width of sampled volume (m) for temperature this is the beam diameter (only vertical telescope used)
+        ec.codes_set(ibufr,'#%d#horizontalWidthOfSampledVolume'%(i+1), compute_beam_diameter(altitudes[i]-dst.station_altitude).values.item())  # 027079 -> horizontal width of sampled volume (m) for temperature this is the beam diameter (only vertical telescope used)
 
     ec.codes_set(ibufr, 'pack', 1)  # Required to encode the keys back in the data section
 
@@ -426,10 +426,13 @@ def write_bufr(ds, output_name, bufr_type='wind') :
 
 if __name__=='__main__':
 
-    inputFilename = '/home/bia/euliaa_proc/euliaa_proc/data/TestNC_L2B.nc'
+    inputFilename = '/home/oper/euliaa_proc/euliaa_proc/data/TestNC_L2B.nc'
 
     ds = xr.open_dataset(inputFilename,decode_times=False)# Otherwise xarray converts time to ns
-
+    for var in ds.data_vars.keys():
+        if not (f'{var}_flag' in ds.keys()):
+            continue
+        ds[var] = ds[var].where(ds[var+'_flag']==0, np.nan)
     # following steps: if the file is the full LV1
     if False:
         ds = ds.isel(time=0)
@@ -447,5 +450,5 @@ if __name__=='__main__':
         ds.temperature_int[(ds.temperature_int > 409.5) | (ds.temperature_int < 0)]=np.nan
 
     for bufr_type in ['wind', 'wind_and_temperature', 'temperature']:
-        outFilename = f'/home/bia/euliaa_proc/euliaa_proc/data/Test_{bufr_type}.bufr'
+        outFilename = f'/home/oper/euliaa_proc/euliaa_proc/data/Test_{bufr_type}.bufr'
         write_bufr(ds, outFilename, bufr_type=bufr_type)

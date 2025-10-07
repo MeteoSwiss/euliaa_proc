@@ -70,7 +70,7 @@ variables:
     _FillValue: -999.0
     original_hdf5:
       hdf5_group: glo
-      hdf5_var_name: AltMie
+      hdf5_var_name: altInt
     attributes:
       long_name: Altitude above mean sea level, for Mie peak measurements
       units: m
@@ -83,7 +83,7 @@ variables:
     _FillValue: -999.0
     original_hdf5:
       hdf5_group: glo
-      hdf5_var_name: AltRay
+      hdf5_var_name: altInt
     attributes:
       long_name: Altitude above mean sea level, for Rayleigh peak measurements
       units: m
@@ -173,25 +173,27 @@ variables:
     dim: ''
     type: float64
     _FillValue: -999.0
-    original_hdf5:
-      hdf5_group: glo
-      hdf5_var_name: Latitude
+    # original_hdf5:
+    #   hdf5_group: glo
+    #   hdf5_var_name: Latitude
     attributes:
       long_name: Latitude of measurement station
       standard_name: latitude
       units: degrees_north
+    value: 54.12
   station_longitude:
     name: station_longitude
     dim: ''
     type: float64
     _FillValue: -999.0
-    original_hdf5:
-      hdf5_group: glo
-      hdf5_var_name: Longitude
+    # original_hdf5:
+    #   hdf5_group: glo
+    #   hdf5_var_name: Longitude
     attributes:
       long_name: Longitude of measurement station
       units: degrees_east
       standard_name: longitude
+    value: 11.77
   station_altitude:
     name: station_altitude
     dim: ''
@@ -949,9 +951,9 @@ variables:
     original_hdf5:
       hdf5_group: rec
       hdf5_var_name:
-      - signalMieC
-      - signalMieE
-      - signalMieN
+      - signalAPD1C
+      - signalAPD1E
+      - signalAPD1N
     attributes:
       long_name: Signal strength of Mie channel
       units: "1"
@@ -967,9 +969,9 @@ variables:
     original_hdf5:
       hdf5_group: rec
       hdf5_var_name:
-      - signalRayC
-      - signalRayE
-      - signalRayN
+      - signalAPD2C
+      - signalAPD2E
+      - signalAPD2N
     attributes:
       long_name: Signal strength of Rayleigh channel
       units: "1"
@@ -1123,14 +1125,14 @@ attributes:
   comment:
   principal_investigator:
   conventions:
-  operation_mode:
-    original_hdf5:
-      hdf5_group: glo
-      hdf5_var_name: Mode
-  retrieval_code_version:
-    original_hdf5:
-      hdf5_group: glo
-      hdf5_var_name: Version
+  operation_mode: 'test'
+    # original_hdf5:
+    #   hdf5_group: glo
+    #   hdf5_var_name: Mode
+  retrieval_code_version: '0'
+    # original_hdf5:
+    #   hdf5_group: glo
+    #   hdf5_var_name: Version
   retrieval_code: # Algorithm should include description of both measurement method, retrieval and correction / postproc (or split into several fields)
   retrieval_reference:
   calibration_status:

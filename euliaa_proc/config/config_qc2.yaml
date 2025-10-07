@@ -1,4 +1,4 @@
-MAX_ALTITUDE: 60e3
+MAX_ALTITUDE: 60000.
 SNR_THRES:
   w_mie: 5 # -
   u_mie: 0 # -

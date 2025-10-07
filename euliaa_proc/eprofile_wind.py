@@ -8,14 +8,14 @@ lam = 386.0e-9  # Wavelength in meters
 # theta = 30.0  # Angle of off-zenith telescopes in degrees
 
 
-class EProfileMeasurement(Measurement):
+class EProfileWindMeasurement(Measurement):
     """
     Class to handle the conversion of EProfile measurements to DWL eprofile files.
     Inherits from Measurement class.
     """
 
-    def __init__(self, config_eprofile_path, l2a_data, conf_qc_file=None):
-        super().__init__(config_eprofile_path, conf_qc_file=conf_qc_file)
+    def __init__(self, config_eprofile_wind_path, l2a_data, conf_qc_file=None):
+        super().__init__(config_eprofile_wind_path, conf_qc_file=conf_qc_file)
         self.l2a_data = l2a_data
         
     
@@ -34,6 +34,8 @@ class EProfileMeasurement(Measurement):
             'nv': np.array([0, 1])
             })
 
+        # print(l2a.height_bnds.dims)
+        vert_res=l2a_zen.range_integration.values if 'range_integration' in l2a_zen.keys() else np.mean(self.data['height'].values[1:]-self.data['height'].values[:-1])
         self.add_var({'config': ((), ''),
                 'wspeed': (('time', 'height'), compute_wind_speed(l2a.u_mie, l2a.v_mie).values),
                 'qwind' : (('time', 'height'), xr.where(((l2a.u_mie_flag==0) & (l2a.v_mie_flag==0) & (l2a.w_mie_flag==0)), 1, 0).values),
@@ -57,9 +59,9 @@ class EProfileMeasurement(Measurement):
                 'zsl' : ((), l2a_zen.station_altitude.values),
                 'time_bnds' : (('time', 'nv'), l2a.time_bnds.values),
                 # l2a_dwl['time_bnds' : (('time', 'nv'), np.array([[l2a_zen.time[0].values, l2a_zen.time[-1].values]]))
-                'height_bnds' : (('height', 'nv'), np.array([[h-l2a_zen.range_integration/2, h+l2a_zen.range_integration/2] for h in self.data.height.values])),
+                'height_bnds' : (('height', 'nv'), l2a_zen.height_bnds.values), #np.array([[h-l2a_zen.range_integration/2, h+l2a_zen.range_integration/2] for h in self.data.height.values])),
                 'frequency' : ((), c/lam),
-                'vert_res' : ((), l2a_zen.range_integration.values),
+                'vert_res' : ((), vert_res),
                 'hor_width' : (('height',), compute_hor_width(self.data.height.values))
         })
 
