@@ -1,0 +1,17 @@
+hdf5_file:
+config: /home/oper/euliaa_proc/euliaa_proc/config/config_nc_Kborn.yaml
+config_eprofile_wind: /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_wind.yaml
+config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc_Kborn.yaml
+config_qc: /home/oper/euliaa_proc/euliaa_proc/config/config_qc.yaml
+output_nc_dir: s3://euliaa-l2/TESTS/Kuehlungsborn/
+output_nc_eprofile_wind_dir: s3://euliaa-l2/EProfile_DWL/Kuehlungsborn/
+eprofile_wind_prefix: 'L1_EU2WL_'
+chm_template_file: '/home/oper/euliaa_proc/data/20251001_pay_CHM200110_0920_000.nc'
+output_nc_eprofile_bsc_dir: s3://euliaa-l2/EProfile_ALC/Kuehlungsborn/
+eprofile_bsc_prefix: 'CHMEUL2_'
+output_bufr_dir: s3://euliaa-l2/TESTS_BUFR/Kuehlungsborn/
+bufr_types:
+  #- wind
+  - temperature
+fig_dir: s3://euliaa-quicklooks/TESTS/Kuehlungsborn/
+fig_prefix: euliaa_quicklook_

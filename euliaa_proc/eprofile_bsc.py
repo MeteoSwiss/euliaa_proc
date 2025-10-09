@@ -29,9 +29,16 @@ class EProfileBSCMeasurement(Measurement):
             Path to QC configuration file
         """
         super().__init__(config_eprofile_bsc_path, conf_qc_file=conf_qc_file)
-        self.l2a_data = l2a_data
+        self.l2a_data = l2a_data.copy()
         self.chm_template_path = chm_template_path
         self.line_of_sight_idx = line_of_sight_idx
+        if self.qc_conf:
+            if 'altitude_mie' in self.l2a_data:
+                self.l2a_data = self.l2a_data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']))
+            if 'altitude_ray' in self.l2a_data:
+                self.l2a_data = self.l2a_data.sel(altitude_ray=slice(0,self.qc_conf['MAX_ALTITUDE']))
+            if 'altitude' in self.l2a_data:
+                self.l2a_data = self.l2a_data.sel(altitude=slice(0,self.qc_conf['MAX_ALTITUDE']))    
         
     # def compute_cbh(self):
     #     """
@@ -141,7 +148,7 @@ class EProfileBSCMeasurement(Measurement):
         altitude_l2 = self.l2a_data.altitude_mie.values
         station_altitude = self.l2a_data.station_altitude.values
         range_l2 = altitude_l2 - station_altitude
-        
+        range_l2 = range_l2.astype(np.float32)
         # Convert time from L2A epoch (1970-01-01) to CHM epoch (1904-01-01)
         # Calculate the offset between the two epochs
         epoch_1904 = pd.Timestamp('1904-01-01 00:00:00')
@@ -225,29 +232,74 @@ class EProfileBSCMeasurement(Measurement):
             
             new_dims = tuple(new_dims)
             new_shape = tuple(new_shape)
-            
+            attrs_copy = var_data.attrs.copy()
+
             # Create array with appropriate fill values
             if var_name == 'beta_raw':
                 # Will fill this with backscatter data later
                 new_array = np.full(new_shape, np.nan, dtype=np.float32)
             elif var_name == 'cbh':
-                new_array = np.full(new_shape, np.nan, dtype=np.float64)
-            elif var_data.dtype.kind in ['f', 'c']:  # float or complex
-                new_array = np.full(new_shape, np.nan, dtype=var_data.dtype)
+                # Use int16 for cbh with -1 as fill value 
+                new_array = np.full(new_shape, -1, dtype=np.int16)
+            elif var_name in ['temp_int','temp_ext', 'temp_det', 'temp_lom']:
+                new_array = np.full(new_shape, -9, dtype=np.int16)
+                attrs_copy['scale_factor']=0.1
+            elif var_name == 'p_calc':
+                new_array = np.full(new_shape, -9, dtype=np.int16)
+                attrs_copy['scale_factor']=1.e-5
+
+            # Handle integer types first to preserve them
             elif var_data.dtype == np.int8:
                 new_array = np.full(new_shape, -127, dtype=np.int8)
-            elif var_data.dtype == np.int16:
-                new_array = np.full(new_shape, -999, dtype=np.int16)
-            elif var_data.dtype in [np.int32, np.int64]:
-                new_array = np.full(new_shape, -999, dtype=var_data.dtype)
+            elif var_data.dtype in [np.int16, np.int32, np.int64]:
+                # Check for _FillValue in attributes to use appropriate fill value
+                fill_value = var_data.attrs.get('_FillValue', -999)
+                if fill_value is None or (isinstance(fill_value, (float, np.floating)) and np.isnan(fill_value)):
+                    fill_value = -999
+                new_array = np.full(new_shape, fill_value, dtype=var_data.dtype)
+            # Special handling for variables that should remain as int16 with scaling
+            
+            # elif (var_data.dtype.kind in ['f', 'c'] and 
+            #       ('scale_factor' in var_data.attrs or 'add_offset' in var_data.attrs)):
+            #     # These variables were originally int16 with scaling factors
+            #     # Keep them as int16 and preserve scaling attributes
+            #     fill_value = var_data.attrs.get('_FillValue', -999)
+            #     if fill_value is None or (isinstance(fill_value, (float, np.floating)) and np.isnan(fill_value)):
+            #         fill_value = -999
+            #     new_array = np.full(new_shape, int(fill_value), dtype=np.int16)
+            #     logger.info(f"Variable {var_name} preserved as int16 with scaling (scale_factor/add_offset)")
+            # Handle float types after integers
+            elif var_data.dtype.kind in ['f', 'c']:  # float or complex
+                # Convert double precision (float64) to single precision (float32), except for time
+                if var_data.dtype == np.float64 and var_name != 'time':
+                    new_array = np.full(new_shape, np.nan, dtype=np.float32)
+                else:
+                    new_array = np.full(new_shape, np.nan, dtype=var_data.dtype)
             else:
+                # For any other types, preserve the original dtype
                 new_array = np.zeros(new_shape, dtype=var_data.dtype)
             
             # Create DataArray
+            
+            # For variables that were converted from float to int16 due to scaling,
+            # update the _FillValue attribute to match the new dtype
+            # if (var_data.dtype.kind in ['f', 'c'] and new_array.dtype == np.int16 and
+            #     ('scale_factor' in attrs_copy or 'add_offset' in attrs_copy)):
+            #     # Update _FillValue to be int16 type
+            #     if '_FillValue' in attrs_copy:
+            #         original_fill = attrs_copy['_FillValue']
+            #         if isinstance(original_fill, (float, np.floating)) and np.isnan(original_fill):
+            #             attrs_copy['_FillValue'] = np.int16(-999)
+            #         else:
+            #             attrs_copy['_FillValue'] = np.int16(int(original_fill))
+                # else:
+                #     attrs_copy['_FillValue'] = np.int16(-999)
+                    
+            
             ds_new[var_name] = xr.DataArray(
                 new_array,
                 dims=new_dims,
-                attrs=var_data.attrs.copy()
+                attrs=attrs_copy
             )
         
         # Now fill beta_raw with L2A backscatter data
@@ -268,17 +320,19 @@ class EProfileBSCMeasurement(Measurement):
         
         # Fill cbh with cloud base height if it exists
         if 'cbh' in ds_new:
-            cbh = compute_cbh(self.data, line_of_sight_idx=self.line_of_sight_idx)
+            cbh = compute_cbh(self.l2a_data, line_of_sight_idx=self.line_of_sight_idx)
             if cbh is not None:
+                cbh_values = cbh.values.copy()
+                cbh_values = np.where(np.isnan(cbh_values), -1, cbh_values)
+                cbh_values = cbh_values.astype(np.int16)
                 if 'layer' in ds_new['cbh'].dims:
                     # Fill only the first layer with CBH data
-                    ds_new['cbh'].values[:, 0] = cbh.values
+                    ds_new['cbh'].values[:, 0] = cbh_values
                 else:
-                    ds_new['cbh'].values[:] = cbh.values
+                    ds_new['cbh'].values[:] = cbh_values
                 
                 # Update cbh attributes
                 ds_new['cbh'].attrs.update({
-                    'long_name': 'Lowest cloud base height detected in EULIAA L2A data',
                     'source': f'L2A cloud mask (line_of_sight={self.line_of_sight_idx})'
                 })
                 logger.info("Cloud base height successfully computed and added")
@@ -389,6 +443,7 @@ if __name__ == '__main__':
     l2a_file = '../data/L2A_20250830_030001.nc'
     chm_template_file = '../data/20251001_pay_CHM200110_0920_000.nc'
     config_file = 'config/config_eprofile_bsc.yaml'  # You'll need to create this
+    config_qc_file = 'config/config_qc.yaml'
     
     l2a_data = xr.open_dataset(l2a_file, decode_times=False)
     l2a_data=l2a_data.isel(time=slice(0,15))
@@ -397,7 +452,8 @@ if __name__ == '__main__':
         config_eprofile_bsc_path=config_file,
         l2a_data=l2a_data,
         chm_template_path=chm_template_file,
-        line_of_sight_idx=0
+        line_of_sight_idx=0,
+        conf_qc_file=config_qc_file
     )
     
     # Load the data (creates CHM-like dataset)
@@ -407,7 +463,7 @@ if __name__ == '__main__':
     # Save the dataset
     output_file = '../data/eprofile_bsc_output.nc'
     from euliaa_proc.write_netcdf import Writer
-    eprofile_bsc_writer = Writer(meas, output_file=output_file)
+    eprofile_bsc_writer = Writer(meas, output_file=output_file, use_encoding=False)
     eprofile_bsc_writer.write_nc()
     
     print("EProfile BSC measurement created successfully!")

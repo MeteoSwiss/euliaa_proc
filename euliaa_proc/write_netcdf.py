@@ -6,10 +6,11 @@ ENC_NO_FILLVALUE = None
 
 class Writer():
 
-    def __init__(self, measurement, output_file):#, conf_file):
+    def __init__(self, measurement, output_file, use_encoding=True):#, conf_file):
         self.output_file = output_file
         self.conf = measurement.conf
         self.data = measurement.data
+        self.use_encoding = use_encoding
         # self.config_dims = self.conf['dimensions']['unlimited'] + self.conf['dimensions']['fixed']
         # correct_dim_scalar_fields(self.conf['variables'])
 
@@ -73,7 +74,10 @@ class Writer():
         if self.output_file.startswith('s3://'):
             import fsspec
             with tempfile.NamedTemporaryFile(suffix=".nc") as tmpfile:
-                self.data.to_netcdf(tmpfile.name, encoding=encoding_dict)
+                if self.use_encoding:
+                    self.data.to_netcdf(tmpfile.name, encoding=encoding_dict)
+                else:
+                    self.data.to_netcdf(tmpfile.name)
                 tmpfile.seek(0)
                 # write to S3 using fsspec
                 try:
@@ -93,7 +97,10 @@ class Writer():
                 tmpfile.flush()
         else:
             # write to local file
-            self.data.to_netcdf(self.output_file, encoding=encoding_dict) # valid encodings: {'least_significant_digit', 'endian', 'compression', 'quantize_mode', 'blosc_shuffle', 'shuffle', 'szip_pixels_per_block', 'contiguous', 'significant_digits', 'zlib', 'fletcher32', 'dtype', 'complevel', 'chunksizes', 'szip_coding', '_FillValue'}
+            if self.use_encoding:
+                self.data.to_netcdf(self.output_file, encoding=encoding_dict) # valid encodings: {'least_significant_digit', 'endian', 'compression', 'quantize_mode', 'blosc_shuffle', 'shuffle', 'szip_pixels_per_block', 'contiguous', 'significant_digits', 'zlib', 'fletcher32', 'dtype', 'complevel', 'chunksizes', 'szip_coding', '_FillValue'}
+            else:
+                self.data.to_netcdf(self.output_file)
 
 
 if __name__=='__main__':

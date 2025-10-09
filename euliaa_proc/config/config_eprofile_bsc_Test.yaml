@@ -169,6 +169,7 @@ variables:
     units: K
     long_name: detector temperature
     type: double
+    _FillValue: .NaN
   
   temp_lom:
     dim:
@@ -176,18 +177,22 @@ variables:
     units: K
     long_name: laser optic module temperature
     type: double
+    _FillValue: .NaN
   
   laser_pulses:
     dim:
     - time
     long_name: number of laser pulses per record (lp)
     type: int
+    _FillValue: -999
   
   p_calc:
     dim:
     - time
     units: counts
     long_name: calibration pulse in photons per shot
+    type: double
+    _FillValue: .NaN
   
   base:
     dim:
@@ -195,6 +200,7 @@ variables:
     units: counts
     long_name: baseline raw signal in photons per shot (b)
     type: float
+    _FillValue: .NaN
   
   stddev:
     dim:
@@ -202,24 +208,28 @@ variables:
     units: counts
     long_name: standard deviation raw signal in photons per shot
     type: float
+    _FillValue: .NaN
   
   tcc:
     dim:
     - time
     long_name: total cloud cover
     type: byte
+    _FillValue: -127
   
   bcc:
     dim:
     - time
     long_name: base cloud cover
     type: byte
+    _FillValue: -127
   
   sci:
     dim:
     - time
     long_name: "sky condition index (0: nothing, 1: rain, 2: fog, 3: snow, 4: precipitation or particles on window)"
     type: byte
+    _FillValue: -127
   
   vor:
     dim:
@@ -227,6 +237,7 @@ variables:
     units: m
     long_name: vertical optical range
     type: short
+    _FillValue: -999
   
   voe:
     dim:
@@ -234,6 +245,7 @@ variables:
     units: m
     long_name: vertical optical range error
     type: short
+    _FillValue: -999
   
   mxd:
     dim:
@@ -241,24 +253,28 @@ variables:
     units: m
     long_name: maximum detection height
     type: short
+    _FillValue: -999
   
   nn1:
     dim:
     - time
     long_name: nn1
     type: short
+    _FillValue: -999
   
   nn2:
     dim:
     - time
     long_name: nn2
     type: short
+    _FillValue: -999
   
   nn3:
     dim:
     - time
     long_name: nn3
     type: short
+    _FillValue: -999
   
   # Main data variables (time, range)
   beta_raw:
@@ -269,6 +285,7 @@ variables:
     long_name: Volume backscatter coefficient from EULIAA L2A data
     source: L2A backscatter_coef (line_of_sight=0)
     type: float
+    _FillValue: .NaN
   
   # Layer-dependent variables (time, layer)
   pbl:
@@ -293,10 +310,10 @@ variables:
     - time
     - layer
     units: m
-    long_name: cloud base height
+    long_name: Lowest cloud base height detected in EULIAA L2A data
     source: L2A cloud mask (line_of_sight=0)
-    type: short
-    _FillValue: -1
+    type: double
+    _FillValue: .NaN
   
   cbe:
     dim:
@@ -305,6 +322,7 @@ variables:
     units: m
     long_name: cloud base height variation
     type: short
+    _FillValue: -999
   
   cdp:
     dim:
@@ -313,6 +331,7 @@ variables:
     units: m
     long_name: cloud depth
     type: short
+    _FillValue: -999
   
   cde:
     dim:
@@ -321,6 +340,7 @@ variables:
     units: m
     long_name: cloud depth variation
     type: short
+    _FillValue: -999
 
 attributes:
   title: CHM-like dataset with EULIAA backscatter data
@@ -331,9 +351,9 @@ attributes:
   day: 
   month: 
   year: 
-  location: 
-  wmo_id: 06610
-  wigos_id: 0-20000-0-06610
+  location: Test
+  wmo_id: 
+  wigos_id: 0-20000-0-TEST1
   netcdf_mode: 2
   software_version: 
   comment: CHM-like dataset created from EULIAA L2A backscatter data

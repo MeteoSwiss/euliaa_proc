@@ -226,7 +226,7 @@ variables:
     _FillValue: -999.0
     original_hdf5:
       hdf5_group: glo
-      hdf5_var_name: DeltaTime
+      hdf5_var_name: deltaSec
     attributes:
       long_name: Time integration window
       units: s
@@ -254,7 +254,7 @@ variables:
     original_hdf5:
       hdf5_group: rec
       hdf5_var_name:
-      - BSCMieC
+      - BSCMieZ
       - BSCMieE
       - BSCMieN
     attributes:
@@ -272,7 +272,7 @@ variables:
     original_hdf5:
       hdf5_group: rec
       hdf5_var_name:
-      - BSCMieCErr
+      - BSCMieZErr
       - BSCMieEErr
       - BSCMieNErr
     attributes:
@@ -306,7 +306,7 @@ variables:
     original_hdf5:
       hdf5_group: rec
       hdf5_var_name:
-      - BSRMieC
+      - BSRMieZ
       - BSRMieE
       - BSRMieN
     attributes:
@@ -324,7 +324,7 @@ variables:
     original_hdf5:
       hdf5_group: rec
       hdf5_var_name:
-      - BSRMieCErr
+      - BSRMieZErr
       - BSRMieEErr
       - BSRMieNErr
     attributes:
@@ -343,7 +343,7 @@ variables:
     original_hdf5:
       hdf5_group: rec
       hdf5_var_name:
-      - TRayIntC
+      - TRayIntZ
       - TRayIntE
       - TRayIntN
     attributes:
@@ -363,7 +363,7 @@ variables:
     original_hdf5:
       hdf5_group: rec
       hdf5_var_name:
-      - TRayIntCErr
+      - TRayIntZErr
       - TRayIntEErr
       - TRayIntNErr
     attributes:
@@ -478,7 +478,7 @@ variables:
     _FillValue: -999.0
     original_hdf5:
       hdf5_group: rec
-      hdf5_var_name: VMieC
+      hdf5_var_name: VMieZ
     attributes:
       long_name: Upward air velocity from Doppler shift of Mie peak
       units: m s-1
@@ -493,7 +493,7 @@ variables:
     _FillValue: -999.0
     original_hdf5:
       hdf5_group: rec
-      hdf5_var_name: VMieCErr
+      hdf5_var_name: VMieZErr
     attributes:
       long_name: Uncertainty on upward air velocity from Doppler shift of Mie peak
       units: m s-1
@@ -851,7 +851,7 @@ variables:
     original_hdf5:
       hdf5_group: rec
       hdf5_var_name:
-      - WidthMieC
+      - WidthMieZ
       - WidthMieE
       - WidthMieN
     attributes:
@@ -869,7 +869,7 @@ variables:
     original_hdf5:
       hdf5_group: rec
       hdf5_var_name:
-      - WidthMieCErr
+      - WidthMieZErr
       - WidthMieNErr
       - WidthMieNErr
     attributes:
@@ -951,7 +951,7 @@ variables:
     original_hdf5:
       hdf5_group: rec
       hdf5_var_name:
-      - signalAPD1C
+      - signalAPD1Z
       - signalAPD1E
       - signalAPD1N
     attributes:
@@ -969,7 +969,7 @@ variables:
     original_hdf5:
       hdf5_group: rec
       hdf5_var_name:
-      - signalAPD2C
+      - signalAPD2Z
       - signalAPD2E
       - signalAPD2N
     attributes:
@@ -1107,21 +1107,21 @@ variables:
 
 attributes:
   Conventions: CF-1.8
-  campaign_name:
+  campaign_name: EULIAA-Kuehlungsborn
   license:
   version: 1.0
   references:
-  wigos_station_id: 0-20000-0-06610
-  wmo_id: '06610'
+  wigos_station_id: 0-20000-0-TEST
+  wmo_id: 
   instrument_type: 'high_spectral_resolution_lidar'
   instrument_id: EULIAA_1
   instrument_serial_number: 
   instrument_wavelength: 386 # wavelength of the laser in nm
   instrument_model: EULIAA
   instrument_manufacturer:
-  site_location:
+  site_location: Kuehlungsborn, Germany
   history:
-  institution:
+  institution: Leibniz Institute for Atmospheric Physics, Kuehlungsborn
   comment:
   principal_investigator:
   conventions:

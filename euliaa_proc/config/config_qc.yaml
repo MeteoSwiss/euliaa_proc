@@ -1,29 +1,42 @@
-MAX_ALTITUDE: 60e3
-W_ABS_THRES: 40.96 # m/s
-W_ERR_THRES: 1 # m/s
-U_V_ABS_THRES: 409.6 # m/s
-U_V_ERR_THRES: 1 # m/s
-TEMP_ERR_THRES: 5 # K
-TEMP_MIN_THRES: 0 # K
-TEMP_MAX_THRES: 409.5 # K
-BSC_MIN_THRES: 0 #  m-1
-SNR_THRES: 1 # -
+MAX_ALTITUDE: 60000.
+SNR_THRES:
+  w_mie: 5 # -
+  u_mie: 0 # -
+  v_mie: 0 # -
+  temperature_int: 0 # -
+  backscatter_coef: 5 # -
+ERR_THRES:
+  w_mie: 1 # m/s
+  u_mie: 1 # m/s
+  v_mie: 1 # m/s
+  temperature_int: 5 # K
+  backscatter_coef: .inf
+THRES_MIN:
+  w_mie: -40.96
+  u_mie: -409.6
+  v_mie: -409.6
+  temperature_int: 0
+  backscatter_coef: 0 # m-1 sr-1
+THRES_MAX:
+  w_mie: 40.96
+  u_mie: 409.6
+  v_mie: 409.6
+  temperature_int: 409.5
+  backscatter_coef: .inf
+
 CORRECTION: 28.98 # temporary correction to do remove when fixed by IAP
-INVALID_TO_NAN: True
 VARS_TO_KEEP:
-- temperature_int
-- w_mie
-- v_mie
-- u_mie
-- temperature_int_flag
-- w_mie_flag
-- v_mie_flag
-- u_mie_flag
-- u_v_flag
+- altitude
+- temperature
+- w
+- v
+- u
+- temperature_flag
+- w_flag
+- v_flag
+- u_flag
 - station_latitude
 - station_longitude
 - station_altitude
-- vertical_resolution
-- vertical_integration
+- range_integration
 - time_integration
-- time_resolution

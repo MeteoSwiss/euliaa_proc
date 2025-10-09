@@ -30,9 +30,13 @@ def catch_root_post():
             logger.info(f"File {key} is not an HDF5 file, skipping processing.")
             return 'OK', 200
         filepath= f's3://{bucket_name}/{key}'
-        
         curr_file_path = os.path.dirname(os.path.abspath(__file__))
-        run_processing_pipeline(filepath, os.path.join(curr_file_path,'config/config_main_s3.yaml'))
+        if '/Kuehlungsborn/' in filepath:
+            config_main_s3 = os.path.join(curr_file_path,'config/config_main_s3_Kborn.yaml')
+        elif '/Test/' in filepath:
+            config_main_s3 = os.path.join(curr_file_path,'config/config_main_s3_Test.yaml')
+        logger.info('Using config file ',config_main_s3)
+        run_processing_pipeline(filepath, config_main_s3) #os.path.join(curr_file_path,'config/config_main_s3.yaml'))
         
 
 
@@ -86,8 +90,10 @@ def run_processing_pipeline(filepath, config_template):
         logger.info("L2A file written.")
         runner.write_l2b()
         logger.info("L2B file written.")
+        # runner.write_l2a_and_l2b()
+        # print("L2A and L2B files written.")
         runner.encode_bufr()
-        # runner.make_quicklooks() # -> this is disabled. Quicklooks are handled independently by cron job.
+        # runner.make_quicklooks()
         # a = 1/0  # This is just to test the error handling, remove this line in production
         logger.info('Processing completed successfully.')
         if remove_file:
