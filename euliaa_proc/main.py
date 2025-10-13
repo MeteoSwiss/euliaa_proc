@@ -19,6 +19,7 @@ class Runner:
         self.meas.add_lat_lon()
         self.meas.add_time_bnds()
         self.meas.add_height_bnds()
+        self.meas.correct_velocity()
         logger.info('Computing noise level and SNR')
         self.meas.add_noise_and_snr()
 
@@ -136,7 +137,7 @@ class Runner:
             l2a_data=self.meas.data, 
             chm_template_path=self.args.chm_template_file,
             line_of_sight_idx=getattr(self.args, 'line_of_sight_idx', 0),
-            # conf_qc_file=self.args.config_qc
+            conf_qc_file=self.meas.qc_conf_file
         )
         eprofile_bsc_meas.load_data()
         eprofile_bsc_writer = Writer(eprofile_bsc_meas, output_file=self.args.output_nc_eprofile_bsc,use_encoding=False)

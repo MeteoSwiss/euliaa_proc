@@ -1,10 +1,12 @@
 hdf5_file:
 config: /home/oper/euliaa_proc/euliaa_proc/config/config_nc_Test.yaml
 config_eprofile_wind: /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_wind.yaml
-config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc_Test.yaml
+config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc.yaml
 config_qc: /home/oper/euliaa_proc/euliaa_proc/config/config_qc.yaml
 output_nc_dir: s3://euliaa-l2/TESTS/Test/
 output_nc_eprofile_wind_dir: s3://euliaa-l2/EProfile_DWL/Test/
+# s3cfg_eprofile_path: /home/oper/.s3cfg_eprofile
+# output_nc_eprofile_wind_dir_DL: s3://EProfileDLOper/
 eprofile_wind_prefix: 'L1_EU1WL_'
 chm_template_file: '/home/oper/euliaa_proc/data/20251001_pay_CHM200110_0920_000.nc'
 output_nc_eprofile_bsc_dir: s3://euliaa-l2/EProfile_ALC/Test/

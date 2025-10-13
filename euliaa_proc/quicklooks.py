@@ -163,6 +163,7 @@ if __name__=='__main__':
     parser.add_argument('--l2a_file', type=str, help='Path to the L2A file')
     parser.add_argument('--l2a_file_list', type=str, nargs='+', help='List of paths to the L2A files for daily quicklooks')
     parser.add_argument('--fig_dir', type=str, default='./', help='Path to the directory where quicklooks are saved')
+    parser.add_argument('--fig_prefix', type=str, default='L2A_', help='Figure filename prefix')
     parser.add_argument('--ylim', type=int, default=50000, help='Y-axis limit for the plots')  # Added ylim argument
     args = parser.parse_args()
 
@@ -182,7 +183,7 @@ if __name__=='__main__':
         except:
             fig_title1 = 'L2A_'+re.search("([0-9]{4}[0-9]{2}[0-9]{2})", fig_title1).group(1)
         fig_title = fig_title0 + ' to ' + fig_title1
-        plot_daily_quicklooks(args.l2a_file_list, args.fig_dir, fig_title, ylim=args.ylim)
+        plot_daily_quicklooks(args.l2a_file_list, args.fig_dir, fig_title, ylim=args.ylim, fig_prefix=args.fig_prefix)
     elif args.l2a_file:
         fig_title = args.l2a_file.split('/')[-1]
         try:

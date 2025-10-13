@@ -13,7 +13,7 @@ secret_key = config['secret_access_key']
 ceph_endpoint = 'https://object-store.os-api.cci1.ecmwf.int'
 region_name = 'default' # required by boto3, any value works
  
-arn = 'arn:aws:sns:default::topic-euliaa-l1-1'
+arn = 'arn:aws:sns:default::topic-euliaa-l1'
  
 sns = boto3.client('sns',
   region_name=region_name,

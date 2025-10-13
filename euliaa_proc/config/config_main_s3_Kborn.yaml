@@ -1,8 +1,8 @@
 hdf5_file:
 config: /home/oper/euliaa_proc/euliaa_proc/config/config_nc_Kborn.yaml
 config_eprofile_wind: /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_wind.yaml
-config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc_Kborn.yaml
-config_qc: /home/oper/euliaa_proc/euliaa_proc/config/config_qc.yaml
+config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc.yaml
+config_qc: /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml
 output_nc_dir: s3://euliaa-l2/TESTS/Kuehlungsborn/
 output_nc_eprofile_wind_dir: s3://euliaa-l2/EProfile_DWL/Kuehlungsborn/
 eprofile_wind_prefix: 'L1_EU2WL_'

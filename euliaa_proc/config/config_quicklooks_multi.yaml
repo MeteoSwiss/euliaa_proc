@@ -1,0 +1,10 @@
+campaign:
+  Test:
+    - L2A_DIR: s3://euliaa-l2/TESTS/Test/
+    - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Test/quicklooks/
+    - FIG_PREFIX: L2A_Test_
+  Kborn:
+    - L2A_DIR: s3://euliaa-l2/TESTS/Kuehlungsborn/
+    - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Kuehlungsborn/quicklooks/
+    - FIG_PREFIX: L2A_Kuehlungsborn_
+  

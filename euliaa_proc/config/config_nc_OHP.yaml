@@ -1,22 +1,22 @@
 
 attributes:
   Conventions: CF-1.8
-  campaign_name: EULIAA-Andoya
+  campaign_name: EULIAA-OHP
   license:
   version: 1.0
   references:
-  wigos_station_id: 0-20008-0-ARR
+  wigos_station_id: 0-20008-0-OHP
   wmo_id: 
   instrument_type: 'high_spectral_resolution_lidar'
-  instrument_id: EULIAA_0
+  instrument_id: EULIAA_1
   instrument_serial_number: 
-  instrument_wavelength: 772 # wavelength of the laser in nm
+  instrument_wavelength: 386 # wavelength of the laser in nm
   instrument_model: EULIAA
   instrument_manufacturer:
-  site_location: Andoya Space Center, Andenes, Norway
-  station_altitude: 340.
-  station_latitude: 69.278
-  station_longitude: 16.007
+  site_location: Observatoire de Haute Provence, France
+  station_altitude: 680.
+  station_latitude: 43.93
+  station_longitude: 5.71
   history:
   institution: Leibniz Institute for Atmospheric Physics, Kuehlungsborn
   comment:

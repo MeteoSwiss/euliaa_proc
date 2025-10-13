@@ -1,22 +1,22 @@
 
 attributes:
   Conventions: CF-1.8
-  campaign_name: EULIAA-Andoya
+  campaign_name: EULIAA-Maido
   license:
   version: 1.0
   references:
-  wigos_station_id: 0-20008-0-ARR
+  wigos_station_id: 0-20008-0-RUN
   wmo_id: 
   instrument_type: 'high_spectral_resolution_lidar'
-  instrument_id: EULIAA_0
+  instrument_id: EULIAA_2
   instrument_serial_number: 
-  instrument_wavelength: 772 # wavelength of the laser in nm
+  instrument_wavelength: 386 # wavelength of the laser in nm
   instrument_model: EULIAA
   instrument_manufacturer:
-  site_location: Andoya Space Center, Andenes, Norway
-  station_altitude: 340.
-  station_latitude: 69.278
-  station_longitude: 16.007
+  site_location: Maido, La Réunion, France
+  station_altitude: 2160.
+  station_latitude: -21.08
+  station_longitude: 55.38
   history:
   institution: Leibniz Institute for Atmospheric Physics, Kuehlungsborn
   comment:

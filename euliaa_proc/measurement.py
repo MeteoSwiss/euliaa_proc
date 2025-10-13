@@ -16,6 +16,7 @@ class Measurement():
             self.data = xr.Dataset()
         if conf_qc_file:
             self.qc_conf = get_conf(conf_qc_file)
+            self.qc_conf_file = conf_qc_file
         if self.conf['dimensions']['unlimited'] and self.conf['dimensions']['fixed']:
             self.config_dims = self.conf['dimensions']['unlimited'] + self.conf['dimensions']['fixed']
         elif self.conf['dimensions']['unlimited']:
@@ -139,6 +140,10 @@ class Measurement():
             self.data = xr.merge([self.data, cloud_ds])
 
 
+    def correct_velocity(self, var_list = ['u_mie', 'v_mie', 'w_mie', 'u', 'v', 'w', 'u_ray', 'v_ray', 'w_ray'] ):
+        for var in var_list:
+            if var in self.data:
+                self.data[var] = self.data[var] - self.qc_conf['CORRECTION'] # certain files from iap has a velocity bias
 
     def add_quality_flag(self, var_list = ['u_mie', 'v_mie', 'w_mie', 'temperature_int', 'backscatter_coef']):
         """
@@ -404,6 +409,11 @@ class H5Reader(Measurement):
         for var, specs in self.conf['variables'].items():
             if var in ['latitude_mie', 'latitude_ray', 'longitude_mie', 'longitude_ray']:
                 logger.info('lat/lon computed at the end')
+                continue
+            if var in ['station_latitude', 'station_longitude', 'station_altitude']:
+                if var in self.conf['attributes'].keys():
+                    self.data[var] = (specs['dim'], self.conf['attributes'][var])
+                    logger.info(f'Setting {var} from attributes')
                 continue
             # Load value from config if exists
             if 'value' in specs and not(specs['value'] is None):

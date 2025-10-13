@@ -24,7 +24,7 @@ THRES_MAX:
   temperature_int: 409.5
   backscatter_coef: .inf
 
-CORRECTION: 0 # temporary correction to do remove when fixed by IAP
+CORRECTION: 28.8461 # temporary correction to do remove when fixed by IAP
 VARS_TO_KEEP:
 - altitude
 - temperature

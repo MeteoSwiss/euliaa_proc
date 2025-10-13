@@ -173,27 +173,27 @@ variables:
     dim: ''
     type: float64
     _FillValue: -999.0
-    # original_hdf5:
-    #   hdf5_group: glo
-    #   hdf5_var_name: Latitude
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: Latitude
     attributes:
       long_name: Latitude of measurement station
       standard_name: latitude
       units: degrees_north
-    value: 54.12
+    # value: 54.12
   station_longitude:
     name: station_longitude
     dim: ''
     type: float64
     _FillValue: -999.0
-    # original_hdf5:
-    #   hdf5_group: glo
-    #   hdf5_var_name: Longitude
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: Longitude
     attributes:
       long_name: Longitude of measurement station
       units: degrees_east
       standard_name: longitude
-    value: 11.77
+    # value: 11.77
   station_altitude:
     name: station_altitude
     dim: ''
@@ -206,7 +206,7 @@ variables:
       long_name: Altitude of measurement station
       standard_name: altitude
       units: m
-    value: 10.
+    # value: 10.
   range_integration:
     name: range_integration
     dim:
@@ -1114,12 +1114,15 @@ attributes:
   wigos_station_id: 0-20000-0-TEST
   wmo_id: 
   instrument_type: 'high_spectral_resolution_lidar'
-  instrument_id: EULIAA_1
+  instrument_id: EULIAA_0
   instrument_serial_number: 
-  instrument_wavelength: 386 # wavelength of the laser in nm
+  instrument_wavelength: 772 # wavelength of the laser in nm
   instrument_model: EULIAA
   instrument_manufacturer:
   site_location: Kuehlungsborn, Germany
+  station_altitude: 10.
+  station_latitude: 54.12
+  station_longitude: 11.77
   history:
   institution: Leibniz Institute for Atmospheric Physics, Kuehlungsborn
   comment:

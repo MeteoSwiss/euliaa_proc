@@ -33,9 +33,21 @@ def catch_root_post():
         curr_file_path = os.path.dirname(os.path.abspath(__file__))
         if '/Kuehlungsborn/' in filepath:
             config_main_s3 = os.path.join(curr_file_path,'config/config_main_s3_Kborn.yaml')
+        elif '/Andoya/' in filepath:
+            config_main_s3 = os.path.join(curr_file_path, 'config/config_main_s3_Andoya.yaml')
+        elif '/OHP/' in filepath:
+            config_main_s3 = os.path.join(curr_file_path, 'config/config_main_s3_OHP.yaml')
+        elif '/Jungfraujoch/' in filepath:
+            config_main_s3 = os.path.join(curr_file_path, 'config/config_main_s3_JFJ.yaml')
+        elif '/Payerne/' in filepath:
+            config_main_s3 = os.path.join(curr_file_path, 'config/config_main_s3_Payerne.yaml')
+        elif '/Maido/' in filepath:
+            config_main_s3 = os.path.join(curr_file_path, 'config/config_main_s3_Maido.yaml')    
         elif '/Test/' in filepath:
             config_main_s3 = os.path.join(curr_file_path,'config/config_main_s3_Test.yaml')
-        logger.info('Using config file ',config_main_s3)
+        else:
+            config_main_s3 = os.path.join(curr_file_path,'config/config_main_s3.yaml')
+        logger.info(f'Using config file {config_main_s3}')
         run_processing_pipeline(filepath, config_main_s3) #os.path.join(curr_file_path,'config/config_main_s3.yaml'))
         
 
@@ -75,6 +87,8 @@ def run_processing_pipeline(filepath, config_template):
         config['output_nc_l2A'] = os.path.join(config['output_nc_dir'], 'L2A_' + date_str.group(1) + '.nc')
         config['output_nc_l2B'] = os.path.join(config['output_nc_dir'], 'L2B_' + date_str.group(1) + '.nc')
         config['output_nc_eprofile_wind'] = os.path.join(config['output_nc_eprofile_wind_dir'], config['eprofile_wind_prefix'] + date_str.group(1)[:-2] + '.nc')
+        if 'output_nc_eprofile_wind_dir_DL' in config.keys():
+            config['output_nc_eprofile_wind_DL'] = os.path.join(config['output_nc_eprofile_wind_dir_DL'], config['eprofile_wind_prefix'] + date_str.group(1)[:-2] + '.nc')
         config['output_nc_eprofile_bsc'] = os.path.join(config['output_nc_eprofile_bsc_dir'], config['eprofile_bsc_prefix'] + date_str.group(1)[:-2] + '.nc')
         config['output_bufr'] = os.path.join(config['output_bufr_dir'], 'BUFR_' + date_str.group(1) + '.bufr')
         args = SimpleNamespace(**config)
@@ -84,6 +98,9 @@ def run_processing_pipeline(filepath, config_template):
         logger.info("Run processing completed.")
         runner.write_dwl_eprofile()
         logger.info("DWL E-Profile written.")
+        if (('output_nc_eprofile_wind_DL' in config.keys()) and ('s3cfg_eprofile_path' in config.keys())):
+            logger.info("Copying to E-Profile DL bucket")
+            subprocess.call(['s3cmd', '-c', config['s3cfg_eprofile_path'], 'cp', config['output_nc_eprofile_wind'], config['output_nc_eprofile_wind_DL']])
         runner.write_alc_eprofile()
         logger.info("ALC E-Profile written")
         runner.write_l2a()

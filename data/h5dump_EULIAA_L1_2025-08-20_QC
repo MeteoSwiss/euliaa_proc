@@ -1,0 +1,976 @@
+HDF5 "EULIAA_L1_2025-08-20_QC.h5" {
+GROUP "/" {
+   GROUP "glo" {
+      DATASET "altInt" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 867 ) / ( 867 ) }
+      }
+      DATASET "binXLambda" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 150 ) / ( 150 ) }
+      }
+      DATASET "deltaSec" {
+         DATATYPE  H5T_STD_I64LE
+         DATASPACE  SCALAR
+      }
+      DATASET "shiftSec" {
+         DATATYPE  H5T_STD_I64LE
+         DATASPACE  SCALAR
+      }
+   }
+   GROUP "rec" {
+      DATASET "APD1D" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 150, 867 ) / ( 283, 150, 867 ) }
+      }
+      DATASET "APD1E" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 150, 867 ) / ( 283, 150, 867 ) }
+      }
+      DATASET "APD1N" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 150, 867 ) / ( 283, 150, 867 ) }
+      }
+      DATASET "APD1Z" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 150, 867 ) / ( 283, 150, 867 ) }
+      }
+      DATASET "APD2D" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 150, 867 ) / ( 283, 150, 867 ) }
+      }
+      DATASET "APD2E" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 150, 867 ) / ( 283, 150, 867 ) }
+      }
+      DATASET "APD2N" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 150, 867 ) / ( 283, 150, 867 ) }
+      }
+      DATASET "APD2Z" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 150, 867 ) / ( 283, 150, 867 ) }
+      }
+      DATASET "BSCMieD" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSCMieDErr" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSCMieE" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSCMieEErr" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSCMieN" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSCMieNErr" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSCMieZ" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSCMieZErr" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSRMieD" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSRMieDErr" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSRMieE" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSRMieEErr" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSRMieN" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSRMieNErr" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSRMieZ" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "BSRMieZErr" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "TRayIntD" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "TRayIntDErr" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "TRayIntE" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "TRayIntEErr" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "TRayIntN" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "TRayIntNErr" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "TRayIntZ" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "TRayIntZErr" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "VMieD" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "VMieDErr" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "VMieE" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "VMieEErr" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "VMieN" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "VMieNErr" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "VMieZ" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "VMieZErr" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "WidthMieD" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "WidthMieDErr" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "WidthMieE" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "WidthMieEErr" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "WidthMieN" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "WidthMieNErr" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "WidthMieZ" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "WidthMieZErr" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "comD" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "comE" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "comN" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "comZ" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "fitResErrMieD" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 4, 283, 867 ) / ( 4, 283, 867 ) }
+      }
+      DATASET "fitResErrMieE" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 4, 283, 867 ) / ( 4, 283, 867 ) }
+      }
+      DATASET "fitResErrMieN" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 4, 283, 867 ) / ( 4, 283, 867 ) }
+      }
+      DATASET "fitResErrMieZ" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 4, 283, 867 ) / ( 4, 283, 867 ) }
+      }
+      DATASET "fitResMieD" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 4, 283, 867 ) / ( 4, 283, 867 ) }
+      }
+      DATASET "fitResMieE" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 4, 283, 867 ) / ( 4, 283, 867 ) }
+      }
+      DATASET "fitResMieN" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 4, 283, 867 ) / ( 4, 283, 867 ) }
+      }
+      DATASET "fitResMieZ" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 4, 283, 867 ) / ( 4, 283, 867 ) }
+      }
+      DATASET "meanTime" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283 ) / ( 283 ) }
+      }
+      DATASET "signalAPD1D" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "signalAPD1E" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "signalAPD1N" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "signalAPD1Z" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "signalAPD2D" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "signalAPD2E" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "signalAPD2N" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "signalAPD2Z" {
+         DATATYPE  H5T_IEEE_F32LE
+         DATASPACE  SIMPLE { ( 283, 867 ) / ( 283, 867 ) }
+      }
+      DATASET "time" {
+         DATATYPE  H5T_IEEE_F64LE
+         DATASPACE  SIMPLE { ( 283 ) / ( 283 ) }
+      }
+   }
+   GROUP "units" {
+      GROUP "glo" {
+         DATASET "altInt" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "binXLambda" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "deltaSec" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "shiftSec" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+      }
+      GROUP "rec" {
+         DATASET "APD1D" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "APD1E" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "APD1N" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "APD1Z" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "APD2D" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "APD2E" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "APD2N" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "APD2Z" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSCMieD" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 9;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSCMieDErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 9;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSCMieE" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 9;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSCMieEErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 9;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSCMieN" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 9;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSCMieNErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 9;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSCMieZ" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 9;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSCMieZErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 9;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSRMieD" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 8;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSRMieDErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 8;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSRMieE" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 8;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSRMieEErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 8;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSRMieN" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 8;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSRMieNErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 8;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSRMieZ" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 8;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "BSRMieZErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 8;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "TRayIntD" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 1;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "TRayIntDErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 1;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "TRayIntE" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 1;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "TRayIntEErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 1;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "TRayIntN" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 1;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "TRayIntNErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 1;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "TRayIntZ" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 1;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "TRayIntZErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 1;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "VMieD" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "VMieDErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "VMieE" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "VMieEErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "VMieN" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "VMieNErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "VMieZ" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "VMieZErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "WidthMieD" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 3;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "WidthMieDErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 3;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "WidthMieE" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 3;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "WidthMieEErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 3;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "WidthMieN" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 3;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "WidthMieNErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 3;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "WidthMieZ" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 3;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "WidthMieZErr" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 3;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "comD" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "comE" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "comN" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "comZ" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "fitResErrMieD" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "fitResErrMieE" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "fitResErrMieN" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "fitResErrMieZ" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "fitResMieD" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "fitResMieE" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "fitResMieN" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "fitResMieZ" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "meanTime" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 12;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "signalAPD1D" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "signalAPD1E" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "signalAPD1N" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "signalAPD1Z" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "signalAPD2D" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "signalAPD2E" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "signalAPD2N" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "signalAPD2Z" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 5;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+         DATASET "time" {
+            DATATYPE  H5T_STRING {
+               STRSIZE 12;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_UTF8;
+               CTYPE H5T_C_S1;
+            }
+            DATASPACE  SCALAR
+         }
+      }
+   }
+}
+}

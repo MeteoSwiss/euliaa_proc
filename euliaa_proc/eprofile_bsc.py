@@ -144,7 +144,7 @@ class EProfileBSCMeasurement(Measurement):
         chm_template = self.load_chm_template()
         
         # Extract L2A coordinates
-        time_l2_original = self.l2a_data.time
+        time_l2_original = self.l2a_data.time.copy()
         altitude_l2 = self.l2a_data.altitude_mie.values
         station_altitude = self.l2a_data.station_altitude.values
         range_l2 = altitude_l2 - station_altitude
@@ -187,29 +187,29 @@ class EProfileBSCMeasurement(Measurement):
         
         # Copy scalar coordinates from CHM template, but override with L2A station coordinates
         for coord_name, coord_data in chm_template.coords.items():
-            if coord_name not in ['time', 'range'] and coord_data.ndim == 0:
+            if coord_name not in ['time', 'range', 'range_hr']:# and coord_data.ndim == 0:
                 # Use L2A station coordinates for latitude, longitude, altitude
-                if coord_name == 'latitude' and 'station_latitude' in self.l2a_data:
-                    new_coords[coord_name] = self.l2a_data.station_latitude
-                    logger.info(f"Using L2A station_latitude: {self.l2a_data.station_latitude.values}")
-                elif coord_name == 'longitude' and 'station_longitude' in self.l2a_data:
-                    new_coords[coord_name] = self.l2a_data.station_longitude
-                    logger.info(f"Using L2A station_longitude: {self.l2a_data.station_longitude.values}")
-                elif coord_name == 'altitude' and 'station_altitude' in self.l2a_data:
-                    new_coords[coord_name] = self.l2a_data.station_altitude
-                    logger.info(f"Using L2A station_altitude: {self.l2a_data.station_altitude.values}")
-                else:
-                    new_coords[coord_name] = coord_data
-            elif coord_name not in ['time', 'range'] and coord_name != 'range_hr':
-                # Keep other 1D coordinates like 'layer'
+                # if coord_name == 'latitude' and 'station_latitude' in self.l2a_data:
+                #     new_coords[coord_name] = self.l2a_data.station_latitude
+                #     logger.info(f"Using L2A station_latitude: {self.l2a_data.station_latitude.values}")
+                # elif coord_name == 'longitude' and 'station_longitude' in self.l2a_data:
+                #     new_coords[coord_name] = self.l2a_data.station_longitude
+                #     logger.info(f"Using L2A station_longitude: {self.l2a_data.station_longitude.values}")
+                # elif coord_name == 'altitude' and 'station_altitude' in self.l2a_data:
+                #     new_coords[coord_name] = self.l2a_data.station_altitude
+                #     logger.info(f"Using L2A station_altitude: {self.l2a_data.station_altitude.values}")
+                # else:
                 new_coords[coord_name] = coord_data
+            # elif coord_name not in ['time', 'range'] and coord_name != 'range_hr':
+            #     # Keep other 1D coordinates like 'layer'
+            #     new_coords[coord_name] = coord_data
         
         # Create empty dataset with new coordinates
         ds_new = xr.Dataset(coords=new_coords)
         
         # Add all CHM variables with appropriate dimensions, filled with NaN/fill values
         for var_name, var_data in chm_template.data_vars.items():
-            
+            print(var_name)
             # Skip high resolution variables for simplicity
             if 'range_hr' in var_data.dims:
                 logger.info(f"Skipping high resolution variable: {var_name}")
@@ -234,8 +234,18 @@ class EProfileBSCMeasurement(Measurement):
             new_shape = tuple(new_shape)
             attrs_copy = var_data.attrs.copy()
 
+            if var_name == 'latitude' and 'station_latitude' in self.l2a_data:
+                new_array = np.full(new_shape, self.l2a_data.station_latitude.values, dtype=np.float32)
+                logger.info(f"Using L2A station_latitude: {self.l2a_data.station_latitude.values}")
+            elif var_name == 'longitude' and 'station_longitude' in self.l2a_data:
+                new_array = np.full(new_shape, self.l2a_data.station_longitude.values, dtype=np.float32)
+                logger.info(f"Using L2A station_longitude: {self.l2a_data.station_longitude.values}")
+            elif var_name == 'altitude' and 'station_altitude' in self.l2a_data:
+                new_array = np.full(new_shape, self.l2a_data.station_altitude.values, dtype=np.float32)
+                logger.info(f"Using L2A station_altitude: {self.l2a_data.station_altitude.values}")
+                
             # Create array with appropriate fill values
-            if var_name == 'beta_raw':
+            elif var_name == 'beta_raw':
                 # Will fill this with backscatter data later
                 new_array = np.full(new_shape, np.nan, dtype=np.float32)
             elif var_name == 'cbh':
@@ -344,7 +354,7 @@ class EProfileBSCMeasurement(Measurement):
         
         # Extract date information from L2A time variable (use first time point)
         first_time = self.l2a_data.time.values[0]
-        dt = pd.to_datetime(first_time)
+        dt = pd.to_datetime(first_time, origin='unix', unit='s')
         
         # Update specific attributes with L2A values
         # Use np.int32 to avoid int64 (LL suffix) in NetCDF output
