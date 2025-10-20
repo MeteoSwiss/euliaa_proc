@@ -8,7 +8,7 @@ set -e
 
 # Configuration - Load environment variables + FTP credentials 
 PROJECT_DIR=${HOME}/euliaa_proc/euliaa_proc/
-CONFIG_FILE=${PROJECT_DIR}/config/credentials_ftp.yaml
+CONFIG_FILE=${PROJECT_DIR}/config/credentials_ftp.conf
 source ${CONFIG_FILE}
 
 # Logging
@@ -36,7 +36,7 @@ upload_file() {
         remote_file=$(basename "$local_file")
     fi
     
-    log_message "Starting upload: $local_file -> ftp://$FTP_HOST$REMOTE_DIR$remote_file"
+    log_message "Starting upload: $local_file -> ftp://$FTP_HOST:$FTP_PORT$REMOTE_DIR$remote_file"
     
     # Upload with curl
     if curl -u "$FTP_USER:$FTP_PASS" \

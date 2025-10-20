@@ -6,11 +6,13 @@ config_qc: /home/oper/euliaa_proc/euliaa_proc/config/config_qc.yaml
 output_nc_dir: s3://euliaa-l2/TESTS/Test/
 output_nc_eprofile_wind_dir: s3://euliaa-l2/EProfile_DWL/Test/
 # s3cfg_eprofile_path: /home/oper/.s3cfg_eprofile
-# output_nc_eprofile_wind_dir_DL: s3://EProfileDLOper/
+# output_nc_eprofile_wind_dir_DL: s3://eprofile-dl-l1/
 eprofile_wind_prefix: 'L1_EU1WL_'
 chm_template_file: '/home/oper/euliaa_proc/data/20251001_pay_CHM200110_0920_000.nc'
 output_nc_eprofile_bsc_dir: s3://euliaa-l2/EProfile_ALC/Test/
-eprofile_bsc_prefix: 'CHMEUL1_'
+# upload_to_UKMO_FTP: 1
+eprofile_bsc_prefix: '99901_A'
+eprofile_bsc_suffix: '_CHM15k'
 output_bufr_dir: s3://euliaa-l2/TESTS_BUFR/Test/
 bufr_types:
   #- wind

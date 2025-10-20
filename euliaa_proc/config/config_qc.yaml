@@ -35,6 +35,8 @@ VARS_TO_KEEP:
 - w_flag
 - v_flag
 - u_flag
+- backscatter_coef
+- backscatter_coef_flag
 - station_latitude
 - station_longitude
 - station_altitude

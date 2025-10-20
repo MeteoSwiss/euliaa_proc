@@ -209,7 +209,7 @@ class EProfileBSCMeasurement(Measurement):
         
         # Add all CHM variables with appropriate dimensions, filled with NaN/fill values
         for var_name, var_data in chm_template.data_vars.items():
-            print(var_name)
+            # print(var_name)
             # Skip high resolution variables for simplicity
             if 'range_hr' in var_data.dims:
                 logger.info(f"Skipping high resolution variable: {var_name}")
@@ -243,7 +243,12 @@ class EProfileBSCMeasurement(Measurement):
             elif var_name == 'altitude' and 'station_altitude' in self.l2a_data:
                 new_array = np.full(new_shape, self.l2a_data.station_altitude.values, dtype=np.float32)
                 logger.info(f"Using L2A station_altitude: {self.l2a_data.station_altitude.values}")
-                
+            elif var_name == 'zenith':
+                new_array = np.full(new_shape, 0, dtype=np.float32)
+            elif var_name == 'range_gate':
+                new_array = np.full(new_shape, np.mean(range_l2[1:]-range_l2[:-1]), dtype=np.float32)
+            elif var_name == 'wavelength':
+                new_array = np.full(new_shape, 772., dtype=np.float32)
             # Create array with appropriate fill values
             elif var_name == 'beta_raw':
                 # Will fill this with backscatter data later
@@ -456,7 +461,7 @@ if __name__ == '__main__':
     config_qc_file = 'config/config_qc.yaml'
     
     l2a_data = xr.open_dataset(l2a_file, decode_times=False)
-    l2a_data=l2a_data.isel(time=slice(0,15))
+    l2a_data=l2a_data.isel(time=slice(0,1))
     # Create EProfileBSCMeasurement instance
     meas = EProfileBSCMeasurement(
         config_eprofile_bsc_path=config_file,
@@ -469,7 +474,7 @@ if __name__ == '__main__':
     # Load the data (creates CHM-like dataset)
     meas.load_data()
     print(meas.data)
-    
+    meas.data.altitude.values=np.array(2000., dtype=np.float32)
     # Save the dataset
     output_file = '../data/eprofile_bsc_output.nc'
     from euliaa_proc.write_netcdf import Writer

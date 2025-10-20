@@ -65,21 +65,21 @@ class Runner:
         nc_writer_l2b.write_nc()
         logger.info('Wrote L2B successfully\n')
 
-    def write_l2a_and_l2b(self):
-        """
-        Write L2A and L2B netCDF files
-        """
-        logger.info(f'Writing L2A {self.args.output_nc_l2A}')
-        nc_writer = Writer(self.meas,output_file=self.args.output_nc_l2A)#,conf_file=self.args.config)
-        nc_writer.write_nc()
-        logger.info('Wrote L2A successfully\n')
+    # def write_l2a_and_l2b(self):
+    #     """
+    #     Write L2A and L2B netCDF files
+    #     """
+    #     logger.info(f'Writing L2A {self.args.output_nc_l2A}')
+    #     nc_writer = Writer(self.meas,output_file=self.args.output_nc_l2A)#,conf_file=self.args.config)
+    #     nc_writer.write_nc()
+    #     logger.info('Wrote L2A successfully\n')
 
-        logger.info(f'Writing L2B {self.args.output_nc_l2B}')
-        self.meas.subsel_stripped_profile()
-        # self.meas.set_invalid_to_nan() # set invalid data to NaN for L2B
-        nc_writer_l2b = Writer(self.meas,output_file=self.args.output_nc_l2B)#,conf_file=self.args.config)
-        nc_writer_l2b.write_nc()
-        logger.info('Wrote L2B successfully\n')
+    #     logger.info(f'Writing L2B {self.args.output_nc_l2B}')
+    #     self.meas.subsel_stripped_profile()
+    #     # self.meas.set_invalid_to_nan() # set invalid data to NaN for L2B
+    #     nc_writer_l2b = Writer(self.meas,output_file=self.args.output_nc_l2B)#,conf_file=self.args.config)
+    #     nc_writer_l2b.write_nc()
+    #     logger.info('Wrote L2B successfully\n')
 
     def encode_bufr(self):
         """

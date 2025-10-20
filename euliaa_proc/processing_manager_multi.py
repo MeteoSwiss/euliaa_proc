@@ -82,15 +82,21 @@ def run_processing_pipeline(filepath, config_template):
         config = get_conf(config_template)
 
         # date_str = re.search("([0-9]{4}\-[0-9]{2}\-[0-9]{2}\_[0-9]{2}\-[0-9]{2}\-[0-9]{2})", filepath)
+        # TO DO this bit should be updated if the filenaming / date format in the L1 changes
         date_str = re.search("([0-9]{4}[0-9]{2}[0-9]{2}\_[0-9]{2}[0-9]{2}[0-9]{2})", filepath)
+        date = date_str.group(1).split('_')[0]
+        year = date[:4]
+        month = date[4:6]
+        day = date[6:8]
+        ################
         config['hdf5_file'] = filepath
-        config['output_nc_l2A'] = os.path.join(config['output_nc_dir'], 'L2A_' + date_str.group(1) + '.nc')
-        config['output_nc_l2B'] = os.path.join(config['output_nc_dir'], 'L2B_' + date_str.group(1) + '.nc')
-        config['output_nc_eprofile_wind'] = os.path.join(config['output_nc_eprofile_wind_dir'], config['eprofile_wind_prefix'] + date_str.group(1)[:-2] + '.nc')
+        config['output_nc_l2A'] = os.path.join(config['output_nc_dir'], 'L2A', year, month, day, 'L2A_' + date_str.group(1) + '.nc')
+        config['output_nc_l2B'] = os.path.join(config['output_nc_dir'], 'L2B', year, month, day, 'L2B_' + date_str.group(1) + '.nc')
+        config['output_nc_eprofile_wind'] = os.path.join(config['output_nc_eprofile_wind_dir'], year, month, day, config['eprofile_wind_prefix'] + date_str.group(1)[:-2] + '.nc')
         if 'output_nc_eprofile_wind_dir_DL' in config.keys():
             config['output_nc_eprofile_wind_DL'] = os.path.join(config['output_nc_eprofile_wind_dir_DL'], config['eprofile_wind_prefix'] + date_str.group(1)[:-2] + '.nc')
-        config['output_nc_eprofile_bsc'] = os.path.join(config['output_nc_eprofile_bsc_dir'], config['eprofile_bsc_prefix'] + date_str.group(1)[:-2] + '.nc')
-        config['output_bufr'] = os.path.join(config['output_bufr_dir'], 'BUFR_' + date_str.group(1) + '.bufr')
+        config['output_nc_eprofile_bsc'] = os.path.join(config['output_nc_eprofile_bsc_dir'],year, month, day, config['eprofile_bsc_prefix'] + date_str.group(1)[:-2].replace('_', '') + config['eprofile_bsc_suffix']+'.nc')
+        config['output_bufr'] = os.path.join(config['output_bufr_dir'], year, month, day, 'BUFR_' + date_str.group(1) + '.bufr')
         args = SimpleNamespace(**config)
 
         runner = Runner(args)
@@ -99,10 +105,24 @@ def run_processing_pipeline(filepath, config_template):
         runner.write_dwl_eprofile()
         logger.info("DWL E-Profile written.")
         if (('output_nc_eprofile_wind_DL' in config.keys()) and ('s3cfg_eprofile_path' in config.keys())):
-            logger.info("Copying to E-Profile DL bucket")
-            subprocess.call(['s3cmd', '-c', config['s3cfg_eprofile_path'], 'cp', config['output_nc_eprofile_wind'], config['output_nc_eprofile_wind_DL']])
+            logger.info(f"Copying to E-Profile DL bucket, from {config['output_nc_eprofile_wind']} to {config['output_nc_eprofile_wind_DL']}")
+            DWL_filename = os.path.basename(config['output_nc_eprofile_wind'])
+            tmp_path = os.path.join(home_dir, 'tmp/', DWL_filename)
+            subprocess.call(['s3cmd', 'get', config['output_nc_eprofile_wind'], os.path.join(home_dir,'tmp/') ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            s3cfg_path_eprofile = config['s3cfg_eprofile_path']
+            subprocess.call(['s3cmd', 'put', tmp_path, config['output_nc_eprofile_wind_DL'], f'--config={s3cfg_path_eprofile}'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
         runner.write_alc_eprofile()
         logger.info("ALC E-Profile written")
+        if (('upload_to_UKMO_FTP' in config.keys()) and (config['upload_to_UKMO_FTP'])):
+            logger.info(f"Upload to E-Profile FTP, {config['output_nc_eprofile_bsc']}")
+            ALC_filename = os.path.basename(config['output_nc_eprofile_bsc'])
+            tmp_path = os.path.join(home_dir, 'tmp/', ALC_filename)
+            subprocess.call(['s3cmd', 'get', config['output_nc_eprofile_bsc'], os.path.join(home_dir,'tmp/') ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.call(['bash', os.path.join(home_dir, 'euliaa_proc/euliaa_proc/scripts/ftp_upload_ukmo.sh'), tmp_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
         runner.write_l2a()
         logger.info("L2A file written.")
         runner.write_l2b()

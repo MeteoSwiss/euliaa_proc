@@ -24,14 +24,14 @@ DRY_RUN=false
 usage() {
     echo "Usage: $0 [YYYYMMDD] [OPTIONS]"
     echo ""
-    echo "Process and concatenate NetCDF files for a specific date"
+    echo "Cconcatenate NetCDF files for a specific date"
     echo ""
     echo "Arguments:"
     echo "  YYYYMMDD          Date in YYYYMMDD format (default: yesterday's date)"
     echo ""
     echo "Options:"
-    echo "  -b, --bucket BUCKET      Source S3 bucket (default: s3://euliaa-l2)"
-    echo "  -o, --output BUCKET      Output S3 bucket (default: s3://euliaa-l2/DAILY)"
+    echo "  -b, --bucket BUCKET      Source S3 bucket directory (default: s3://euliaa-l2)"
+    echo "  -o, --output BUCKET      Output S3 bucket directory (default: s3://euliaa-l2/DAILY)"
     echo "  -v, --verbose            Enable verbose output"
     echo "  -d, --dry-run            Show what would be done without executing"
     echo "  -h, --help               Show this help message"
@@ -109,10 +109,6 @@ if [ -z "$FILES_LIST" ]; then
     exit 1
 fi
 
-# Count files
-FILE_COUNT=$(echo "$FILES_LIST" | wc -l)
-log "Found $FILE_COUNT NetCDF files for date $DATE"
-
 if [ "$DRY_RUN" = true ]; then
     log "DRY RUN - Would process the following files:"
     echo "$FILES_LIST"
@@ -130,25 +126,7 @@ done
 OUTPUT_FILE="$OUTPUT_BUCKET/L2A_$DATE.nc"
 
 # Find the daily_concat.py script
-# SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONCAT_SCRIPT="$HOME/euliaa_proc/euliaa_proc/daily_concat.py"
-
-# if [ ! -f "$CONCAT_SCRIPT" ]; then
-#     # Try alternative locations
-#     if [ -f "$(dirname "$SCRIPT_DIR")/euliaa_proc/daily_concat.py" ]; then
-#         CONCAT_SCRIPT="$(dirname "$SCRIPT_DIR")/euliaa_proc/daily_concat.py"
-#     elif [ -f "euliaa_proc/daily_concat.py" ]; then
-#         CONCAT_SCRIPT="euliaa_proc/daily_concat.py"
-#     else
-#         log "ERROR: Cannot find daily_concat.py script"
-#         exit 1
-#     fi
-# fi
-
-log "Using concatenation script: $CONCAT_SCRIPT"
-
-# Run the concatenation
-log "Starting concatenation process..."
 
 # Convert file list to space-separated arguments
 FILES_ARGS=$(echo "$FILES_LIST" | tr '\n' ' ')
@@ -171,5 +149,3 @@ else
     log "ERROR: Concatenation failed"
     exit 1
 fi
-
-log "Process completed successfully"

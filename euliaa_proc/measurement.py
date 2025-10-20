@@ -219,7 +219,7 @@ class Measurement():
                 continue
             self.data[var] = self.data[var].where(self.data[var+'_flag']==0, np.nan)
 
-    def combine_ray_mie(self):
+    def combine_ray_mie(self): # TO DO complete this when both Ray and Mie are available
         """
         Combine the ray and mie variables into a single variable
         The ray variables are averaged with the mie variables, and the flag is set to the maximum of the two
@@ -313,7 +313,9 @@ class Measurement():
         self.data = self.data.sel(line_of_sight=los)
         self.data = self.data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']))
         self.data = self.data.sel(altitude=slice(0,self.qc_conf['MAX_ALTITUDE']))        
-        self.data = self.data.isel(time=0)
+        self.data = self.data.isel(time=0) # TO DO or -1 ? or mean ?
+        # mean_time = self.data['time'].mean()
+        # self.data = self.data.mean(dim='time', keep_attrs=True).expand_dims(time=[mean_time])
         # self.data = self.data[self.qc_conf['VARS_TO_KEEP']] # -> this crashes if missing variables
         
         # Check which variables from VARS_TO_KEEP actually exist in the dataset
@@ -414,7 +416,7 @@ class H5Reader(Measurement):
                 if var in self.conf['attributes'].keys():
                     self.data[var] = (specs['dim'], self.conf['attributes'][var])
                     logger.info(f'Setting {var} from attributes')
-                continue
+                    continue
             # Load value from config if exists
             if 'value' in specs and not(specs['value'] is None):
                 self.data[var] = (specs['dim'], specs['value'])
