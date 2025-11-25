@@ -34,19 +34,19 @@ class Runner:
         logger.info('Completing quality flag')
         self.meas.add_flag_below_cloud_top(var_list=['temperature_int'])
         self.meas.add_flag_missing_data()
-        self.meas.combine_ray_mie()
-        self.meas.combine_int_broad()
+        self.meas.combine_ray_mie() # for now it just copies mie 
+        self.meas.combine_int_broad() # for now it just copies int
 
 
-    def make_quicklooks(self):
-        """
-        Plot quicklooks for L2A and L2B
-        """
-        logger.info('Plotting quicklooks')
-        fig_title = self.args.output_nc_l2A.split('/')[-1].replace('.nc', '')
-        plot_daily_quicklooks([self.args.output_nc_l2A], self.args.fig_dir, fig_title, fig_prefix=self.args.fig_prefix)
-        # plot_quicklooks(self.args.output_nc_l2B, self.args.fig_dir, self.args.fig_name, self.args.ylim)
-        logger.info('Plotted quicklooks successfully\n')
+    # def make_quicklooks(self):
+    #     """
+    #     Plot quicklooks for L2A and L2B
+    #     """
+    #     logger.info('Plotting quicklooks')
+    #     fig_title = self.args.output_nc_l2A.split('/')[-1].replace('.nc', '')
+    #     plot_daily_quicklooks([self.args.output_nc_l2A], self.args.fig_dir, fig_title, fig_prefix=self.args.fig_prefix)
+    #     # plot_quicklooks(self.args.output_nc_l2B, self.args.fig_dir, self.args.fig_name, self.args.ylim)
+    #     logger.info('Plotted quicklooks successfully\n')
 
     def write_l2a(self):
         """

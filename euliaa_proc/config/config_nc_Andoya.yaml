@@ -1229,7 +1229,7 @@ attributes:
   retrieval_code: # Algorithm should include description of both measurement method, retrieval and correction / postproc (or split into several fields)
   retrieval_reference:
   correction_w_offset: 0.0 # vertical velocity correction
-  correction_w_offset_description: Determined from averaging w over a long time period and calculating the mean bias from zero. Used to correct w, u, v.
+  correction_w_offset_description: Determined from averaging w over a few days period and calculating the mean bias from zero. It has been applied to correct w, u, v.
   calibration_status:
   calibration_time:
   height_above_ground:

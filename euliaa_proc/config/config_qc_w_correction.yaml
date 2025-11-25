@@ -32,13 +32,12 @@ MIN_RANGE_FOR_FLAG:
   u_mie: 2500. # m
   v_mie: 2500. # m
   temperature_int: 2500. # m
-  backscatter_coef: 0. # m
-  backscatter_coef_depol: 0. # m
+  backscatter_coef: 2500. # m
+  backscatter_coef_depol: 2500. # m
 
 CORRECTION: 28.8461 # velocity correction for frequency offset = 28.8461 (remove if IAP fixes it themselves)
-CORRECTION_W_MEAN: 0.0 # velocity correction for w mean offset. Computed using computed_w_offset.py, when sufficient data is available at the start of a campaign.
 MULTIPLY_BY: 2.0 # velocity correction for off-zenith slant, remove if IAP fixes it themselves
-VARS_TO_KEEP: # list of variables to keep in the L2B file
+VARS_TO_KEEP: # list of variables to keep in the L2B file # this is for internal use - for quicklooks (no external distribution)
 - altitude
 - temperature
 - w
@@ -56,18 +55,18 @@ VARS_TO_KEEP: # list of variables to keep in the L2B file
 - range_integration
 - time_integration
 
-VARIABLES_TO_KEEP_DAILY:
+VARIABLES_TO_KEEP_DAILY: # Uncomment the variables if they are good enough to include in the GKH
 - altitude
 - altitude_mie
-- w_mie
-- v_mie
-- u_mie
-- w_mie_err
-- v_mie_err
-- u_mie_err
-- w_mie_flag
-- v_mie_flag
-- u_mie_flag
+# - w_mie
+# - v_mie
+# - u_mie
+# - w_mie_err
+# - v_mie_err
+# - u_mie_err
+# - w_mie_flag
+# - v_mie_flag
+# - u_mie_flag
 - u
 - v
 - w

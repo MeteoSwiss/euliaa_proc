@@ -27,15 +27,31 @@ campaign:
   #   - L2A_DIR: s3://euliaa-l2/OHP/L2A/
   #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/OHP/quicklooks/
   #   - FIG_PREFIX: L2A_OHP_
+    # - WIND_STR: 20MIN
+    # - BSC_STR: 20MIN
+    # - T_STR: 20MIN
+    # - MASK_FLAG: 0
   # Jungfraujoch:
   #   - L2A_DIR: s3://euliaa-l2/Jungfraujoch/L2A/
   #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Jungfraujoch/quicklooks/
-  #   - FIG_PREFIX: L2A_Jungfraujoch_
+    # - FIG_PREFIX: L2A_Jungfraujoch_
+    # - WIND_STR: 20MIN
+    # - BSC_STR: 20MIN
+    # - T_STR: 20MIN
+    # - MASK_FLAG: 0
   # Payerne:
   #   - L2A_DIR: s3://euliaa-l2/Payerne/L2A/
   #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Payerne/quicklooks/
   #   - FIG_PREFIX: L2A_Payerne_
+    # - WIND_STR: 20MIN
+    # - BSC_STR: 20MIN
+    # - T_STR: 20MIN
+    # - MASK_FLAG: 0
   # Maido:
   #   - L2A_DIR: s3://euliaa-l2/Maido/L2A/
   #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Maido/quicklooks/
   #   - FIG_PREFIX: L2A_Maido_
+    # - WIND_STR: 20MIN
+    # - BSC_STR: 20MIN
+    # - T_STR: 20MIN
+    # - MASK_FLAG: 0
