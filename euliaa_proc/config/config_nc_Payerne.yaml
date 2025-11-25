@@ -17,6 +17,7 @@ attributes:
   station_altitude: 493.
   station_latitude: 46.81
   station_longitude: 6.94
+  azimuth_offset: 0.0
   history:
   institution: Leibniz Institute for Atmospheric Physics, Kuehlungsborn
   comment:
@@ -32,6 +33,8 @@ attributes:
     #   hdf5_var_name: Version
   retrieval_code: # Algorithm should include description of both measurement method, retrieval and correction / postproc (or split into several fields)
   retrieval_reference:
+  correction_w_offset: 0.0 # vertical velocity correction
+  correction_w_offset_description: Determined from averaging w over a long time period and calculating the mean bias from zero. Used to correct w, u, v.
   calibration_status:
   calibration_time:
   height_above_ground:

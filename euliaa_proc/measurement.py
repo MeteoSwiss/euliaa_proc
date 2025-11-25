@@ -3,7 +3,7 @@ from netCDF4 import Dataset
 import pandas as pd
 import numpy as np
 from euliaa_proc.utils.conf_utils import get_conf, correct_dim_scalar_fields
-from euliaa_proc.utils.data_utils import check_var_in_ds, compute_lat_lon, flag_var, get_noise_from_da
+from euliaa_proc.utils.data_utils import check_var_in_ds, compute_lat_lon, flag_var, get_noise_from_da, compute_ldr_and_err, correct_u_v_for_azimuth
 from euliaa_proc.utils.cloud_detection import in_house_cloud_detection
 from euliaa_proc.log import logger
 
@@ -36,6 +36,17 @@ class Measurement():
         for var_name, var_data in var_dict.items():
             self.data[var_name] = var_data
 
+    def correct_altitude(self):
+        """
+        Correct altitude variables by adding station altitude (what is provided in the L1 is height above ground)
+        """
+        if 'altitude_ray' in self.data.keys():
+            self.data['altitude_ray'] = self.data['altitude_ray'] + self.data['station_altitude']
+        if 'altitude_mie' in self.data.keys():
+            self.data['altitude_mie'] = self.data['altitude_mie'] + self.data['station_altitude']
+        if 'altitude' in self.data.keys():
+            self.data['altitude'] = self.data['altitude'] + self.data['station_altitude']
+
     def add_lat_lon(self):
         self.data['latitude_mie'], self.data['longitude_mie'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_mie)
         self.data['latitude_ray'], self.data['longitude_ray'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_ray)
@@ -44,14 +55,14 @@ class Measurement():
         if ('time_bnds' in self.data.keys()):
             logger.info('Time bounds variable already in dataset')
         elif ('time_integration' in self.data.keys()):
-            time_start = self.data['time'].values - self.data['time_integration'].values/2
-            time_stop = self.data['time'].values + self.data['time_integration'].values/2
+            time_start = self.data['time'].values - self.data['time_integration'].values#/2
+            time_stop = self.data['time'].values #+ self.data['time_integration'].values/2
             self.data['time_bnds'] = (('time', 'bnds'), np.stack([time_start, time_stop], axis=-1))
             logger.info('Time bounds added to the dataset')
         else:
             dt = np.mean(self.data['time'].values[1:]-self.data['time'].values[:-1])
-            time_start = self.data['time'].values - dt/2
-            time_stop = self.data['time'].values + dt/2
+            time_start = self.data['time'].values - dt#/2
+            time_stop = self.data['time'].values #+ dt/2
             self.data['time_bnds'] = (('time', 'bnds'), np.stack([time_start, time_stop], axis=-1))
             self.data['time_integration'] = dt
             logger.warning('Time bounds inferred from time resolution. Time integration missing in original dataset, setting it with time increment')
@@ -112,7 +123,7 @@ class Measurement():
         
 
     def add_noise_and_snr(self):
-        for scat in ['mie', 'ray']:
+        for scat in ['mie', 'ray', 'mie_depol']:
             if f'signal_{scat}' in self.data.keys():
                 self.data[f'noise_background_{scat}'], self.data[f'noise_stdv_{scat}']  = get_noise_from_da(self.data[f'signal_{scat}'], calc_stdv=1)
                 self.data[f'snr_{scat}'] = (self.data[f'signal_{scat}']-self.data[f'noise_background_{scat}'])/self.data[f'noise_stdv_{scat}']
@@ -139,13 +150,69 @@ class Measurement():
             cloud_ds = in_house_cloud_detection(data_zen,**kwargs)
             self.data = xr.merge([self.data, cloud_ds])
 
+    def add_depolarization_ratio(self, **kwargs):
+        # self.data['aerosol_depolarization_ratio'] = self.data['backscatter_coef_depol']/self.data['backscatter_coef'].isel(line_of_sight=0)
+        # self.data['aerosol_depolarization_ratio_err'] = 
+        if not(('backscatter_coef_depol' in self.data.keys()) and ('backscatter_coef' in self.data.keys())):
+            logger.warning('Cannot compute aerosol depolarization ratio: backscatter_coef_depol or backscatter_coef missing')
+            return
+        logger.info('Computing aerosol depolarization ratio and error')
+        bsc_depol = self.data["backscatter_coef_depol"].to_numpy()        # cross-polar
+        bsc = self.data["backscatter_coef"].isel(line_of_sight=0).to_numpy()              # co-polar
+        bsc_depol_err = self.data["backscatter_coef_depol_err"].to_numpy()    # cross-polar error
+        bsc_err = self.data["backscatter_coef_err"].isel(line_of_sight=0).to_numpy()          # co-polar error
+        ldr, ldr_err = compute_ldr_and_err(bsc_depol, bsc, bsc_depol_err, bsc_err)
+        self.data['aerosol_depolarization_ratio'] = xr.zeros_like(self.data['backscatter_coef_depol'])
+        self.data['aerosol_depolarization_ratio_err'] = xr.zeros_like(self.data['backscatter_coef_depol_err'])
+        self.data['aerosol_depolarization_ratio'].values = ldr
+        self.data['aerosol_depolarization_ratio_err'].values = ldr_err
+        self.data['aerosol_depolarization_ratio_flag'] = xr.ufuncs.maximum(self.data['backscatter_coef_depol_flag'], self.data['backscatter_coef_flag'].isel(line_of_sight=0)) 
 
-    def correct_velocity(self, var_list = ['u_mie', 'v_mie', 'w_mie', 'u', 'v', 'w', 'u_ray', 'v_ray', 'w_ray'] ):
+    
+    def correct_azimuth_offset(self):
+        """
+        Correct the u and v components for the azimuth angle of the line of sight
+        """
+        logger.info('Correcting u/v for azimuth offset')
+        if 'azimuth_offset' in self.data.keys():
+            azimuth_deg = self.data['azimuth_offset'].values
+        elif 'azimuth_offset' in self.conf['attributes'].keys():
+            azimuth_deg = self.conf['attributes']['azimuth_offset']
+        else:
+            logger.warning('No azimuth_offset found in data or config, cannot correct u/v for azimuth')
+            return
+        for var_ending in ['_mie', '_ray', '']:
+            u_var = f'u{var_ending}'
+            v_var = f'v{var_ending}'
+            u_err_var = f'u{var_ending}_err'
+            v_err_var = f'v{var_ending}_err'
+            if (u_var in self.data.keys()) and (v_var in self.data.keys()) and (u_err_var in self.data.keys()) and (v_err_var in self.data.keys()):
+                self.data[u_var], self.data[v_var], self.data[u_err_var], self.data[v_err_var] = correct_u_v_for_azimuth(azimuth_deg, self.data[u_var], self.data[v_var], self.data[u_err_var], self.data[v_err_var])
+                logger.info(f'Corrected {u_var} and {v_var} for azimuth offset of {azimuth_deg} degrees')
+            else:
+                logger.warning(f'Cannot correct {u_var} and {v_var} for azimuth offset: missing variable(s): {[var for var in [u_var, v_var, u_err_var, v_err_var] if var not in self.data.keys()]}')            
+        
+    
+    def correct_velocity_offset(self, var_list = ['u_mie', 'v_mie', 'w_mie', 'u', 'v', 'w', 'u_ray', 'v_ray', 'w_ray'] ):
+        """
+        L1 data is corrected for a velocity offset specified in the qc config file (same offset for u, v, w)
+        Inputs:
+            var_list: list of variables to correct
+        """
         for var in var_list:
             if var in self.data:
-                self.data[var] = self.data[var] - self.qc_conf['CORRECTION'] # certain files from iap has a velocity bias
+                if 'CORRECTION' in self.qc_conf_file: # This is a general correction applied to all campaigns, so should be in the qc config file
+                    self.data[var] = self.data[var] - self.qc_conf['CORRECTION'] # certain files from iap has a velocity bias
+                    logger.info(f'Corrected {var} for velocity offset of {self.qc_conf["CORRECTION"]}')
+                if 'correction_w_offset' in self.conf['attributes']: # This is campaign-dependent so should be in the campaign config, and stored in attributes (relevant to users)
+                    self.data[var] = self.data[var] - self.qc_conf['correction_w_offset'] # remove mean w after correction
+                    logger.info(f'Corrected {var} for mean w offset of {self.qc_conf["correction_w_offset"]}')
+                if var in ['w_mie', 'w', 'w_ray']:
+                    continue
+                self.data[var] = self.data[var]*self.qc_conf['MULTIPLY_BY']# 2 # off-zenith slant # This is a general correction applied to all campaigns, so should be in the qc config file
+                logger.info(f'Corrected {var} for velocity offset of {self.qc_conf["CORRECTION"]} and multiplied by {self.qc_conf["MULTIPLY_BY"]}')
 
-    def add_quality_flag(self, var_list = ['u_mie', 'v_mie', 'w_mie', 'temperature_int', 'backscatter_coef']):
+    def add_quality_flag(self, var_list = ['u_mie', 'v_mie', 'w_mie', 'temperature_int', 'backscatter_coef', 'backscatter_coef_depol']):
         """
         Add quality flag to the variables in var_list
         The flag is computed as follows:
@@ -157,6 +224,9 @@ class Measurement():
         -9 = missing data
         """
         for var in var_list:
+            if not (var in self.data.keys()):
+                logger.warning(f'Variable {var} not found in dataset, skipping quality flag for this variable')
+                continue
             scat = 'mie' if any('_mie' in d for d in self.data[var].dims) else 'ray'
             flag_invalid = flag_var(self.data, var, var_min_thres=self.qc_conf['THRES_MIN'][var], var_max_thres=self.qc_conf['THRES_MAX'][var]) # -> flag = 1
             if not ('line_of_sight' in self.data[var].dims):
@@ -170,7 +240,16 @@ class Measurement():
                 snr_los = 'all'
             flag_snr = flag_var(self.data, var, snr_key=f'snr_{scat}',snr_thres=self.qc_conf['SNR_THRES'][var], snr_los=snr_los) # -> flag = 2
             flag_err = flag_var(self.data, var, err_key=f'{var}_err', var_err_thres=self.qc_conf['ERR_THRES'][var])  # -> flag = 4
-            self.data[f'{var}_flag'] = flag_err + flag_snr + flag_invalid
+            flag_low_range = xr.zeros_like(self.data[var])
+            if var in self.qc_conf['MIN_RANGE_FOR_FLAG'].keys(): # add low altitude flag -> flag = 32 (8 + 16 already used for cloud, see functions below)
+                if 'altitude' in self.data.keys():
+                    alt_0 = self.data['altitude'].values[0]
+                    flag_low_range = xr.where(self.data['altitude']-alt_0 < self.qc_conf['MIN_RANGE_FOR_FLAG'][var], 32, 0)
+                elif 'altitude_mie' in self.data.keys():
+                    alt_0 = self.data['altitude_mie'].values[0]
+                    flag_low_range = xr.where(self.data['altitude_mie']-alt_0 < self.qc_conf['MIN_RANGE_FOR_FLAG'][var], 32, 0)
+            
+            self.data[f'{var}_flag'] = flag_err + flag_snr + flag_invalid + flag_low_range
 
 
     def add_flag_below_cloud_top(self, var_list = ['temperature_int']):
@@ -184,7 +263,21 @@ class Measurement():
             return
         cloud_flag = xr.where(self.data['below_cloud_top'] > 0, 8, 0)
         for var in var_list:
-            self.data[f'{var}_flag'] += cloud_flag
+            self.data[f'{var}_flag'] += cloud_flag # -> flag = 8
+        return
+    
+    def add_flag_above_cloud_base(self, var_list = ['backscatter_coef', 'backscatter_coef_depol', 'aerosol_depolarization_ratio']):
+        """
+        Add cloud flag to the variables in var_list
+        The flag is computed as follows:
+        - flag_cloud: 16 if the cloud mask is > 0
+        """
+        if not ('above_cloud_base' in self.data.keys()):
+            logger.warning('No cloud top data available, skipping cloud flag')
+            return
+        cloud_flag = xr.where(self.data['above_cloud_base'] > 0, 16, 0)
+        for var in var_list:
+            self.data[f'{var}_flag'] += cloud_flag # -> flag = 16
         return
 
     def add_flag_missing_data(self):
@@ -193,22 +286,22 @@ class Measurement():
                 self.data[f'{var}_flag'] = self.data[f'{var}_flag'].where(~xr.ufuncs.isnan(self.data[var]), -9) # flag = -9 if NaN
 
 
-    def add_quality_flag_old(self):
-        """
-        Add quality flag
-        The flag is computed as follows, for each variable (with some var-specific adjustments): high error + invalid value + no data + low snr
-        Then if 'INVALID_TO_NAN' is set to True, the variable is set to NaN if the flag is > 0.
-        """
-        # self.data.w_mie.values = self.data.w_mie.values-self.qc_conf['CORRECTION'] # first file from iap has a velocity bias
-        self.data['w_mie_flag'] = flag_var(self.data, 'w_mie', err_key='w_mie_err', var_min_thres=-self.qc_conf['W_ABS_THRES'], var_max_thres=self.qc_conf['W_ABS_THRES'], var_err_thres=self.qc_conf['W_ERR_THRES'])
-        self.data['u_mie_flag'] = flag_var(self.data, 'u_mie', err_key='u_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
-        self.data['v_mie_flag'] = flag_var(self.data, 'v_mie', err_key='v_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
-        self.data['temperature_int_flag'] = flag_var(self.data, 'temperature_int', err_key='temperature_int_err', var_min_thres=self.qc_conf['TEMP_MIN_THRES'], var_max_thres=self.qc_conf['TEMP_MAX_THRES'], var_err_thres=self.qc_conf['TEMP_ERR_THRES'])
-        self.data['u_v_flag']= xr.ufuncs.maximum(self.data.u_mie_flag,self.data.v_mie_flag)
-        self.data['backscatter_coef_flag'] = flag_var(self.data, 'backscatter_coef', var_min_thres=self.qc_conf['BSC_MIN_THRES'],snr_key='snr_mie',snr_thres=self.qc_conf['SNR_THRES'])
-        if self.qc_conf['INVALID_TO_NAN']:
-            for var in ['u_mie', 'v_mie', 'w_mie', 'temperature_int', 'backscatter_coef']:
-                self.data[var] = self.data[var].where(self.data[var+'_flag']<1, np.nan)
+    # def add_quality_flag_old(self):
+    #     """
+    #     Add quality flag
+    #     The flag is computed as follows, for each variable (with some var-specific adjustments): high error + invalid value + no data + low snr
+    #     Then if 'INVALID_TO_NAN' is set to True, the variable is set to NaN if the flag is > 0.
+    #     """
+    #     # self.data.w_mie.values = self.data.w_mie.values-self.qc_conf['CORRECTION'] # first file from iap has a velocity bias
+    #     self.data['w_mie_flag'] = flag_var(self.data, 'w_mie', err_key='w_mie_err', var_min_thres=-self.qc_conf['W_ABS_THRES'], var_max_thres=self.qc_conf['W_ABS_THRES'], var_err_thres=self.qc_conf['W_ERR_THRES'])
+    #     self.data['u_mie_flag'] = flag_var(self.data, 'u_mie', err_key='u_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
+    #     self.data['v_mie_flag'] = flag_var(self.data, 'v_mie', err_key='v_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
+    #     self.data['temperature_int_flag'] = flag_var(self.data, 'temperature_int', err_key='temperature_int_err', var_min_thres=self.qc_conf['TEMP_MIN_THRES'], var_max_thres=self.qc_conf['TEMP_MAX_THRES'], var_err_thres=self.qc_conf['TEMP_ERR_THRES'])
+    #     self.data['u_v_flag']= xr.ufuncs.maximum(self.data.u_mie_flag,self.data.v_mie_flag)
+    #     self.data['backscatter_coef_flag'] = flag_var(self.data, 'backscatter_coef', var_min_thres=self.qc_conf['BSC_MIN_THRES'],snr_key='snr_mie',snr_thres=self.qc_conf['SNR_THRES'])
+    #     if self.qc_conf['INVALID_TO_NAN']:
+    #         for var in ['u_mie', 'v_mie', 'w_mie', 'temperature_int', 'backscatter_coef']:
+    #             self.data[var] = self.data[var].where(self.data[var+'_flag']<1, np.nan)
 
     def set_invalid_to_nan(self):
         """
@@ -305,15 +398,18 @@ class Measurement():
             if flag_var_exists:
                 self.data[combined_flag_var] = (new_dims, combined_flag)
 
-    def subsel_stripped_profile(self, los=0):
+    def subsel_stripped_profile(self, los=0, i_to_subsel=[-1]):
         """
         Subset the data to keep only a profile in one field of view and the altitude range + variable list specified in the qc config
         Used to create L2B
         """
+        self.data 
         self.data = self.data.sel(line_of_sight=los)
         self.data = self.data.sel(altitude_mie=slice(0,self.qc_conf['MAX_ALTITUDE']))
-        self.data = self.data.sel(altitude=slice(0,self.qc_conf['MAX_ALTITUDE']))        
-        self.data = self.data.isel(time=0) # TO DO or -1 ? or mean ?
+        self.data = self.data.sel(altitude=slice(0,self.qc_conf['MAX_ALTITUDE']))   
+        # if inds_to_subsel is not None:
+        #     self.data = self.data.isel(time=inds_to_subsel)     
+        self.data = self.data.isel(time=i_to_subsel) # TO DO or -1 ? or mean ?
         # mean_time = self.data['time'].mean()
         # self.data = self.data.mean(dim='time', keep_attrs=True).expand_dims(time=[mean_time])
         # self.data = self.data[self.qc_conf['VARS_TO_KEEP']] # -> this crashes if missing variables

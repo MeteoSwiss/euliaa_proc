@@ -12,3 +12,5 @@ poetry.lock
 **/figures
 **/*credential*
 **/*.png
+**/*.nc
+**/*.dat

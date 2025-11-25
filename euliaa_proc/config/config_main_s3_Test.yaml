@@ -1,21 +1,29 @@
+campaign_name: Test
 hdf5_file:
 config: /home/oper/euliaa_proc/euliaa_proc/config/config_nc_Test.yaml
 config_eprofile_wind: /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_wind.yaml
 config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc.yaml
 config_qc: /home/oper/euliaa_proc/euliaa_proc/config/config_qc.yaml
-output_nc_dir: s3://euliaa-l2/TESTS/Test/
-output_nc_eprofile_wind_dir: s3://euliaa-l2/EProfile_DWL/Test/
-# s3cfg_eprofile_path: /home/oper/.s3cfg_eprofile
-# output_nc_eprofile_wind_dir_DL: s3://eprofile-dl-l1/
-eprofile_wind_prefix: 'L1_EU1WL_'
-chm_template_file: '/home/oper/euliaa_proc/data/20251001_pay_CHM200110_0920_000.nc'
-output_nc_eprofile_bsc_dir: s3://euliaa-l2/EProfile_ALC/Test/
-# upload_to_UKMO_FTP: 1
-eprofile_bsc_prefix: '99901_A'
-eprofile_bsc_suffix: '_CHM15k'
-output_bufr_dir: s3://euliaa-l2/TESTS_BUFR/Test/
+output_nc_dir: s3://euliaa-l2/TESTS/Test/ # for L2A and L2B products
+
+# E-Profile DWL configuration
+output_nc_eprofile_wind_dir: s3://euliaa-eprofile/EProfile_DWL/Test/ # for E-Profile DWL products, stored on our own s3 bucket
+eprofile_wind_prefix: 'L1_EU1WL_' # should be L1_EU1WL_ or L1_EU2WL_ depending on the instrument
+# s3cfg_eprofile_path: /home/oper/.s3cfg_eprofile # uncomment this line to upload on E-Profile DWL s3 bucket
+# output_nc_eprofile_wind_dir_DL: s3://eprofile-dl-l1/ # uncomment this line to upload on E-Profile DWL s3 bucket
+
+# Uncomment following lines to activate creation of CHM15k-like files for E-Profile BSC products
+# chm_template_file: '/home/oper/euliaa_proc/data/20251001_pay_CHM200110_0920_000.nc' # uncomment this line to activate creation of CHM15k-like files for E-Profile BSC products
+# eprofile_bsc_prefix: '99901_A'
+# eprofile_bsc_suffix: '_CHM15k'
+# output_nc_eprofile_bsc_dir: s3://euliaa-eprofile/EProfile_ALC/Test/ # for E-Profile BSC products, stored on our own s3 bucket
+# # upload_to_UKMO_FTP: 1 # uncomment this line to ACTUALLY upload on UKMO FTP server
+
+output_bufr_dir: s3://euliaa-l2/TESTS_BUFR/Test/ # for BUFR products (Temperature and/or wind)
 bufr_types:
-  #- wind
+  #- wind # in principle this is never used
   - temperature
-# fig_dir: s3://euliaa-quicklooks/TESTS/Test/
+
+# OLD
+# fig_dir: s3://euliaa-quicklooks/TESTS/Test/ 
 # fig_prefix: euliaa_quicklook_

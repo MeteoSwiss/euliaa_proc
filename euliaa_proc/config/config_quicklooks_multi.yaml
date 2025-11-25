@@ -1,10 +1,41 @@
 campaign:
   Test:
-    - L2A_DIR: s3://euliaa-l2/TESTS/Test/
+    - L2A_DIR: s3://euliaa-l2/TESTS/Test/L2A/
     - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Test/quicklooks/
     - FIG_PREFIX: L2A_Test_
+    - WIND_STR: 20MIN
+    - BSC_STR: 20MIN
+    - T_STR: 60MIN
+    - MASK_FLAG: 1
   Kborn:
-    - L2A_DIR: s3://euliaa-l2/TESTS/Kuehlungsborn/
+    - L2A_DIR: s3://euliaa-l2/TESTS/Kuehlungsborn/L2A/
     - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Kuehlungsborn/quicklooks/
     - FIG_PREFIX: L2A_Kuehlungsborn_
-  
+    - WIND_STR: 20MIN
+    - BSC_STR: 20MIN
+    - T_STR: 60MIN
+    - MASK_FLAG: 1
+  Andoya:
+    - L2A_DIR: s3://euliaa-l2/Andoya/L2A/
+    - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Andoya/quicklooks/
+    - FIG_PREFIX: L2A_Andoya_
+    - WIND_STR: 20MIN
+    - BSC_STR: 20MIN
+    - T_STR: 20MIN
+    - MASK_FLAG: 0
+  # OHP:
+  #   - L2A_DIR: s3://euliaa-l2/OHP/L2A/
+  #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/OHP/quicklooks/
+  #   - FIG_PREFIX: L2A_OHP_
+  # Jungfraujoch:
+  #   - L2A_DIR: s3://euliaa-l2/Jungfraujoch/L2A/
+  #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Jungfraujoch/quicklooks/
+  #   - FIG_PREFIX: L2A_Jungfraujoch_
+  # Payerne:
+  #   - L2A_DIR: s3://euliaa-l2/Payerne/L2A/
+  #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Payerne/quicklooks/
+  #   - FIG_PREFIX: L2A_Payerne_
+  # Maido:
+  #   - L2A_DIR: s3://euliaa-l2/Maido/L2A/
+  #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Maido/quicklooks/
+  #   - FIG_PREFIX: L2A_Maido_

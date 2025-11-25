@@ -5,26 +5,38 @@ SNR_THRES:
   v_mie: 0 # -
   temperature_int: 0 # -
   backscatter_coef: 5 # -
+  backscatter_coef_depol: 5 # -
 ERR_THRES:
   w_mie: 1 # m/s
   u_mie: 1 # m/s
   v_mie: 1 # m/s
   temperature_int: 5 # K
   backscatter_coef: .inf
+  backscatter_coef_depol: .inf 
 THRES_MIN:
   w_mie: -40.96
   u_mie: -409.6
   v_mie: -409.6
   temperature_int: 0
   backscatter_coef: 0 # m-1 sr-1
+  backscatter_coef_depol: 0
 THRES_MAX:
   w_mie: 40.96
   u_mie: 409.6
   v_mie: 409.6
   temperature_int: 409.5
   backscatter_coef: .inf
+  backscatter_coef_depol: .inf
+MIN_RANGE_FOR_FLAG:
+  w_mie: 0. # m
+  u_mie: 0. # m
+  v_mie: 0. # m
+  temperature_int: 2500. # m
+  backscatter_coef: 0. # m
+  backscatter_coef_depol: 0. # m
 
 CORRECTION: 0 # temporary correction to do remove when fixed by IAP
+MULTIPLY_BY: 1.0 # temporary correction to do remove when fixed by IAP
 VARS_TO_KEEP:
 - altitude
 - temperature

@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-def concat_netcdf_files(input_files, output_file, s3_kwargs=None):
+def concat_netcdf_files(input_files, output_file, s3_kwargs=None, config_file=None):
     """
     Concatenate NetCDF files from S3 into a single file.
     
@@ -25,6 +25,12 @@ def concat_netcdf_files(input_files, output_file, s3_kwargs=None):
     """
     logger.info(f"Concatenating {len(input_files)} files")
     
+    if config_file:
+        import yaml
+        with open(config_file, 'r') as f:
+            config = yaml.safe_load(f)
+    else:
+        config = {}
     # Set up S3 filesystem
     s3_kwargs = s3_kwargs or {}
     fs = s3fs.S3FileSystem(**s3_kwargs)
@@ -34,8 +40,8 @@ def concat_netcdf_files(input_files, output_file, s3_kwargs=None):
         logger.info("Opening datasets with xarray.open_mfdataset...")
         ds = xr.open_mfdataset(
             input_files,
-            # concat_dim='time',
-            # combine='nested',
+            concat_dim='time',
+            combine='nested',
             engine='h5netcdf',
             # chunks='auto',
             storage_options=s3_kwargs
@@ -44,7 +50,14 @@ def concat_netcdf_files(input_files, output_file, s3_kwargs=None):
         # Sort by time if needed
         if 'time' in ds.dims:
             ds = ds.sortby('time')
-        
+
+        # Drop duplicate time entries if any
+        ds = ds.drop_duplicates(dim="time")
+
+        # logger.info("variables before subsetting: " + str(list(ds.data_vars)))
+        if 'VARIABLES_TO_KEEP_DAILY' in config:
+            vars_to_keep = [var if var in ds.keys() else logger.warning(f"Variable {var} not found in dataset") for var in config['VARIABLES_TO_KEEP_DAILY']]
+            ds = ds[vars_to_keep]
         logger.info(f"Dataset shape: {ds.dims}")
         logger.info(f"Time range: {ds.time.min().values} to {ds.time.max().values}")
         
@@ -91,6 +104,7 @@ def concat_netcdf_files(input_files, output_file, s3_kwargs=None):
 def main():
     parser = argparse.ArgumentParser(description='Concatenate NetCDF files from S3 along time dimension')
     parser.add_argument('input_files',nargs='+', help='List of S3 paths to NetCDF files (e.g., s3://bucket/path/*.nc)')
+    parser.add_argument('--config', help='Path to configuration file (optional)')
     parser.add_argument('-o', '--output', required=True, help='Output path for concatenated NetCDF file (can be S3 or local path)')
     parser.add_argument('--s3-profile',help='AWS profile to use for S3 access')
     parser.add_argument('--verbose', '-v', action='store_true',help='Enable verbose logging')
@@ -104,9 +118,9 @@ def main():
     s3_kwargs = {}
     if args.s3_profile:
         s3_kwargs['profile'] = args.s3_profile
-    
+    logger.info(args.config)
     # Run concatenation
-    concat_netcdf_files(args.input_files, args.output, s3_kwargs)
+    concat_netcdf_files(args.input_files, args.output, s3_kwargs, config_file=args.config)
 
 
 if __name__ == '__main__':

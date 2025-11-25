@@ -258,7 +258,7 @@ variables:
       - BSCMieE
       - BSCMieN
     attributes:
-      long_name: Total volume backscatter coefficient
+      long_name: Particle backscatter coefficient
       units: m-1 sr-1
       scattering_regime: Mie
   backscatter_coef_err:
@@ -276,7 +276,7 @@ variables:
       - BSCMieEErr
       - BSCMieNErr
     attributes:
-      long_name: Uncertainty on total volume backscatter coefficient
+      long_name: Uncertainty on particle backscatter coefficient
       units: m-1 sr-1
       scattering_regime: Mie
       comment: Error propagated from photon count
@@ -292,7 +292,95 @@ variables:
       hdf5_group: null
       hdf5_var_name: null
     attributes:
-      long_name: Quality flag for total volume backscatter coefficient
+      long_name: Quality flag for particle backscatter coefficient
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  
+  backscatter_coef_depol:
+    name: backscatter_coef_depol
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: BSCMieD
+    attributes:
+      long_name: Particle backscatter coefficient calculated from cross-polar zenith channel
+      units: m-1 sr-1
+      scattering_regime: Mie
+  backscatter_coef_depol_err:
+    name: backscatter_coef_depol_err
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: BSCMieDErr
+    attributes:
+      long_name: Uncertainty on particle backscatter coefficient calculated from cross-polar zenith channel
+      units: m-1 sr-1
+      scattering_regime: Mie
+      comment: Error propagated from photon count
+  backscatter_coef_depol_flag:
+    name: backscatter_coef_depol_flag
+    dim:
+    - time
+    - altitude_mie
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for particle backscatter coefficient calculated from cross-polar zenith channel
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  
+  aerosol_depolarization_ratio:
+    name: aerosol_depolarization_ratio
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null 
+      hdf5_var_name: null
+    attributes:
+      long_name: Linear aerosol depolarization ratio
+      units: "1"
+      scattering_regime: Mie
+  aerosol_depolarization_ratio_err:
+    name: aerosol_depolarization_ratio_err
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Uncertainty on linear aerosol depolarization ratio
+      units: "1"
+      scattering_regime: Mie
+      comment: Error propagated from photon count
+  aerosol_depolarization_ratio_flag:
+    name: aerosol_depolarization_ratio_flag
+    dim:
+    - time
+    - altitude_mie
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for linear aerosol depolarization ratio
       units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   backscatter_ratio:
@@ -310,7 +398,7 @@ variables:
       - BSRMieE
       - BSRMieN
     attributes:
-      long_name: Total volume backscatter ratio
+      long_name: Backscatter ratio
       units: "1"
       scattering_regime: Mie
   backscatter_ratio_err:
@@ -328,7 +416,7 @@ variables:
       - BSRMieEErr
       - BSRMieNErr
     attributes:
-      long_name: Uncertainty on total volume backscatter ratio
+      long_name: Uncertainty on backscatter ratio
       units: "1"
       scattering_regime: Mie
       comment: Error propagated from photon count
@@ -1123,6 +1211,7 @@ attributes:
   station_altitude: 10.
   station_latitude: 54.12
   station_longitude: 11.77
+  azimuth_offset: 0.0
   history:
   institution: Leibniz Institute for Atmospheric Physics, Kuehlungsborn
   comment:
@@ -1138,6 +1227,8 @@ attributes:
     #   hdf5_var_name: Version
   retrieval_code: # Algorithm should include description of both measurement method, retrieval and correction / postproc (or split into several fields)
   retrieval_reference:
+  correction_w_offset: 0.0 # vertical velocity correction
+  correction_w_offset_description: Determined from averaging w over a long time period and calculating the mean bias from zero. Used to correct w, u, v.
   calibration_status:
   calibration_time:
   height_above_ground:

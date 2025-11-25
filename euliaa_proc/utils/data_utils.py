@@ -243,3 +243,56 @@ def compute_beam_diameter(height, theta=3.25e-5, d_ini=10e-2):
     - The diameter of the beam at the specified height.
     """    
     return d_ini + 2 * height * np.tan(theta)
+
+
+def compute_ldr_and_err(bsc_depol, bsc, bsc_depol_err, bsc_err):
+    # Extract variables
+    
+    # --- Step 1: Compute LDR (ratio)
+    ldr = bsc_depol / bsc
+
+    # --- Step 2: Estimate correlation (ρ) between channels
+    #    If you have multiple samples (e.g. along time or range), estimate globally or per-bin.
+    #    Here: compute overall Pearson correlation coefficient
+    mask = np.isfinite(bsc) & np.isfinite(bsc_depol)
+    rho = np.corrcoef(bsc_depol[mask], bsc[mask])[0, 1]
+
+    print(f"Estimated correlation (ρ) = {rho:.3f}")
+
+    # --- Step 3: Compute LDR uncertainty including covariance term
+    ldr_rel_err = np.sqrt(
+        (bsc_depol_err / bsc_depol) ** 2 +
+        (bsc_err / bsc) ** 2 -
+        2 * rho * (bsc_depol_err / bsc_depol) * (bsc_err / bsc)
+    )
+
+    ldr_err = ldr * ldr_rel_err
+
+    # # --- Step 4: Store results back in DataFrame
+    # data["ldr"] = ldr
+    # data["ldr_err"] = ldr_err
+
+
+    # Inspect
+    # print(data[["ldr", "ldr_err"]].head())
+    return ldr, ldr_err
+
+
+def correct_u_v_for_azimuth(azimuth_deg, u, v, u_err, v_err):
+    """
+    Correct u0 and v0 wind components based on azimuth angle.
+    In the original data, the u0/v0 components correspond to the instrument's frame, which is rotated by the azimuth angle w.r.t. geographical directions.
+    Here we rotate the components back to geographical frame (Eastward/Northward).
+    Parameters:
+    - azimuth_deg: Azimuth angle in degrees (0° = North, 90° = East).
+    - u: Wind component in the instrument frame (u0). If the instrument is pointing North, u corresponds to Eastward component.
+    - v: Wind component in the instrument frame (v0). If the instrument is pointing North, v corresponds to Northward component.
+    - u_err: Uncertainty in u0 component.
+    - v_err: Uncertainty in v0 component.
+    """
+    azimuth_rad = np.deg2rad(azimuth_deg)
+    u_geo = u * np.cos(azimuth_rad) + v * np.sin(azimuth_rad)
+    v_geo = -u * np.sin(azimuth_rad) + v * np.cos(azimuth_rad)
+    u_geo_err = np.sqrt((np.cos(azimuth_rad) * u_err) ** 2 + (np.sin(azimuth_rad) * v_err) ** 2)
+    v_geo_err = np.sqrt((np.sin(azimuth_rad) * u_err) ** 2 + (np.cos(azimuth_rad) * v_err) ** 2)
+    return u_geo, v_geo, u_geo_err, v_geo_err

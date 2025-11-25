@@ -16,21 +16,26 @@ class Runner:
         self.meas.read_hdf5_file()
         self.meas.load_attrs()
         self.meas.load_data()
+        self.meas.correct_altitude() # range to altitude conversion - to do, remove this line if already done at IAP (at the moment not done there, 13-11-2025)
         self.meas.add_lat_lon()
         self.meas.add_time_bnds()
         self.meas.add_height_bnds()
-        self.meas.correct_velocity()
+        self.meas.correct_velocity_offset() # correct velocity offset if needed, values set in config_qc
+        self.meas.correct_azimuth_offset() # correct azimuth offset if needed, values set in config_nc (azimuth offset defined in attributes)
         logger.info('Computing noise level and SNR')
         self.meas.add_noise_and_snr()
 
         logger.info('Adding basic quality flag')
         self.meas.add_quality_flag()
-
+        logger.info('Adding aerosol depolarization ratio')
+        self.meas.add_depolarization_ratio()
         logger.info('Cloud detection (for now, only transparent clouds)')
         self.meas.add_clouds()
         logger.info('Completing quality flag')
-        self.meas.add_flag_below_cloud_top()
+        self.meas.add_flag_below_cloud_top(var_list=['temperature_int'])
         self.meas.add_flag_missing_data()
+        self.meas.combine_ray_mie()
+        self.meas.combine_int_broad()
 
 
     def make_quicklooks(self):
@@ -56,13 +61,26 @@ class Runner:
         """
         Write L2B netCDF files
         """
-        logger.info(f'Writing L2B {self.args.output_nc_l2B}')
-        self.meas.combine_ray_mie()
-        self.meas.combine_int_broad()
-        self.meas.subsel_stripped_profile()
-        # self.meas.set_invalid_to_nan() # set invalid data to NaN for L2B
-        nc_writer_l2b = Writer(self.meas,output_file=self.args.output_nc_l2B)
-        nc_writer_l2b.write_nc()
+        logger.info(f'Writing L2B...')
+        # self.meas.combine_ray_mie()
+        # self.meas.combine_int_broad()
+        if (self.meas.data.time[-1]-self.meas.data.time[0])>3600:
+            data_copy = self.meas.data.copy() # make a copy of the data to reset after each sub-selection
+            inds_increment_1h = int(len(self.meas.data.time)/((self.meas.data.time[-1]-self.meas.data.time[0])/3600))
+            for i in range(0, len(self.meas.data.time), inds_increment_1h):
+                self.meas.data = data_copy.copy()
+                i_to_subsel = min(i+inds_increment_1h, len(self.meas.data.time))-1
+                self.meas.subsel_stripped_profile(i_to_subsel=i_to_subsel)
+            # self.meas.set_invalid_to_nan() # set invalid data to NaN for L2B
+                l2b_fname = self.args.output_nc_l2B.replace('.nc', f'_part{i//inds_increment_1h+1}.nc')
+                logger.info(f'Writing L2B part file {l2b_fname}')
+                nc_writer_l2b = Writer(self.meas,output_file=l2b_fname)#self.args.output_nc_l2B)
+                nc_writer_l2b.write_nc()
+        else:
+            self.meas.subsel_stripped_profile() # default is to subselect the last profile (i=-1)
+            # self.meas.set_invalid_to_nan() # set invalid data to NaN for L2B
+            logger.info(f'Writing L2B full file {self.args.output_nc_l2B}')
+            nc_writer_l2b = Writer(self.meas,output_file=self.args.output_nc_l2B)
         logger.info('Wrote L2B successfully\n')
 
     # def write_l2a_and_l2b(self):
@@ -110,9 +128,10 @@ class Runner:
             return
 
         eprofile_meas = EProfileWindMeasurement(self.args.config_eprofile_wind, self.meas.data, conf_qc_file=self.args.config_qc)
-        eprofile_meas.load_data()
+        eprofile_meas.load_data(time_idx_list=[-1]) # load only the last profile
         eprofile_meas.set_var_attrs_from_conf()
         eprofile_meas.set_global_attrs_from_conf()
+        eprofile_meas.set_invalid_to_nan() # set invalid data to NaN for eprofile
         eprofile_meas.subsel_altitude_range()
         eprofile_writer = Writer(eprofile_meas, output_file=self.args.output_nc_eprofile_wind)
         eprofile_writer.write_nc()
@@ -170,9 +189,9 @@ if __name__=='__main__':
 
     runner = Runner(args)
     runner.run_processing()
-    runner.write_dwl_eprofile()
-    runner.write_alc_eprofile()
+    # runner.write_dwl_eprofile()
+    # runner.write_alc_eprofile()
     runner.write_l2a()
-    runner.write_l2b()
-    runner.encode_bufr()
+    # runner.write_l2b()
+    # runner.encode_bufr()
     # runner.make_quicklooks()

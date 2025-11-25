@@ -19,13 +19,13 @@ class EProfileWindMeasurement(Measurement):
         self.l2a_data = l2a_data
         
     
-    def load_data(self):
+    def load_data(self, time_idx_list=[-1]):
         """
         Load the L2A data into the measurement object.
         """
         
         l2a_zen = self.l2a_data.sel(line_of_sight=0).drop_vars("line_of_sight")
-        l2a_final = l2a_zen.isel(time=[-1])
+        l2a_final = l2a_zen.isel(time=time_idx_list)
         l2a = l2a_zen.mean(dim='time').expand_dims('time')
         l2a['time']= ('time', l2a_final['time'].values)
 
