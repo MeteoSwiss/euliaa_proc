@@ -8,10 +8,10 @@ attributes:
   wigos_station_id: 0-20008-0-OHP
   wmo_id: 
   instrument_type: 'high_spectral_resolution_lidar'
-  instrument_id: EULIAA_1
+  instrument_id: EULIAA_UV1
   instrument_serial_number: 
   instrument_wavelength: 386 # wavelength of the laser in nm
-  instrument_model: EULIAA
+  instrument_model: EULIAA-UV
   instrument_manufacturer:
   site_location: Observatoire de Haute Provence, France
   station_altitude: 680.
@@ -33,8 +33,8 @@ attributes:
     #   hdf5_var_name: Version
   retrieval_code: # Algorithm should include description of both measurement method, retrieval and correction / postproc (or split into several fields)
   retrieval_reference:
-  correction_w_offset: 0.0 # vertical velocity correction
-  correction_w_offset_description: Determined from averaging w over a long time period and calculating the mean bias from zero. Used to correct w, u, v.
+  # correction_w_offset: 0.0 # vertical velocity correction
+  # correction_w_offset_description: Determined from averaging w over a long time period and calculating the mean bias from zero. Used to correct w, u, v.
   calibration_status:
   calibration_time:
   height_above_ground:

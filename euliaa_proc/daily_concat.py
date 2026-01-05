@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-def concat_netcdf_files(input_files, output_file, s3_kwargs=None, config_file=None):
+def concat_netcdf_files(input_files, output_file, s3_kwargs=None, config_file=None, rename_latlon=True):
     """
     Concatenate NetCDF files from S3 into a single file.
     
@@ -46,7 +46,7 @@ def concat_netcdf_files(input_files, output_file, s3_kwargs=None, config_file=No
             # chunks='auto',
             storage_options=s3_kwargs
         )
-        
+        logger.info("Datasets opened successfully")
         # Sort by time if needed
         if 'time' in ds.dims:
             ds = ds.sortby('time')
@@ -54,10 +54,15 @@ def concat_netcdf_files(input_files, output_file, s3_kwargs=None, config_file=No
         # Drop duplicate time entries if any
         ds = ds.drop_duplicates(dim="time")
 
-        # logger.info("variables before subsetting: " + str(list(ds.data_vars)))
         if 'VARIABLES_TO_KEEP_DAILY' in config:
             vars_to_keep = [var if var in ds.keys() else logger.warning(f"Variable {var} not found in dataset") for var in config['VARIABLES_TO_KEEP_DAILY']]
             ds = ds[vars_to_keep]
+
+        if rename_latlon:
+            if 'latitude_mie' in ds.keys() and 'latitude_ray' not in ds.keys() and 'latitude' not in ds.keys():
+                print("Renaming latitude_mie and longitude_mie to latitude and longitude")
+                ds = ds.rename({'latitude_mie':'latitude','longitude_mie':'longitude'})
+
         logger.info(f"Dataset shape: {ds.dims}")
         logger.info(f"Time range: {ds.time.min().values} to {ds.time.max().values}")
         

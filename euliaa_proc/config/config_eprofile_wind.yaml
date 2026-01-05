@@ -227,5 +227,5 @@ attributes:
   principal_investigator: 'N/A'
   instrument_serial_number: 'SET BY HUB'
   # history: ''
-  comments: 'This is a test file for EULIAA.'
+  comments: 'EULIAA file'
   scan_type: 'N/A'

@@ -10,22 +10,22 @@ def check_var_in_ds(ds, var):
         return (var in ds.keys())
 
 
-def compute_lat_lon(lat_station = 0, lon_station = 0, altitude = np.zeros(1), theta_slant_deg = 30):
+def compute_lat_lon(lat_station = 0, lon_station = 0, altitude = np.zeros(1), theta_slant_deg = 30, azimuth_offset=0):
     lat_coef = 110.574 # 1 deg = 110.574 km
     lon_coef = 111.320 # 1 deg = 111.320 * cos(lat) km
     theta_slant_rad = theta_slant_deg*np.pi/180
-
-    latitude_arr_3los = ((altitude.dims[0], 'line_of_sight'), np.stack((lat_station + 0*altitude,
-                                                       lat_station + 0*altitude,
-                                                       lat_station + altitude*np.tan(theta_slant_rad)*1e-3/lat_coef
-                                                       ),
-                                                       axis=-1))
-
+    
     longitude_arr_3los = ((altitude.dims[0], 'line_of_sight'), np.stack((lon_station + 0*altitude,
-                                                        lon_station + altitude*np.tan(theta_slant_rad)*1e-3/(lon_coef*np.cos(lat_station*np.pi/180)),
-                                                        lon_station + 0*altitude
+                                                        lon_station + altitude*np.tan(theta_slant_rad)*np.sin(azimuth_offset*np.pi/180+np.pi/2)*1e-3/(lon_coef*np.cos(lat_station*np.pi/180)), # "eastward" 
+                                                        lon_station + altitude*np.tan(theta_slant_rad)*np.sin(azimuth_offset*np.pi/180)*1e-3/(lon_coef*np.cos(lat_station*np.pi/180)) # "northward"
                                                         ), axis = -1))
 
+    latitude_arr_3los = ((altitude.dims[0], 'line_of_sight'), np.stack((lat_station + 0*altitude,
+                                                       lat_station + altitude*np.tan(theta_slant_rad)*np.cos(azimuth_offset*np.pi/180+np.pi/2)*1e-3/lat_coef, # "eastward"
+                                                       lat_station + altitude*np.tan(theta_slant_rad)*np.cos(azimuth_offset*np.pi/180)*1e-3/lat_coef # "northward"
+                                                       ),  axis=-1))
+
+    
     return (latitude_arr_3los, longitude_arr_3los)
 
 
@@ -35,21 +35,28 @@ def flag_var(dsz,var_key, err_key=None, snr_key=None, var_min_thres = -np.inf, v
         data_invalid = (dsz[var_key]<var_min_thres ) | (dsz[var_key]>var_max_thres)# | (xr.ufuncs.isnan(dsz[var_key]))
         da_flag = da_flag.where(~data_invalid,1)
     if snr_key: # Low SNR flag -> 2
-        if not (snr_los):
-            da_flag = da_flag*0.
-        else:
+        # if not (snr_los):
+        #     da_flag = da_flag*0.
+        # else:
+        da_flag_snr = xr.zeros_like(dsz[var_key])
+        if snr_los is not None:
             if snr_los == 'all':
                 snr = dsz[snr_key]
             elif snr_los in ['zenith', 'eastward', 'northward']:
                 los_to_index = {'zenith':0, 'eastward':1, 'northward':2}
                 snr = dsz[snr_key].sel(line_of_sight=los_to_index[snr_los])
+            elif snr_los in [0, 1, 2]:
+                snr = dsz[snr_key].sel(line_of_sight=snr_los)
             else:
                 raise NameError(f'snr_los must be "zenith", "eastward", "northward" or "all", or None, not {snr_los}')
             data_low_snr = snr < snr_thres
-            da_flag = da_flag.where(~data_low_snr,2)
+            da_flag_snr = da_flag_snr.where(~data_low_snr,2)
+            da_flag = da_flag+da_flag_snr
     if err_key: # High error flag -> 4
+        da_flag_err = xr.zeros_like(dsz[var_key])
         data_high_err = dsz[err_key] > var_err_thres
-        da_flag = da_flag.where(~data_high_err,4)
+        da_flag_err = da_flag_err.where(~data_high_err,4)
+        da_flag = da_flag+da_flag_err
 
     return da_flag
 

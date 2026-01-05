@@ -100,7 +100,7 @@ variables:
       hdf5_var_name: null
     attributes:
       long_name: Measurement fields of view
-      comment: 0=zenith, 1=eastward, 2=northward (off-zenith are 30deg slanted)
+      comment: 0=zenith, then, if azimuth_offset is 0deg, 1=eastward, 2=northward (off-zenith beams are 30deg slanted)
       units: "1"
     value:
     - 0
@@ -120,7 +120,7 @@ variables:
       long_name: Latitude corresponding to altitude array in each field of view, for
         Mie peak measurements
       units: degrees_north
-      comment: Derived using 30deg off-zenith slant in eastward direction
+      comment: Derived using 30deg off-zenith slant in line of sight direction
   latitude_ray:
     name: latitude_ray
     dim:
@@ -136,7 +136,7 @@ variables:
         Rayleigh peak measurements
       units: degrees_north
       standard_name: latitude
-      comment: Derived using 30deg off-zenith slant in eastward direction
+      comment: Derived using 30deg off-zenith slant in line of sight direction
   longitude_mie:
     name: longitude_mie
     dim:
@@ -152,7 +152,7 @@ variables:
         for Mie peak measurements
       units: degrees_east
       standard_name: longitude
-      comment: Derived using 30deg off-zenith slant in eastward direction
+      comment: Derived using 30deg off-zenith slant in line of sight direction
   longitude_ray:
     name: longitude_ray
     dim:
@@ -168,7 +168,7 @@ variables:
         for Rayleigh peak measurements
       units: degrees_east
       standard_name: longitude
-      comment: Derived using 30deg off-zenith slant in eastward direction
+      comment: Derived using 30deg off-zenith slant in line of sight direction
   station_latitude:
     name: station_latitude
     dim: ''
@@ -216,10 +216,14 @@ variables:
     _FillValue: -999.0
     original_hdf5:
       hdf5_group: glo
-      hdf5_var_name: DeltaAlt
+      hdf5_var_name: AltitudeIntegration
     attributes:
       long_name: Range integration window
       units: m
+    # value: 
+    #   - 250
+    #   - 250
+    #   - 250
   time_integration:
     name: time_integration
     dim: ''
@@ -227,10 +231,13 @@ variables:
     _FillValue: -999.0
     original_hdf5:
       hdf5_group: glo
-      hdf5_var_name: deltaSec
+      hdf5_var_name: shiftSec
     attributes:
       long_name: Time integration window
       units: s
+      comment: As raw spectra are measured successively in the different lines of sight,
+        the effective cumulated duration of the measurement per line of sight is time_integration divided
+        by number of line_of_sight entries. 
   status:
     name: status
     dim:
@@ -295,7 +302,7 @@ variables:
     attributes:
       long_name: Quality flag for particle backscatter coefficient
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range, 16 = inside cloud, 32 = below cloud/aerosol layer top)
   
   backscatter_coef_depol:
     name: backscatter_coef_depol
@@ -572,7 +579,7 @@ variables:
       long_name: Upward air velocity from Doppler shift of Mie peak
       units: m s-1
       scattering_regime: Mie
-      line_of_sight: zenith
+      # comment: Bias-corrected, see global attribute w_bias_correction
   w_mie_err:
     name: w_mie_err
     dim:
@@ -589,7 +596,6 @@ variables:
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
-      line_of_sight: zenith
   w_mie_flag:
     name: w_mie_flag
     dim:
@@ -618,7 +624,6 @@ variables:
       long_name: Upward air velocity combined from Doppler shift of Mie and Rayleigh peak
       units: m s-1
       scattering_regime: Mie and Rayleigh combined
-      line_of_sight: zenith
   w_flag:
     name: w_flag
     dim:
@@ -648,7 +653,6 @@ variables:
       standard_name: eastward_wind
       units: m s-1
       scattering_regime: Mie
-      line_of_sight: eastward
   u_mie_err:
     name: u_mie_err
     dim:
@@ -665,7 +669,6 @@ variables:
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
-      line_of_sight: eastward
   u_mie_flag:
     name: u_mie_flag
     dim:
@@ -695,7 +698,6 @@ variables:
       standard_name: eastward_wind
       units: m s-1
       scattering_regime: Mie and Rayleigh combined
-      line_of_sight: eastward
   u_flag:
     name: u_flag
     dim:
@@ -725,7 +727,6 @@ variables:
       standard_name: northward_wind
       units: m s-1
       scattering_regime: Mie
-      line_of_sight: northward
   v_mie_err:
     name: v_mie_err
     dim:
@@ -742,7 +743,6 @@ variables:
       scattering_regime: Mie
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
-      line_of_sight: northward
   v_mie_flag:
     name: v_mie_flag
     dim:
@@ -772,7 +772,6 @@ variables:
       standard_name: northward_wind
       units: m s-1
       scattering_regime: Mie and Rayleigh combined
-      line_of_sight: northward
   v_flag:
     name: v_flag
     dim:
@@ -801,7 +800,6 @@ variables:
       long_name: Upward air velocity from Doppler shift of Rayleigh peak
       units: m s-1
       scattering_regime: Rayleigh
-      line_of_sight: zenith
   w_ray_err:
     name: w_ray_err
     dim:
@@ -819,7 +817,6 @@ variables:
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
-      line_of_sight: zenith
   w_ray_flag:
     name: w_ray_flag
     dim:
@@ -850,7 +847,6 @@ variables:
       standard_name: eastward_wind
       units: m s-1
       scattering_regime: Rayleigh
-      line_of_sight: eastward
   u_ray_err:
     name: u_ray_err
     dim:
@@ -867,7 +863,6 @@ variables:
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
-      line_of_sight: eastward
   u_ray_flag:
     name: u_ray_flag
     dim:
@@ -897,7 +892,6 @@ variables:
       standard_name: northward_wind
       units: m s-1
       scattering_regime: Rayleigh
-      line_of_sight: northward
   v_ray_err:
     name: v_ray_err
     dim:
@@ -914,7 +908,6 @@ variables:
       scattering_regime: Rayleigh
       comment: Error propagated from spectrum fitting, combines statistical measurement
         uncertainty and spectral properties
-      line_of_sight: northward
   v_ray_flag:
     name: v_ray_flag
     dim:
@@ -1203,16 +1196,16 @@ attributes:
   wigos_station_id: 0-20008-0-ARR
   wmo_id: 
   instrument_type: 'high_spectral_resolution_lidar'
-  instrument_id: EULIAA_0
+  instrument_id: EULIAA_IR1
   instrument_serial_number: 
   instrument_wavelength: 772 # wavelength of the laser in nm
-  instrument_model: EULIAA
+  instrument_model: EULIAA-IR
   instrument_manufacturer:
   site_location: Andoya Space Center, Andenes, Norway
   station_altitude: 396.
   station_latitude: 69.278
   station_longitude: 16.007
-  azimuth_offset: 0.0
+  azimuth_offset: 180.0
   history:
   institution: Leibniz Institute for Atmospheric Physics, Kuehlungsborn
   comment:
@@ -1228,11 +1221,14 @@ attributes:
     #   hdf5_var_name: Version
   retrieval_code: # Algorithm should include description of both measurement method, retrieval and correction / postproc (or split into several fields)
   retrieval_reference:
-  correction_w_offset: 0.0 # vertical velocity correction
-  correction_w_offset_description: Determined from averaging w over a few days period and calculating the mean bias from zero. It has been applied to correct w, u, v.
+  # correction_w_bias: #0.0 # vertical velocity correction
+  #   original_hdf5:
+  #     hdf5_group: glo
+  #     hdf5_var_name: wbias
+  # correction_w_offset_description: Determined from averaging w over a few days period and calculating the mean bias from zero. It has been applied to correct w.
   calibration_status:
   calibration_time:
   height_above_ground:
-  date_of_installation:
+  date_of_installation: 2025-10-28
   maintenance: #preventive and corrective maintenance (recommended and scheduled maintenance and calibration procedures, including frequency, and a description of procedures)
   comparison_to_reference: #results of comparison with travelling standards

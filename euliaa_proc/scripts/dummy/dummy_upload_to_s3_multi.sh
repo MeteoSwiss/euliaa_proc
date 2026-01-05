@@ -14,11 +14,11 @@ DST22="s3://euliaa-l1/TESTS/Kuehlungsborn/60MIN/EULIAA_L160MIN_Kb_$TIMESTAMP.h5"
 
 # s3cmd put "$SRC1" "$DST1"
 # s3cmd put "$SRC2" "$DST2"
-s3cmd put "$SRC1" "$DST11"
-sleep 10
-s3cmd put "$SRC1" "$DST12"
-# wait 30 seconds
-sleep 15
+# s3cmd put "$SRC1" "$DST11"
+# sleep 10
+# s3cmd put "$SRC1" "$DST12"
+
+# sleep 15
 s3cmd put "$SRC2" "$DST21"
-sleep 10
+# sleep 10
 s3cmd put "$SRC2" "$DST22"

@@ -1,22 +1,22 @@
-campaign_name: OHP
+campaign_name: Payerne
 hdf5_file:
-config: /home/oper/euliaa_proc/euliaa_proc/config/config_nc_OHP.yaml
+config: /home/oper/euliaa_proc/euliaa_proc/config/config_nc/config_nc_Payerne.yaml
 config_eprofile_wind: /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_wind.yaml
-config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc.yaml
+# config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc.yaml
 config_qc: /home/oper/euliaa_proc/euliaa_proc/config/config_qc.yaml
-output_nc_dir: s3://euliaa-l2/OHP/ # for L2A and L2B products
+output_nc_dir: s3://euliaa-l2/Payerne/ # for L2A and L2B products
 
 # E-Profile DWL configuration
-output_nc_eprofile_wind_dir: s3://euliaa-eprofile/EProfile_DWL/OHP/ # for E-Profile DWL products, stored on our own s3 bucket
+output_nc_eprofile_wind_dir: s3://euliaa-eprofile/EProfile_DWL/Payerne/ # for E-Profile DWL products, stored on our own s3 bucket
 eprofile_wind_prefix: 'L1_EU1WL_' # should be L1_EU1WL_ or L1_EU2WL_ depending on the instrument
 # s3cfg_eprofile_path: /home/oper/.s3cfg_eprofile # uncomment this line to upload on E-Profile DWL s3 bucket
 # output_nc_eprofile_wind_dir_DL: s3://eprofile-dl-l1/ # uncomment this line to upload on E-Profile DWL s3 bucket
 
-output_bufr_dir: s3://euliaa-l2/BUFR/OHP/ # for BUFR products (Temperature and/or wind)
+output_bufr_dir: s3://euliaa-l2/BUFR/Payerne/
 bufr_types:
   #- wind # in principle this is never used
   - temperature
 
 # OLD
-# fig_dir: s3://euliaa-quicklooks/OHP/
+# fig_dir: s3://euliaa-quicklooks/TESTS/Payerne/
 # fig_prefix: euliaa_quicklook_

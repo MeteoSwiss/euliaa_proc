@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from scipy import signal
-import aprofiles as apro
 from euliaa_proc.log import logger
 
 
@@ -19,7 +18,7 @@ def savgol(x,F,K):
     return xf, y
 
 
-def detect_cloud_edge(bsc, alt, F = 5, K = 3, bsc_thres = 1e-9, vg_thres = 0.3,base_or_top='base', return_height = False):
+def detect_cloud_edge(bsc, alt, F = 7, K = 4, bsc_thres = 1e-9, vg_thres = 0.3,base_or_top='base', return_height = False):
     """
     Function to detect cloud base and cloud top. Uses vertical gradient on smoothed signal (Savitzky-Golay).
 
@@ -63,7 +62,7 @@ def detect_cloud_edge(bsc, alt, F = 5, K = 3, bsc_thres = 1e-9, vg_thres = 0.3,b
 
 
 
-def refine_cloud_detection(bsc, cb, ct, F0 = 5, K0 = 3,bsc_thres = 1e-8, vg_thres = 0.1):
+def refine_cloud_detection(bsc, cb, ct, F0 = 7, K0 = 4,bsc_thres = 1e-8, vg_thres = 0.1):
     """
     Function to refine cloud detection. If cloud base is detected but no cloud top, cloud base is removed.
     If several cloud layers are detected, cloud top is detected for each layer.
@@ -101,7 +100,7 @@ def refine_cloud_detection(bsc, cb, ct, F0 = 5, K0 = 3,bsc_thres = 1e-8, vg_thre
                 # cb[ii] = 0
             # elif np.nanmax(y[1:-1])<vg_thres: # max gradient below threshold, no satisfactory cloud top
                 cb[ii] = 0 # no cloud top detected, removing cloud base
-                logger.info('no cloud top detected, removing cloud base')
+                # logger.info('no cloud top detected, removing cloud base')
 
             else: # satisfactory cloud top found, set as the max gradient
                 if len(cti[1:-1])==len(y[1:-1]): #different dimensions depending on the number of cloud layers
@@ -116,18 +115,46 @@ def refine_cloud_detection(bsc, cb, ct, F0 = 5, K0 = 3,bsc_thres = 1e-8, vg_thre
         
 
 def find_cloud_mask(bsc, cloud_base, cloud_top, return_below_cloud_top = False, return_above_cloud_base = False):
-    below_cloud_top = xr.zeros_like(bsc)
-    above_cloud_top = xr.zeros_like(bsc)
-    below_cloud_base = xr.zeros_like(bsc)
-    above_cloud_base = xr.zeros_like(bsc)
-    below_cloud_base[:,1:-1] = np.cumsum(cloud_base[:,::-1],axis=1)[:,::-1]
-    above_cloud_base[:,1:-1] = np.cumsum(cloud_base,axis=1)#[:,::-1]
-    below_cloud_top[:,1:-1] = np.cumsum(cloud_top[:,::-1],axis=1)[:,::-1]
-    above_cloud_top[:,1:-1] = np.cumsum(cloud_top,axis=1)
-    below_cloud_top[:,0] = below_cloud_top[:,1]
-    below_cloud_base[:,0] = below_cloud_base[:,1]
-    above_cloud_base[:,-1] = above_cloud_base[:,-2]
-    above_cloud_top[:,-1] = above_cloud_top[:,-2]
+    dims = bsc.dims
+    below_cloud_top0 = xr.zeros_like(bsc).to_numpy()
+    above_cloud_top0 = xr.zeros_like(bsc).to_numpy()
+    below_cloud_base0 = xr.zeros_like(bsc).to_numpy()
+    above_cloud_base0 = xr.zeros_like(bsc).to_numpy()
+    below_cloud_base0[:,1:-1] = np.cumsum(cloud_base[:,::-1],axis=1)[:,::-1]
+    above_cloud_base0[:,1:-1] = np.cumsum(cloud_base,axis=1)#[:,::-1]
+    below_cloud_top0[:,1:-1] = np.cumsum(cloud_top[:,::-1],axis=1)[:,::-1]
+    above_cloud_top0[:,1:-1] = np.cumsum(cloud_top,axis=1)
+    below_cloud_top0[:,0] = below_cloud_top0[:,1]
+    below_cloud_base0[:,0] = below_cloud_base0[:,1]
+    above_cloud_base0[:,-1] = above_cloud_base0[:,-2]
+    above_cloud_top0[:,-1] = above_cloud_top0[:,-2]
+
+    below_cloud_top = below_cloud_top0.copy()
+    above_cloud_top = above_cloud_top0.copy()
+    below_cloud_base = below_cloud_base0.copy()
+    above_cloud_base = above_cloud_base0.copy()
+    while True:
+        # print('a',np.sum(below_cloud_top>above_cloud_base), np.max(below_cloud_top-above_cloud_base))
+        if np.all(below_cloud_top<=above_cloud_base):
+            break
+        for i in range(len(bsc.time)):
+            if np.all(below_cloud_top[i,:]<=above_cloud_base[i,:]):
+                continue
+            for j in range(len(bsc.altitude_mie))[::-1]:
+                # print(j)
+                if below_cloud_top[i,j]>above_cloud_base[i,j]:
+                    below_cloud_top[i,j]=below_cloud_top[i,j]-1
+                    below_cloud_top[i,:j]=below_cloud_top[i,:j]-1
+                    # print(i, j, np.sum(below_cloud_top>above_cloud_base), np.max(below_cloud_top-above_cloud_base))
+    while True:
+        if np.all(above_cloud_top<=above_cloud_base):
+            break
+        for i in range(len(bsc.time)):
+            if np.all(above_cloud_top[i,:]<=above_cloud_base[i,:]):
+                continue
+            for j in range(len(bsc.altitude_mie)):
+                if above_cloud_top[i,j]>above_cloud_base[i,j]:
+                    above_cloud_top[i,j:]=above_cloud_top[i,j:]-1
     # n_above_cloud_top = np.cumsum(above_cloud_top,axis=1)
     # n_above_cloud_base = np.cumsum(above_cloud_base,axis=1)
     # n_below_cloud_top = np.cumsum(below_cloud_top[:,::-1],axis=1)#[:,::-1]
@@ -153,19 +180,19 @@ def find_cloud_mask(bsc, cloud_base, cloud_top, return_below_cloud_top = False, 
             cloud_mask.data[i,j] = in_cloud
     """
     # cloud_mask.data = ((above_cloud_base>0) & (below_cloud_top>0) & (above_cloud_base>below_cloud_top))
-    # cloud_mask.data = (((above_cloud_base>0) & (below_cloud_top>0)) &
-    #             #   ~((above_cloud_top>0) & (below_cloud_base>0) & (above_cloud_base>=above_cloud_top)))
-    #                 ~((above_cloud_top>=above_cloud_base) & (below_cloud_base>=below_cloud_top)))
+    cloud_mask.data = (((above_cloud_base>0) & (below_cloud_top>0)) &
+                #   ~((above_cloud_top>0) & (below_cloud_base>0) & (above_cloud_base>=above_cloud_top)))
+                    ~((above_cloud_top>=above_cloud_base) & (below_cloud_base>=below_cloud_top)))
     # cloud_mask.data[above_cloud_top]
     # cloud_mask.data[(above_cloud_top>0) & (below_cloud_base>0)] = 0
     # cloud_mask.data[n_below_cloud_base>=n_below_cloud_top] = 0
     
     if return_below_cloud_top and not (return_above_cloud_base):
-        return cloud_mask, below_cloud_top
+        return cloud_mask, xr.DataArray(dims=dims, data=below_cloud_top0)
     elif return_above_cloud_base and not(return_below_cloud_top):
-        return cloud_mask, above_cloud_base
+        return cloud_mask, xr.DataArray(dims=dims, data=above_cloud_base0)
     elif return_below_cloud_top and return_above_cloud_base:
-        return cloud_mask, below_cloud_top, above_cloud_base
+        return cloud_mask, xr.DataArray(dims=dims, data=below_cloud_top0), xr.DataArray(dims=dims, data=above_cloud_base0)
     else:
         return cloud_mask
 
@@ -176,7 +203,7 @@ def plot_cloud(ds,ymax=30000,name_bsc_var = 'attenuated_backscatter_0', savefig=
     im=ds[name_bsc_var].plot(x='time',vmin=1e-9,vmax=1e-5,norm=colors.LogNorm(),cmap='plasma')
     cloud_mask_for_plot=ds.cloud_mask.where(ds.cloud_mask,np.nan)
     cloud_mask_for_plot.T.plot(alpha=.7,vmin=0, vmax=1, cmap='Greys_r',ylim=(0,ymax),add_colorbar=False)
-    ax.plot([],[],lw=0,marker='s', ms=10, color='white', alpha=.7, label='clouds or aerosols')
+    ax.plot([],[],lw=0,marker='s', ms=10, color='white', alpha=.7, label='clouds')
     ax.set_ylim(0,ymax)
     ax.set_facecolor('dimgray')
     ax.legend(loc='upper right')
@@ -191,12 +218,11 @@ def plot_cloud(ds,ymax=30000,name_bsc_var = 'attenuated_backscatter_0', savefig=
     if savefig:
         fig.savefig(savefig)
 
-def in_house_cloud_detection(ds,name_altitude_var = 'altitude_mie',vg_thres_base = 0.45,vg_thres_top = 0.45, remove_below=5, return_height=True):
+def in_house_cloud_detection(ds,name_altitude_var = 'altitude_mie',vg_thres_base = 0.45,vg_thres_top = 0.8, remove_below=6, return_height=True):
     cloud_base = detect_cloud_edge(ds, ds[name_altitude_var], return_height = False, vg_thres=vg_thres_base, bsc_thres=1e-8)
-    cloud_top = detect_cloud_edge(ds, ds[name_altitude_var], return_height = False, base_or_top='top',vg_thres=vg_thres_top, bsc_thres=1e-8)
+    cloud_top = detect_cloud_edge(ds, ds[name_altitude_var], return_height = False, base_or_top='top',vg_thres=vg_thres_top, bsc_thres=5e-8)
     # cloud_base = detect_cloud_edge(ds[name_bsc_var], ds[name_altitude_var], return_height = False, vg_thres=vg_thres_base)
     # cloud_top = detect_cloud_edge(ds[name_bsc_var], ds[name_altitude_var], return_height = False, base_or_top='top',vg_thres=vg_thres_top)
-
     for i in range(len(ds.time)):
         cb = cloud_base[i]
         ct = cloud_top[i]
@@ -241,14 +267,23 @@ def compute_cbh(ds, line_of_sight_idx=0):
     return cbh.isel(line_of_sight=line_of_sight_idx)    
 
 if __name__=='__main__':
-    path_l2 = '/home/oper/euliaa_proc/data/L2A20MIN_2025-11-01_00-00-00.nc'#L2Test_NC_for_Aprofiles.nc'
+    # path_l2 = '/home/oper/euliaa_proc/data/L2A20MIN_Andoya_2025-11-01_00-00-00.nc'#L2Test_NC_for_Aprofiles.nc'
+    # path_l2 = '/home/oper/euliaa_proc/data/L2A20MIN_2025-11-02_00-00-00.nc'
+    path_l2 = '/home/oper/euliaa_proc/data/L2A20MIN_Andoya_2025-12-12_20-00-00.nc'
+    # path_l2 = '/home/oper/euliaa_proc/data/L2A20MIN_2025-11-03_00-00-00.nc'
+    # path_l2 = '/home/oper/euliaa_proc/data/L2A20MIN_2025-11-04_08-30-00.nc'
+    # path_l2 = '/home/oper/euliaa_proc/data/L2A20MIN_2025-11-17_09-38-52.nc'
+    # path_l2 = '/home/oper/euliaa_proc/data/L2A20MIN_Andoya_2025-11-18_00-00-00.nc'
+    # path_l2 = '/home/oper/euliaa_proc/data/L2A20MIN_Andoya_2025-11-21_08-58-00.nc'
+    # path_l2 = '/home/oper/euliaa_proc/data/L2A20MIN_Andoya_2025-11-22_00-00-00.nc'
+    # path_l2 = '/home/oper/euliaa_proc/data/L2A20MIN_Andoya_2025-11-23_00-00-00.nc'
     REMOVE_BELOW = 6
     PLOT = True
-    savefig = '/home/oper/euliaa_proc/tests/cloud_detection_inhouse2.png'
+    savefig = '/home/oper/euliaa_proc/tests/cloud_detection_inhouse_1212.png'
     # savefig = '/home/bia/euliaa_postproc/figures/cloud_detection_aprofiles.png'
     SAVE_NC = True
     VG_THRES_BASE = 0.45
-    VG_THRES_TOP = 0.65
+    VG_THRES_TOP = 0.8
     run_in_house_cloud_detection = True
     run_aprofiles_cloud_detection = False
     # name_bsc_var = 'backscatter_coef' #'attenuated_backscatter_0'
@@ -257,9 +292,10 @@ if __name__=='__main__':
     bsc = ds.backscatter_coef.copy(deep=True)
     bsc = bsc.where(ds.backscatter_coef_flag==0, np.nan)
     if run_in_house_cloud_detection:
+        cloud_detection=in_house_cloud_detection(bsc,name_altitude_var='altitude_mie',vg_thres_base=VG_THRES_BASE,vg_thres_top=VG_THRES_TOP,
+                                                remove_below=REMOVE_BELOW)
         ds = xr.merge([bsc,
-                       in_house_cloud_detection(bsc,name_altitude_var='altitude_mie',vg_thres_base=VG_THRES_BASE,vg_thres_top=VG_THRES_TOP,
-                                                remove_below=REMOVE_BELOW)], compat='override')
+                       cloud_detection], compat='override')
 
     # elif run_aprofiles_cloud_detection:
     #     ds['cloud_mask'] = cloud_aprofiles(path_l2)
@@ -274,27 +310,3 @@ if __name__=='__main__':
             suffix = '_cloud_aprofiles.nc'
         ds.to_netcdf(path_l2.replace('.nc',suffix))
 
-
-# def cloud_aprofiles(path, zmin=0, thr_noise = 1.5, thr_clouds = 2, verbose = False, time_avg = 0):
-#     """
-#     Function to detect clouds in a profile using the aprofiles library.
-#     The cloud detection is based on the variance gradient method. (see aprofiles documentation);
-#     other option in a-profiles is deep embedded clustering, which doesn't seem to work
-
-#     Inputs:
-#         path: path to the file, needs to comply to A-profiles format
-#         z_min: minimum altitude for cloud detection (in m)
-#         thr_noise: SNR threshold, see aprofiles documentation
-#         thr_clouds: threshold for cloud identification, see aprofiles documentation
-#         verbose: if True, prints the cloud detection process
-#         time_avg: time average for the cloud detection (minutes)
-
-#     Output:
-#         clouds: xarray.DataArray, array with the cloud detection, 1 if cloud, 0 if not cloud
-
-#     """
-
-#     profile = apro.reader.ReadProfiles(path).read()
-#     profile.clouds(method="vg",zmin=zmin, thr_noise=thr_noise,
-#                    thr_clouds=thr_clouds, verbose=verbose,time_avg=time_avg)
-#     return profile.data.clouds

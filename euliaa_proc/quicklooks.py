@@ -10,64 +10,66 @@ import pandas as pd
 
 # Example use with L2A files on s3 bucket: python3 quicklooks.py --l2a_file_list $(s3cmd ls s3://euliaa-l2/TESTS/L2A_20250723* | awk '{print $4}')
 
-def plot_quicklooks(fname, fig_dir, fig_title, fig_prefix='', ylim=50000):
+# def plot_quicklooks(fname, fig_dir, fig_title, fig_prefix='', ylim=50000):
     
-    if not os.path.exists(fig_dir) and not fig_dir.startswith('s3://'):
-    # Create the directory if it does not exist
-        os.makedirs(fig_dir)
-    fig_name = os.path.join(fig_dir, fig_prefix+os.path.basename(fname).replace('.nc', '.png'))
+#     if not os.path.exists(fig_dir) and not fig_dir.startswith('s3://'):
+#     # Create the directory if it does not exist
+#         os.makedirs(fig_dir)
+#     fig_name = os.path.join(fig_dir, fig_prefix+os.path.basename(fname).replace('.nc', '.png'))
 
-    ds = xr.load_dataset(fname, engine='h5netcdf')
-    fig,axs = plt.subplots(6,figsize=(12,17))
-    for var in ['backscatter_coef','w_mie','u_mie','v_mie','temperature_int']:
-        ds[var] = ds[var].where(ds[var+'_flag']==0, np.nan)
+#     ds = xr.load_dataset(fname, engine='h5netcdf')
+#     fig,axs = plt.subplots(6,figsize=(12,17))
+#     for var in ['backscatter_coef','w_mie','u_mie','v_mie','temperature_int']:
+#         ds[var] = ds[var].where(ds[var+'_flag']==0, np.nan)
     
-    wind_speed = compute_wind_speed(ds.u_mie, ds.v_mie)
+#     wind_speed = compute_wind_speed(ds.u_mie, ds.v_mie)
 
-    ds.backscatter_coef.sel(line_of_sight=0).plot(x='time',norm=colors.LogNorm(vmin=1e-9,vmax=1e-5),ax=axs[0], cbar_kwargs={'label': 'Backscatter coefficient [m-1 sr-1]', 'extend':'both'})
-    im=axs[1].barbs(ds.time.values[:], ds.altitude_mie.values[::3], ds.u_mie.values[:,::3].T, ds.v_mie.values[:,::3].T,wind_speed.values[:,::3].T,
-          length=3.5, pivot='middle', cmap='turbo', linewidth=.5)
-    axs[1].set_ylabel('Altitude above mean sea level, for Mie peak measurements [m]')
-    plt.colorbar(im, ax=axs[1], label='Wind speed [m s-1]')
-    ds.w_mie.plot(x='time',vmin=-6,vmax=6,ax=axs[2],cmap='seismic')
-    ds.u_mie.plot(x='time',ax=axs[3])
-    ds.v_mie.plot(x='time',ax=axs[4])
-    (ds.temperature_int.sel(line_of_sight=0)-273.15).plot(x='time',ax=axs[5],cbar_kwargs={'label': 'Temperature from\n Rayleigh integration [deg C]'},vmin=-60,vmax=30,cmap='turbo')
-    for ax in axs:
-        ax.set_ylim(0, ylim)  # Updated to use ylim argument
-        ax.set_title('')
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-        ax.set_xlabel('Time [UTC]')
+#     ds.backscatter_coef.sel(line_of_sight=0).plot(x='time',norm=colors.LogNorm(vmin=1e-9,vmax=1e-5),ax=axs[0], cbar_kwargs={'label': 'Backscatter coefficient [m-1 sr-1]', 'extend':'both'})
+#     im=axs[1].barbs(ds.time.values[:], ds.altitude_mie.values[::3], ds.u_mie.values[:,::3].T, ds.v_mie.values[:,::3].T,wind_speed.values[:,::3].T,
+#           length=3.5, pivot='middle', cmap='turbo', linewidth=.5)
+#     axs[1].set_ylabel('Altitude above mean sea level, for Mie peak measurements [m]')
+#     plt.colorbar(im, ax=axs[1], label='Wind speed [m s-1]')
+#     ds.w_mie.plot(x='time',vmin=-6,vmax=6,ax=axs[2],cmap='seismic')
+#     ds.u_mie.plot(x='time',ax=axs[3])
+#     ds.v_mie.plot(x='time',ax=axs[4])
+#     (ds.temperature_int.sel(line_of_sight=0)-273.15).plot(x='time',ax=axs[5],cbar_kwargs={'label': 'Temperature from\n Rayleigh integration [deg C]'},vmin=-60,vmax=30,cmap='turbo')
+#     for ax in axs:
+#         ax.set_ylim(0, ylim)  # Updated to use ylim argument
+#         ax.set_title('')
+#         ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+#         ax.set_xlabel('Time [UTC]')
 
-    axs[0].set_title(fig_title)
-    fig.tight_layout()
+#     axs[0].set_title(fig_title)
+#     fig.tight_layout()
 
-    if fig_name.startswith('s3://'):
-        # Save the figure to an in-memory buffer
-        import boto3
-        from io import BytesIO
+#     if fig_name.startswith('s3://'):
+#         # Save the figure to an in-memory buffer
+#         import boto3
+#         from io import BytesIO
 
-        buffer = BytesIO()
-        fig.savefig(buffer, dpi=300, bbox_inches='tight', facecolor='w', format='png')
-        buffer.seek(0)
+#         buffer = BytesIO()
+#         fig.savefig(buffer, dpi=300, bbox_inches='tight', facecolor='w', format='png')
+#         buffer.seek(0)
 
-        # Parse the S3 bucket and key from the fig_name
-        s3 = boto3.client('s3')
-        bucket_name = fig_name.split('/')[2]
-        key = '/'.join(fig_name.split('/')[3:])
+#         # Parse the S3 bucket and key from the fig_name
+#         s3 = boto3.client('s3')
+#         bucket_name = fig_name.split('/')[2]
+#         key = '/'.join(fig_name.split('/')[3:])
 
-        # Upload the figure to the S3 bucket
-        s3.upload_fileobj(buffer, bucket_name, key)
-        buffer.close()
+#         # Upload the figure to the S3 bucket
+#         s3.upload_fileobj(buffer, bucket_name, key)
+#         buffer.close()
 
-    else:
-        # Save the figure locally
-        fig.savefig(fig_name,dpi=300,bbox_inches='tight',facecolor='w')
+#     else:
+#         # Save the figure locally
+#         fig.savefig(fig_name,dpi=300,bbox_inches='tight',facecolor='w')
 
 
 
 def plot_daily_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L2A_', ylim=50000, wind_str='', bsc_str='', T_str='', mask_flag=1):
-    
+    T_str = T_str.replace('None','')
+    wind_str = wind_str.replace('None','')
+    bsc_str = bsc_str.replace('None','')
     if not os.path.exists(fig_dir) and not fig_dir.startswith('s3://'):
     # Create the directory if it does not exist
         os.makedirs(fig_dir)
@@ -77,6 +79,11 @@ def plot_daily_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L2A_', yli
     
     n_plots = len(var_list)+('u_mie' in var_list)
     fig,axs = plt.subplots(n_plots,figsize=(12,3*n_plots))
+    im0plot=0
+    im1_to_4plot=0
+    im5plot=0
+    im6plot=0
+
     for fname in fname_list:
         ds = xr.load_dataset(fname, engine='h5netcdf')
         
@@ -85,10 +92,16 @@ def plot_daily_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L2A_', yli
         else:
             mask = xr.Dataset({var: xr.zeros_like(ds[var]) for var in var_list})*np.nan
         
+        tb = ds.time_bnds.values
+        t_edges = np.concatenate([[tb[0,0]], tb[:,1]])
+        hb = ds.height_bnds.values            # (n_alt, 2)
+        alt_edges = np.concatenate([hb[:,0], [hb[-1,1]]])
+
         iplot=0 # this inelegant approach keeps the correct subplot index when some variables are missing
         if ((len(bsc_str)>0 and (bsc_str in fname)) or (len(bsc_str)==0)) and ('backscatter_coef' in var_list):
-            im0=axs[iplot].pcolormesh(ds.time.values, ds.altitude_mie.values, ds.backscatter_coef.sel(line_of_sight=0).T,norm=colors.LogNorm(vmin=1e-9,vmax=1e-5),shading='nearest',cmap='viridis')
-            axs[iplot].pcolormesh(ds.time.values, ds.altitude_mie.values, mask.backscatter_coef.sel(line_of_sight=0).T, cmap='Greys', vmin=0,vmax=5, shading='nearest')
+            im0=axs[iplot].pcolormesh(t_edges, alt_edges, ds.backscatter_coef.sel(line_of_sight=0).T,norm=colors.LogNorm(vmin=1e-9,vmax=1e-5),shading='flat',cmap='viridis')
+            axs[iplot].pcolormesh(t_edges, alt_edges, mask.backscatter_coef.sel(line_of_sight=0).T, cmap='Greys', vmin=0,vmax=5, shading='flat')
+            im0plot=1
         if ('backscatter_coef' in var_list):
             iplot+=1
         
@@ -96,41 +109,48 @@ def plot_daily_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L2A_', yli
             wind_speed = compute_wind_speed(ds.u_mie, ds.v_mie)
             im1=axs[iplot].barbs(ds.time.values[:], ds.altitude_mie.values[::3], ds.u_mie.values[:,::3].T, ds.v_mie.values[:,::3].T,wind_speed.values[:,::3].T,
                 length=3.5, pivot='middle', cmap='turbo', linewidth=.5, norm = colors.Normalize(vmin=0, vmax=50,clip=True))
-            axs[iplot].pcolormesh(ds.time.values, ds.altitude_mie.values, np.fmax(mask.u_mie.values,mask.v_mie.values).T, cmap='Greys', vmin=0,vmax=5, shading='nearest')
-            im2=axs[iplot+1].pcolormesh(ds.time.values, ds.altitude_mie.values, ds.w_mie.T,vmin=-6,vmax=6,cmap='RdBu_r',shading='nearest')
-            axs[iplot+1].pcolormesh(ds.time.values, ds.altitude_mie.values, mask.w_mie.T, cmap='Greys', vmin=0,vmax=5, shading='nearest')
-            im3=axs[iplot+2].pcolormesh(ds.time.values, ds.altitude_mie.values, ds.u_mie.T, vmin=-40, vmax=40, cmap='RdBu_r', shading='nearest')
-            axs[iplot+2].pcolormesh(ds.time.values, ds.altitude_mie.values, mask.u_mie.T, cmap='Greys', vmin=0,vmax=5, shading='nearest')
-            im4=axs[iplot+3].pcolormesh(ds.time.values, ds.altitude_mie.values, ds.v_mie.T, vmin=-40, vmax=40, cmap='RdBu_r', shading='nearest')
-            axs[iplot+3].pcolormesh(ds.time.values, ds.altitude_mie.values, mask.v_mie.T, cmap='Greys', vmin=0,vmax=5, shading='nearest')            
+            axs[iplot].pcolormesh(t_edges, alt_edges, np.fmax(mask.u_mie.values,mask.v_mie.values).T, cmap='Greys', vmin=0,vmax=5, shading='flat')
+            im2=axs[iplot+1].pcolormesh(t_edges, alt_edges, ds.w_mie.T,vmin=-6,vmax=6,cmap='RdBu_r',shading='flat')
+            axs[iplot+1].pcolormesh(t_edges, alt_edges, mask.w_mie.T, cmap='Greys', vmin=0,vmax=5, shading='flat')
+            im3=axs[iplot+2].pcolormesh(t_edges, alt_edges, ds.u_mie.T, vmin=-40, vmax=40, cmap='RdBu_r', shading='flat')
+            axs[iplot+2].pcolormesh(t_edges, alt_edges, mask.u_mie.T, cmap='Greys', vmin=0,vmax=5, shading='flat')
+            im4=axs[iplot+3].pcolormesh(t_edges, alt_edges, ds.v_mie.T, vmin=-40, vmax=40, cmap='RdBu_r', shading='flat')
+            axs[iplot+3].pcolormesh(t_edges, alt_edges, mask.v_mie.T, cmap='Greys', vmin=0,vmax=5, shading='flat')            
+            im1_to_4plot=1
         if ('u_mie' in var_list):
             iplot=iplot+4
             
         if ((len(T_str)>0 and (T_str in fname)) or (len(T_str)==0)) and ('temperature_int' in var_list):
-            im5=axs[iplot].pcolormesh(ds.time.values, ds.altitude_mie.values, ds.temperature_int.sel(line_of_sight=0).T-273.15,vmin=-80,vmax=40,cmap='turbo', shading='nearest')
-            axs[iplot].pcolormesh(ds.time.values, ds.altitude_mie.values, mask.temperature_int.sel(line_of_sight=0).T, cmap='Greys', vmin=0,vmax=5, shading='nearest')
+            im5=axs[iplot].pcolormesh(t_edges, alt_edges, ds.temperature_int.sel(line_of_sight=0).T-273.15,vmin=-80,vmax=40,cmap='turbo', shading='flat')
+            axs[iplot].pcolormesh(t_edges, alt_edges, mask.temperature_int.sel(line_of_sight=0).T, cmap='Greys', vmin=0,vmax=5, shading='flat')
+            im5plot=1
         if ('temperature_int' in var_list):
             iplot+=1
         
         if ((len(bsc_str)>0 and (bsc_str in fname)) or (len(bsc_str)==0)) and ('aerosol_depolarization_ratio' in var_list):
-            im6=axs[iplot].pcolormesh(ds.time.values, ds.altitude_mie.values, ds.aerosol_depolarization_ratio.T,norm=colors.LogNorm(vmin=1e-5,vmax=1),shading='nearest',cmap='plasma')
-            axs[iplot].pcolormesh(ds.time.values, ds.altitude_mie.values, mask.aerosol_depolarization_ratio.T, cmap='Greys', vmin=0,vmax=5, shading='nearest')
-            
+            im6=axs[iplot].pcolormesh(t_edges, alt_edges, ds.aerosol_depolarization_ratio.T,norm=colors.LogNorm(vmin=1e-5,vmax=1),shading='flat',cmap='plasma')
+            axs[iplot].pcolormesh(t_edges, alt_edges, mask.aerosol_depolarization_ratio.T, cmap='Greys', vmin=0,vmax=5, shading='flat')
+            im6plot=1
+
     iplot=0
     if ('backscatter_coef' in var_list):
-        plt.colorbar(im0, ax=axs[iplot], label='Backscatter coefficient [m-1 sr-1]', extend='both')
+        if (im0plot==1):
+            plt.colorbar(im0, ax=axs[iplot], label='Backscatter coefficient [m-1 sr-1]', extend='both')
         iplot+=1
     if ('u_mie' in var_list):
-        plt.colorbar(im1, ax=axs[iplot], label='Wind speed [m s-1]')
-        plt.colorbar(im2, ax=axs[iplot+1], label='Vertical wind [m s-1]')
-        plt.colorbar(im3, ax=axs[iplot+2], label='Eastward wind [m s-1]')
-        plt.colorbar(im4, ax=axs[iplot+3], label='Northward wind [m s-1]') 
+        if (im1_to_4plot==1):
+            plt.colorbar(im1, ax=axs[iplot], label='Wind speed [m s-1]')
+            plt.colorbar(im2, ax=axs[iplot+1], label='Vertical wind [m s-1]')
+            plt.colorbar(im3, ax=axs[iplot+2], label='Eastward wind [m s-1]')
+            plt.colorbar(im4, ax=axs[iplot+3], label='Northward wind [m s-1]') 
         iplot+=4
     if ('temperature_int' in var_list):
-        plt.colorbar(im5, ax=axs[iplot], label='Temperature from\n Rayleigh integration [deg C]')
+        if (im5plot==1):
+            plt.colorbar(im5, ax=axs[iplot], label='Temperature from\n Rayleigh integration [deg C]')
         iplot+=1
     if ('aerosol_depolarization_ratio' in var_list):
-        plt.colorbar(im6, ax=axs[iplot], label='Aerosol depolarization ratio', extend='both')
+        if (im6plot==1):
+            plt.colorbar(im6, ax=axs[iplot], label='Aerosol depolarization ratio', extend='both')
     ds0 = xr.load_dataset(fname_list[0], engine='h5netcdf')
     ds1 = xr.load_dataset(fname_list[-1], engine='h5netcdf')
     
@@ -185,11 +205,11 @@ def plot_daily_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L2A_', yli
         # Upload the figure to the S3 bucket
         s3.upload_fileobj(buffer, bucket_name, key)
         buffer.close()
-
+        print('Saved daily quicklook to S3:', fig_name)
     else:
         # Save the figure locally
         fig.savefig(fig_name,dpi=300,bbox_inches='tight',facecolor='w')
-
+        print('Saved daily quicklook to:', fig_name)
 
 if __name__=='__main__':
     import argparse

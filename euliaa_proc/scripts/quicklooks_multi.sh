@@ -58,6 +58,7 @@ for campaign in $campaigns; do
     if [ -z "$file_list" ]; then
         echo "No L2A files found for date $date in $L2A_DIR_W_DATE or its subdirectories. Skipping campaign."
     else
+        echo "$HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks.py --l2a_file_list $file_list --fig_dir "$QUICKLOOKS_DIR" --fig_prefix ${FIG_PREFIX} --wind_str ${WIND_STR} --bsc_str ${BSC_STR} --T_str ${T_STR} --mask_flag ${MASK_FLAG}"
         $HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks.py --l2a_file_list $file_list --fig_dir "$QUICKLOOKS_DIR" --fig_prefix ${FIG_PREFIX} --wind_str ${WIND_STR} --bsc_str ${BSC_STR} --T_str ${T_STR} --mask_flag ${MASK_FLAG}
         $HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks_interactive.py --l2a_file_list $file_list --fig_dir "$QUICKLOOKS_DIR" --fig_prefix ${FIG_PREFIX} --wind_str ${WIND_STR} --bsc_str ${BSC_STR} --T_str ${T_STR} --mask_flag ${MASK_FLAG}
         if [ $? -ne 0 ]; then

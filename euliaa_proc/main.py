@@ -2,7 +2,6 @@ from euliaa_proc.measurement import H5Reader
 from euliaa_proc.write_netcdf import Writer
 from euliaa_proc.log import logger
 from euliaa_proc.nc2bufr import write_bufr
-from euliaa_proc.quicklooks import plot_quicklooks, plot_daily_quicklooks
 
 class Runner:
 
@@ -21,18 +20,20 @@ class Runner:
         self.meas.add_time_bnds()
         self.meas.add_height_bnds()
         self.meas.correct_velocity_offset() # correct velocity offset if needed, values set in config_qc
-        self.meas.correct_azimuth_offset() # correct azimuth offset if needed, values set in config_nc (azimuth offset defined in attributes)
         logger.info('Computing noise level and SNR')
         self.meas.add_noise_and_snr()
 
         logger.info('Adding basic quality flag')
         self.meas.add_quality_flag()
+        self.meas.correct_azimuth_offset() # correct azimuth offset if needed, values set in config_nc (azimuth offset defined in attributes)
         logger.info('Adding aerosol depolarization ratio')
         self.meas.add_depolarization_ratio()
         logger.info('Cloud detection (for now, only transparent clouds)')
         self.meas.add_clouds()
-        logger.info('Completing quality flag')
-        self.meas.add_flag_below_cloud_top(var_list=['temperature_int'])
+        logger.info('Adding below cloud top flag')
+        self.meas.add_flag_below_cloud_top(var_list=['temperature_int']) 
+        logger.info('Adding inside cloud flag')
+        self.meas.add_flag_inside_cloud(var_list=['w_mie'])
         self.meas.add_flag_missing_data()
         self.meas.combine_ray_mie() # for now it just copies mie 
         self.meas.combine_int_broad() # for now it just copies int
@@ -81,6 +82,7 @@ class Runner:
             # self.meas.set_invalid_to_nan() # set invalid data to NaN for L2B
             logger.info(f'Writing L2B full file {self.args.output_nc_l2B}')
             nc_writer_l2b = Writer(self.meas,output_file=self.args.output_nc_l2B)
+            nc_writer_l2b.write_nc()
         logger.info('Wrote L2B successfully\n')
 
     # def write_l2a_and_l2b(self):
@@ -131,7 +133,7 @@ class Runner:
         eprofile_meas.load_data(time_idx_list=[-1]) # load only the last profile
         eprofile_meas.set_var_attrs_from_conf()
         eprofile_meas.set_global_attrs_from_conf()
-        eprofile_meas.set_invalid_to_nan() # set invalid data to NaN for eprofile
+        # eprofile_meas.set_invalid_to_nan() # set invalid data to NaN for eprofile  -> this was not working because wrong key names syntax!
         eprofile_meas.subsel_altitude_range()
         eprofile_writer = Writer(eprofile_meas, output_file=self.args.output_nc_eprofile_wind)
         eprofile_writer.write_nc()
@@ -183,8 +185,8 @@ if __name__=='__main__':
     parser.add_argument('--output_nc_eprofile_bsc', type=str, help='Path to the output netCDF file for ALC eprofile', default=os.path.join(cwd,'../data/TestNC_EPROFILE_BSC.nc'))
     parser.add_argument('--bufr_types', nargs='+', default=['wind', 'temperature'])
     parser.add_argument('--output_bufr', type=str, help='Path to the output BUFR file', default=os.path.join(cwd,'../data/Test_BUFR.bufr'))
-    parser.add_argument('--fig_dir', type=str, help='Path to the directory where quicklooks are saved', default=os.path.join(cwd,'quicklooks/'))
-    parser.add_argument('--fig_prefix', type=str, help='Prefix of the quicklook figure', default='quicklook_')
+    # parser.add_argument('--fig_dir', type=str, help='Path to the directory where quicklooks are saved', default=os.path.join(cwd,'quicklooks/'))
+    # parser.add_argument('--fig_prefix', type=str, help='Prefix of the quicklook figure', default='quicklook_')
     args = parser.parse_args()
 
     runner = Runner(args)

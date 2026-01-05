@@ -144,7 +144,7 @@ class Measurement():
         if 'line_of_sight' in self.data.keys() and len(self.data.line_of_sight)>1:
             cloud_ds_list = []
             for i, los in enumerate(self.data.line_of_sight.values):
-                cloud_ds_list.append(in_house_cloud_detection(data_zen[:,:,i],**kwargs))
+                cloud_ds_list.append(in_house_cloud_detection(data_zen.isel(line_of_sight=i),**kwargs))
             self.data = xr.merge([self.data, xr.concat(cloud_ds_list, dim='line_of_sight')])
         else:
             cloud_ds = in_house_cloud_detection(data_zen,**kwargs)
@@ -186,9 +186,18 @@ class Measurement():
             v_var = f'v{var_ending}'
             u_err_var = f'u{var_ending}_err'
             v_err_var = f'v{var_ending}_err'
+            u_flag_var = f'u{var_ending}_flag'
+            v_flag_var = f'v{var_ending}_flag'
             if (u_var in self.data.keys()) and (v_var in self.data.keys()) and (u_err_var in self.data.keys()) and (v_err_var in self.data.keys()):
                 self.data[u_var], self.data[v_var], self.data[u_err_var], self.data[v_err_var] = correct_u_v_for_azimuth(azimuth_deg, self.data[u_var], self.data[v_var], self.data[u_err_var], self.data[v_err_var])
                 logger.info(f'Corrected {u_var} and {v_var} for azimuth offset of {azimuth_deg} degrees')
+                if azimuth_deg % 90 != 0:
+                    self.data[u_flag_var] = xr.ufuncs.maximum(self.data[u_flag_var], self.data[v_flag_var])
+                    self.data[v_flag_var] = self.data[u_flag_var]
+                elif azimuth_deg % 180 == 0:
+                    logger.info(f'Azimuth offset is multiple of 180 degrees, no flag update needed for {u_var} and {v_var}')
+                elif azimuth_deg % 90 == 0:
+                    self.data[u_flag_var], self.data[v_flag_var] = self.data[v_flag_var], self.data[u_flag_var]
             else:
                 logger.warning(f'Cannot correct {u_var} and {v_var} for azimuth offset: missing variable(s): {[var for var in [u_var, v_var, u_err_var, v_err_var] if var not in self.data.keys()]}')            
         
@@ -201,13 +210,14 @@ class Measurement():
         """
         for var in var_list:
             if var in self.data:
-                if 'CORRECTION' in self.qc_conf_file: # This is a general correction applied to all campaigns, so should be in the qc config file
+                if 'CORRECTION' in self.qc_conf: # This is a general correction applied to all campaigns, so should be in the qc config file
                     self.data[var] = self.data[var] - self.qc_conf['CORRECTION'] # certain files from iap has a velocity bias
-                    logger.info(f'Corrected {var} for velocity offset of {self.qc_conf["CORRECTION"]}')
-                if 'correction_w_offset' in self.conf['attributes']: # This is campaign-dependent so should be in the campaign config, and stored in attributes (relevant to users)
-                    self.data[var] = self.data[var] - self.qc_conf['correction_w_offset'] # remove mean w after correction
-                    logger.info(f'Corrected {var} for mean w offset of {self.qc_conf["correction_w_offset"]}')
+                    # logger.info(f'Corrected {var} for velocity offset of {self.qc_conf["CORRECTION"]}')
+                # if 'correction_w_offset' in self.conf['attributes']: # This is campaign-dependent so should be in the campaign config, and stored in attributes (relevant to users)
+                #     self.data[var] = self.data[var] - self.conf['attributes']['correction_w_offset'] # remove mean w after correction
+                #     logger.info(f'Corrected {var} for mean w offset of {self.conf["attributes"]["correction_w_offset"]}')
                 if var in ['w_mie', 'w', 'w_ray']:
+                    logger.info(f'Corrected {var} for velocity offset of {self.qc_conf["CORRECTION"]}')
                     continue
                 self.data[var] = self.data[var]*self.qc_conf['MULTIPLY_BY']# 2 # off-zenith slant # This is a general correction applied to all campaigns, so should be in the qc config file
                 logger.info(f'Corrected {var} for velocity offset of {self.qc_conf["CORRECTION"]} and multiplied by {self.qc_conf["MULTIPLY_BY"]}')
@@ -230,8 +240,14 @@ class Measurement():
             scat = 'mie' if any('_mie' in d for d in self.data[var].dims) else 'ray'
             flag_invalid = flag_var(self.data, var, var_min_thres=self.qc_conf['THRES_MIN'][var], var_max_thres=self.qc_conf['THRES_MAX'][var]) # -> flag = 1
             if not ('line_of_sight' in self.data[var].dims):
-                if 'line_of_sight' in self.conf['variables'][var]['attributes']:
-                    snr_los = self.conf['variables'][var]['attributes']['line_of_sight']
+                # if 'line_of_sight' in self.conf['variables'][var]['attributes']:
+                #     snr_los = self.conf['variables'][var]['attributes']['line_of_sight']
+                if var in ['w_mie', 'w_ray', 'w']:
+                    snr_los = 0
+                elif var in ['u_mie', 'u_ray', 'u']:
+                    snr_los = 1
+                elif var in ['v_mie', 'v_ray', 'v']:
+                    snr_los = 2
                 else:
                     logger.warning(f'Warning: line_of_sight not found in {var} attributes nor dimensions, setting SNR flag to 0')
                     # flag_snr = xr.zeros_like(self.data[var])
@@ -241,44 +257,15 @@ class Measurement():
             flag_snr = flag_var(self.data, var, snr_key=f'snr_{scat}',snr_thres=self.qc_conf['SNR_THRES'][var], snr_los=snr_los) # -> flag = 2
             flag_err = flag_var(self.data, var, err_key=f'{var}_err', var_err_thres=self.qc_conf['ERR_THRES'][var])  # -> flag = 4
             flag_low_range = xr.zeros_like(self.data[var])
-            if var in self.qc_conf['MIN_RANGE_FOR_FLAG'].keys(): # add low altitude flag -> flag = 32 (8 + 16 already used for cloud, see functions below)
+            if var in self.qc_conf['MIN_RANGE_FOR_FLAG'].keys(): # add low altitude flag -> flag = 8)
                 if 'altitude' in self.data.keys():
                     alt_0 = self.data['altitude'].values[0]
-                    flag_low_range = xr.where(self.data['altitude']-alt_0 < self.qc_conf['MIN_RANGE_FOR_FLAG'][var], 32, 0)
+                    flag_low_range = xr.where(self.data['altitude']-alt_0 < self.qc_conf['MIN_RANGE_FOR_FLAG'][var], 8, 0)
                 elif 'altitude_mie' in self.data.keys():
                     alt_0 = self.data['altitude_mie'].values[0]
-                    flag_low_range = xr.where(self.data['altitude_mie']-alt_0 < self.qc_conf['MIN_RANGE_FOR_FLAG'][var], 32, 0)
+                    flag_low_range = xr.where(self.data['altitude_mie']-alt_0 < self.qc_conf['MIN_RANGE_FOR_FLAG'][var], 8, 0)
             
             self.data[f'{var}_flag'] = flag_err + flag_snr + flag_invalid + flag_low_range
-
-
-    def add_flag_below_cloud_top(self, var_list = ['temperature_int']):
-        """
-        Add cloud flag to the variables in var_list
-        The flag is computed as follows:
-        - flag_cloud: 8 if the cloud mask is > 0
-        """
-        if not ('below_cloud_top' in self.data.keys()):
-            logger.warning('No cloud top data available, skipping cloud flag')
-            return
-        cloud_flag = xr.where(self.data['below_cloud_top'] > 0, 8, 0)
-        for var in var_list:
-            self.data[f'{var}_flag'] += cloud_flag # -> flag = 8
-        return
-    
-    def add_flag_above_cloud_base(self, var_list = ['backscatter_coef', 'backscatter_coef_depol', 'aerosol_depolarization_ratio']):
-        """
-        Add cloud flag to the variables in var_list
-        The flag is computed as follows:
-        - flag_cloud: 16 if the cloud mask is > 0
-        """
-        if not ('above_cloud_base' in self.data.keys()):
-            logger.warning('No cloud top data available, skipping cloud flag')
-            return
-        cloud_flag = xr.where(self.data['above_cloud_base'] > 0, 16, 0)
-        for var in var_list:
-            self.data[f'{var}_flag'] += cloud_flag # -> flag = 16
-        return
 
     def add_flag_missing_data(self):
         for var in self.data.data_vars.keys():
@@ -286,39 +273,71 @@ class Measurement():
                 self.data[f'{var}_flag'] = self.data[f'{var}_flag'].where(~xr.ufuncs.isnan(self.data[var]), -9) # flag = -9 if NaN
 
 
-    # def add_quality_flag_old(self):
+    def add_flag_inside_cloud(self, var_list = ['w_mie']):
+        """
+        Add cloud flag to the variables in var_list
+        The flag is computed as follows:
+        - flag_cloud: 16 if the cloud mask is > 0
+        """
+        if not ('cloud_mask' in self.data.keys()):
+            logger.warning('No cloud mask data available, skipping cloud flag')
+            return
+        cloud_flag = xr.where(self.data['cloud_mask'] > 0, 16, 0)
+        for var in var_list:
+            if var=='w_mie' or var=='w_ray' or var=='w':
+                self.data[f'{var}_flag'] += cloud_flag.isel(line_of_sight=0) # -> flag = 16
+            elif var=='v_mie' or var=='v_ray' or var=='v' or var=='u_mie' or var=='u_ray' or var=='u':
+                # self.data[f'{var}_flag'] += cloud_flag.isel(line_of_sight=2)
+                logger.warning(f'Cloud flag for horizontal wind component {var} not implemented yet, this is easy if los is aligned with N or E but not in general case')
+            elif var=='backscatter_coef' or var=='backscatter_coef_depol' or var=='aerosol_depolarization_ratio':
+                self.data[f'{var}_flag']+= cloud_flag
+        return
+
+
+    def add_flag_below_cloud_top(self, var_list = ['temperature_int']):
+        """
+        Add cloud flag to the variables in var_list
+        The flag is computed as follows:
+        - flag_cloud: 32 if the cloud mask is > 0
+        """
+        if not ('below_cloud_top' in self.data.keys()):
+            logger.warning('No cloud top data available, skipping cloud flag')
+            return
+        cloud_flag = xr.where(self.data['below_cloud_top'] > 0, 32, 0)
+        for var in var_list:
+            self.data[f'{var}_flag'] += cloud_flag # -> flag = 8
+        return
+    
+    # def add_flag_above_cloud_base(self, var_list = ['backscatter_coef', 'backscatter_coef_depol', 'aerosol_depolarization_ratio']):
     #     """
-    #     Add quality flag
-    #     The flag is computed as follows, for each variable (with some var-specific adjustments): high error + invalid value + no data + low snr
-    #     Then if 'INVALID_TO_NAN' is set to True, the variable is set to NaN if the flag is > 0.
+    #     Add cloud flag to the variables in var_list
+    #     The flag is computed as follows:
+    #     - flag_cloud: 64 if the cloud mask is > 0
     #     """
-    #     # self.data.w_mie.values = self.data.w_mie.values-self.qc_conf['CORRECTION'] # first file from iap has a velocity bias
-    #     self.data['w_mie_flag'] = flag_var(self.data, 'w_mie', err_key='w_mie_err', var_min_thres=-self.qc_conf['W_ABS_THRES'], var_max_thres=self.qc_conf['W_ABS_THRES'], var_err_thres=self.qc_conf['W_ERR_THRES'])
-    #     self.data['u_mie_flag'] = flag_var(self.data, 'u_mie', err_key='u_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
-    #     self.data['v_mie_flag'] = flag_var(self.data, 'v_mie', err_key='v_mie_err', var_min_thres=-self.qc_conf['U_V_ABS_THRES'], var_max_thres=self.qc_conf['U_V_ABS_THRES'], var_err_thres=self.qc_conf['U_V_ERR_THRES'])
-    #     self.data['temperature_int_flag'] = flag_var(self.data, 'temperature_int', err_key='temperature_int_err', var_min_thres=self.qc_conf['TEMP_MIN_THRES'], var_max_thres=self.qc_conf['TEMP_MAX_THRES'], var_err_thres=self.qc_conf['TEMP_ERR_THRES'])
-    #     self.data['u_v_flag']= xr.ufuncs.maximum(self.data.u_mie_flag,self.data.v_mie_flag)
-    #     self.data['backscatter_coef_flag'] = flag_var(self.data, 'backscatter_coef', var_min_thres=self.qc_conf['BSC_MIN_THRES'],snr_key='snr_mie',snr_thres=self.qc_conf['SNR_THRES'])
-    #     if self.qc_conf['INVALID_TO_NAN']:
-    #         for var in ['u_mie', 'v_mie', 'w_mie', 'temperature_int', 'backscatter_coef']:
-    #             self.data[var] = self.data[var].where(self.data[var+'_flag']<1, np.nan)
+    #     if not ('above_cloud_base' in self.data.keys()):
+    #         logger.warning('No cloud top data available, skipping cloud flag')
+    #         return
+    #     cloud_flag = xr.where(self.data['above_cloud_base'] > 0, 64, 0)
+    #     for var in var_list:
+    #         self.data[f'{var}_flag'] += cloud_flag # -> flag = 64
+    #     return
+    
 
     def set_invalid_to_nan(self):
         """
         Set the variables to NaN if the flag is > 0
         """
-        for var in self.data.data_vars.keys():
-            if not (f'{var}_flag' in self.data.keys()):
+        for var in self.data.variables.keys():
+            if not (f'{var}_flag' in self.data.variables.keys()):
                 continue
+            # logger.info(f'Setting invalid data to NaN for variable {var}')
             self.data[var] = self.data[var].where(self.data[var+'_flag']==0, np.nan)
 
-    def combine_ray_mie(self): # TO DO complete this when both Ray and Mie are available
+    def combine_ray_mie(self): # TO DO complete / refine this when both Ray and Mie are available
         """
         Combine the ray and mie variables into a single variable
         The ray variables are averaged with the mie variables, and the flag is set to the maximum of the two
-        """
-        # self.data['altitude'] = self.data['altitude_mie']  # Set altitude to mie altitude for consistency # TO DO THIS IS FOR TESTS
-        
+        """        
         for var in self.data.variables.keys():
             if not ('ray' in var or 'mie' in var):
                 continue
@@ -333,11 +352,11 @@ class Measurement():
                 mie_var = var.replace('ray', 'mie')
                 combined_var = var.replace('_ray', '')
                 combined_flag_var = combined_var + '_flag'
-                if mie_var in self.data.keys():
+                if mie_var in self.data.keys(): # both ray and mie exist -> average
                     combined_data = (self.data[var].values + self.data[mie_var].values) / 2
                     if flag_var_exists:
                         combined_flag = xr.ufuncs.maximum(self.data[var+'_flag'], self.data[mie_var+'_flag']).values
-                else:
+                else: # only ray exists -> use ray only
                     combined_data = self.data[var].values
                     if flag_var_exists:
                         combined_flag = self.data[var+'_flag'].values
@@ -345,7 +364,8 @@ class Measurement():
             elif 'mie' in var:
                 ray_var = var.replace('mie', 'ray')
                 if ray_var in self.data.keys():
-                    continue # skip if ray variable exists, as it will be combined with mie in the loop above
+                    continue # skip if ray variable exists, as it would have been combined with mie in the loop above
+                # otherwise, only mie exists -> use mie only
                 combined_var = var.replace('_mie', '')
                 combined_flag_var = combined_var + '_flag'
                 combined_data = self.data[var].values
@@ -377,7 +397,7 @@ class Measurement():
                     combined_data = (self.data[var].values + self.data[broad_var].values) / 2
                     if flag_var_exists:
                         combined_flag = xr.ufuncs.maximum(self.data[var+'_flag'], self.data[broad_var+'_flag']).values
-                else:
+                else: # broad_var not in data -> use int var only
                     combined_data = self.data[var].values
                     if flag_var_exists:
                         combined_flag = self.data[var+'_flag'].values    
@@ -537,6 +557,10 @@ class H5Reader(Measurement):
                 self.data[var] = (specs['dim'], np.full(tuple([len(self.data[d]) for d in specs['dim']]), hdf5_ds[hdf5_var].data))
             else:
                 self.data[var] = (specs['dim'],  hdf5_ds[hdf5_var].data)
+
+            if var in ['u_mie', 'u_ray', 'u', 'v_mie', 'v_ray', 'v', 'w_mie', 'w_ray', 'w']:
+                self.data[var] = -self.data[var]
+                logger.info(f'Inverting sign of {var}')
 
 
 

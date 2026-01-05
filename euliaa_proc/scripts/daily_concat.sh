@@ -1,22 +1,8 @@
 #!/bin/bash
 
-# daily_concat_runner.sh - Concatenate daily NetCDF files (default: of the previous day) from S3 bucket
-# Usage: ./daily_concat_runner.sh [YYYYMMDD] [options]
-
-# Should be put in crontab to activate concatenation + upload to s3 bucket for GEO knowledgehub
-# ./euliaa_proc/euliaa_proc/scripts/daily_concat_runner.sh -b s3://euliaa-l2/TESTS/Kuehlungsborn/L2A/ -o s3://euliaa-daily/Kuehlungsborn/ -t 20MIN -c euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml 
-# ./euliaa_proc/euliaa_proc/scripts/daily_concat_runner.sh -b s3://euliaa-l2/TESTS/Kuehlungsborn/L2A/ -o s3://euliaa-daily/Kuehlungsborn/ -t 60MIN -c euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml 
-# ./euliaa_proc/euliaa_proc/scripts/daily_concat_runner.sh -b s3://euliaa-l2/Andoya/L2A/ -o s3://euliaa-daily/Andoya/ -t 20MIN -c euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml 
-# ./euliaa_proc/euliaa_proc/scripts/daily_concat_runner.sh -b s3://euliaa-l2/Andoya/L2A/ -o s3://euliaa-daily/Andoya/ -t 60MIN -c euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml 
-# ./euliaa_proc/euliaa_proc/scripts/daily_concat_runner.sh -b s3://euliaa-l2/OHP/L2A/ -o s3://euliaa-daily/OHP/ -t 20MIN -c euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml
-# ./euliaa_proc/euliaa_proc/scripts/daily_concat_runner.sh -b s3://euliaa-l2/OHP/L2A/ -o s3://euliaa-daily/OHP/ -t 60MIN -c euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml
-# ./euliaa_proc/euliaa_proc/scripts/daily_concat_runner.sh -b s3://euliaa-l2/Jungfraujoch/L2A/ -o s3://euliaa-daily/Jungfraujoch/ -t 20MIN -c euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml
-# ./euliaa_proc/euliaa_proc/scripts/daily_concat_runner.sh -b s3://euliaa-l2/Jungfraujoch/L2A/ -o s3://euliaa-daily/Jungfraujoch/ -t 60MIN -c euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml
-# ./euliaa_proc/euliaa_proc/scripts/daily_concat_runner.sh -b s3://euliaa-l2/Payerne/L2A/ -o s3://euliaa-daily/Payerne/ -t 20MIN -c euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml
-# ./euliaa_proc/euliaa_proc/scripts/daily_concat_runner.sh -b s3://euliaa-l2/Payerne/L2A/ -o s3://euliaa-daily/Payerne/ -t 60MIN -c euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml
-# ./euliaa_proc/euliaa_proc/scripts/daily_concat_runner.sh -b s3://euliaa-l2/Maido/L2A/ -o s3://euliaa-daily/Maido/ -t 20MIN -c euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml
-# ./euliaa_proc/euliaa_proc/scripts/daily_concat_runner.sh -b s3://euliaa-l2/Maido/L2A/ -o s3://euliaa-daily/Maido/ -t 60MIN -c euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml
-
+# daily_concat.sh - Concatenate daily NetCDF files (default: of the previous day) from S3 bucket
+# Usage: ./daily_concat.sh [YYYYMMDD] [options]
+# Example: /home/oper/euliaa_proc/euliaa_proc/scripts/daily_concat.sh 2025-12-12 -b s3://euliaa-l2/Andoya/L2A/ -o s3://euliaa-daily/Andoya/ -t 20MIN -c /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml --campaign Andoya
 
 
 set -e  # Exit on any error
@@ -134,7 +120,7 @@ if [ -z "$FILES_LIST" ]; then
     exit 1
 fi
 
-OUTPUT_FILE="$OUTPUT_BUCKET/L2A${TIME_INTEGRATION}_${CAMPAIGN}${DATE}.nc"
+OUTPUT_FILE="$OUTPUT_BUCKET/L2_${TIME_INTEGRATION}_${CAMPAIGN}${DATE}.nc"
 
 
 if [ "$DRY_RUN" = true ]; then

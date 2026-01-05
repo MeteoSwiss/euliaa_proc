@@ -32,18 +32,18 @@ MIN_RANGE_FOR_FLAG:
   u_mie: 2500. # m
   v_mie: 2500. # m
   temperature_int: 2500. # m
-  backscatter_coef: 2500. # m
-  backscatter_coef_depol: 2500. # m
+  backscatter_coef: 0. # m # note: if we set this too high we might lose data that is relevant for cloud detection. better not be too conservative here, though 0 might be a bit extreme.
+  backscatter_coef_depol: 0. # m
 
-CORRECTION: 28.8461 # velocity correction for frequency offset = 28.8461 (remove if IAP fixes it themselves)
+CORRECTION: -28.8461 # velocity correction for frequency offset = -28.8461 (remove if IAP fixes it themselves)
 MULTIPLY_BY: 2.0 # velocity correction for off-zenith slant, remove if IAP fixes it themselves
-VARS_TO_KEEP: # list of variables to keep in the L2B file # this is for internal use - for quicklooks (no external distribution)
+VARS_TO_KEEP: # list of variables to keep in the L2B file # this is for internal use for quicklooks (no external distribution)
 - altitude
 - temperature
+- temperature_flag
 - w
 - v
 - u
-- temperature_flag
 - w_flag
 - v_flag
 - u_flag
@@ -55,9 +55,13 @@ VARS_TO_KEEP: # list of variables to keep in the L2B file # this is for internal
 - range_integration
 - time_integration
 
+EPROFILE_SKIP_EVERY_SECOND_ALTITUDE: True # whether to skip every second altitude in the eprofile files, so that no overlapping measurements
+EPROFILE_SET_INVALID_TO_NAN: True # whether to set invalid values (flag !=0) to NaN in the E-Profile files
+
+
 VARIABLES_TO_KEEP_DAILY: # Uncomment the variables if they are good enough to include in the GKH
 - altitude
-- altitude_mie
+# - altitude_mie
 # - w_mie
 # - v_mie
 # - u_mie

@@ -2,7 +2,8 @@ import numpy as np
 import xarray as xr
 from euliaa_proc.utils.data_utils import compute_wind_speed, compute_wind_direction, compute_hor_width
 from euliaa_proc.measurement import Measurement
-    
+from euliaa_proc.log import logger
+
 c = 299792458  # Speed of light in m/s
 lam = 386.0e-9  # Wavelength in meters
 # theta = 30.0  # Angle of off-zenith telescopes in degrees
@@ -25,14 +26,21 @@ class EProfileWindMeasurement(Measurement):
         """
         
         l2a_zen = self.l2a_data.sel(line_of_sight=0).drop_vars("line_of_sight")
-        l2a_final = l2a_zen.isel(time=time_idx_list)
-        l2a = l2a_zen.mean(dim='time').expand_dims('time')
+        l2a_final = l2a_zen.isel(time=time_idx_list) # Default is to take the last time index only
+        l2a = l2a_final.mean(dim='time').expand_dims('time')
         l2a['time']= ('time', l2a_final['time'].values)
 
         self.add_var({'height': (l2a.altitude_mie-l2a_zen.station_altitude).values,
             'time': l2a['time'].values,
             'nv': np.array([0, 1])
             })
+        
+        if 'EPROFILE_SET_INVALID_TO_NAN' in self.qc_conf and self.qc_conf['EPROFILE_SET_INVALID_TO_NAN']:
+            for var in l2a.variables.keys():
+                if not (f'{var}_flag' in l2a.variables.keys()):
+                    continue
+                # logger.info(f'Setting invalid data to NaN for variable {var}')
+                l2a[var] = l2a[var].where(l2a[var+'_flag']==0, np.nan)
 
         # print(l2a.height_bnds.dims)
         vert_res=l2a_zen.range_integration.values if 'range_integration' in l2a_zen.keys() else np.mean(self.data['height'].values[1:]-self.data['height'].values[:-1])
@@ -68,3 +76,6 @@ class EProfileWindMeasurement(Measurement):
 
     def subsel_altitude_range(self):
         self.data = self.data.sel(height=slice(0,self.qc_conf['MAX_ALTITUDE']))
+        if 'EPROFILE_SKIP_EVERY_SECOND_ALTITUDE' in self.qc_conf and self.qc_conf['EPROFILE_SKIP_EVERY_SECOND_ALTITUDE']:
+            self.data = self.data.isel(height=slice(None, None, 2))
+            logger.info("Every second altitude level skipped for E-Profile wind output.")
