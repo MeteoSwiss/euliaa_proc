@@ -16,12 +16,12 @@ DRY_RUN=false
 
 # Function to display usage
 usage() {
-    echo "Usage: $0 [YYYYMMDD] [OPTIONS]"
+    echo "Usage: $0 [YYYY-MM-DD] [OPTIONS]"
     echo ""
     echo "Cconcatenate NetCDF files for a specific date"
     echo ""
     echo "Arguments:"
-    echo "  YYYYMMDD          Date in YYYYMMDD format (default: yesterday's date)"
+    echo "  YYYY-MM-DD          Date in YYYY-MM-DD format (default: yesterday's date)"
     echo ""
     echo "Options:"
     echo "  -b, --bucket BUCKET      Source S3 bucket directory (default: s3://euliaa-l2)"

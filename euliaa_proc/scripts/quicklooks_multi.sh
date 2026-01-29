@@ -52,7 +52,7 @@ for campaign in $campaigns; do
     
     if [ -z "$file_list" ]; then
         echo "No L2A files found for date $date in $L2A_DIR_W_DATE, trying subdirectories..."
-        file_list=$(s3cmd ls --recursive "${L2A_DIR}*" | grep "${year}/${month}/${day}" 2>/dev/null | awk '{print $4}')
+        file_list=$(s3cmd ls --recursive "${L2A_DIR}*" | grep "${year}/${month}/${day}.*\.nc$" 2>/dev/null | awk '{print $4}')
         
     fi
     if [ -z "$file_list" ]; then

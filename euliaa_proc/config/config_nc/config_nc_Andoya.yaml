@@ -1229,6 +1229,6 @@ attributes:
   calibration_status:
   calibration_time:
   height_above_ground:
-  date_of_installation: 2025-10-28
+  date_of_installation: '2025-10-28'
   maintenance: #preventive and corrective maintenance (recommended and scheduled maintenance and calibration procedures, including frequency, and a description of procedures)
   comparison_to_reference: #results of comparison with travelling standards
