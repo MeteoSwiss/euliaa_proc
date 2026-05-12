@@ -46,15 +46,18 @@ for campaign in $campaigns; do
     if [[ "$L2A_DIR" != */ ]]; then
         L2A_DIR="${L2A_DIR}/"
     fi
-    L2A_DIR_W_DATE=${L2A_DIR}${year}/${month}/${day}/
-    file_list=$(s3cmd ls "${L2A_DIR_W_DATE}" 2>/dev/null | awk '{print $4}')
-    # file_list=$(s3cmd ls "${L2A_DIR_W_DATE}L2A*${date}*" 2>/dev/null | awk '{print $4}')
+    # L2A_DIR_W_DATE=${L2A_DIR}${year}/${month}/${day}/
+    # file_list=$(s3cmd ls "${L2A_DIR_W_DATE}" 2>/dev/null | awk '{print $4}')
+    # # file_list=$(s3cmd ls "${L2A_DIR_W_DATE}L2A*${date}*" 2>/dev/null | awk '{print $4}')
     
-    if [ -z "$file_list" ]; then
-        echo "No L2A files found for date $date in $L2A_DIR_W_DATE, trying subdirectories..."
-        file_list=$(s3cmd ls --recursive "${L2A_DIR}*" | grep "${year}/${month}/${day}.*\.nc$" 2>/dev/null | awk '{print $4}')
+    # if [ -z "$file_list" ]; then
+    #     echo "No L2A files found for date $date in $L2A_DIR_W_DATE, trying subdirectories..."
+    #     file_list=$(s3cmd ls --recursive "${L2A_DIR}*" | grep "${year}/${month}/${day}.*\.nc$" 2>/dev/null | awk '{print $4}')
         
-    fi
+    # fi
+
+    file_list=$(s3cmd ls --recursive "${L2A_DIR}*" | grep "20MIN/${year}/${month}/${day}.*\.nc$" 2>/dev/null | awk '{print $4}')
+
     if [ -z "$file_list" ]; then
         echo "No L2A files found for date $date in $L2A_DIR_W_DATE or its subdirectories. Skipping campaign."
     else
