@@ -5,7 +5,7 @@ from euliaa_proc.measurement import Measurement
 from euliaa_proc.log import logger
 
 c = 299792458  # Speed of light in m/s
-lam = 386.0e-9  # Wavelength in meters
+lam_default = 386  # Wavelength in nanometers
 # theta = 30.0  # Angle of off-zenith telescopes in degrees
 
 
@@ -16,15 +16,18 @@ class EProfileWindMeasurement(Measurement):
     """
 
     def __init__(self, config_eprofile_wind_path, l2a_data, conf_qc_file=None):
+        logger.info('Initializing E-Profile wind measurement object.')
         super().__init__(config_eprofile_wind_path, conf_qc_file=conf_qc_file)
         self.l2a_data = l2a_data
-        
+        logger.info(f'Config for E-Profile wind measurement loaded from {config_eprofile_wind_path}')
+        self.lam = self.conf['variables']['instrument_wavelength']['value'] if 'instrument_wavelength' in self.conf['variables'] else lam_default
+        self.lam = self.lam * 1e-9  # Convert from nm to m
+        logger.info(f'Wavelength set to {self.lam} m for E-Profile wind measurement.')
     
     def load_data(self, time_idx_list=[-1]):
         """
         Load the L2A data into the measurement object.
         """
-        
         l2a_zen = self.l2a_data.sel(line_of_sight=0).drop_vars("line_of_sight")
         l2a_final = l2a_zen.isel(time=time_idx_list) # Default is to take the last time index only
         l2a = l2a_final.mean(dim='time').expand_dims('time')
@@ -68,7 +71,8 @@ class EProfileWindMeasurement(Measurement):
                 'time_bnds' : (('time', 'nv'), l2a.time_bnds.values),
                 # l2a_dwl['time_bnds' : (('time', 'nv'), np.array([[l2a_zen.time[0].values, l2a_zen.time[-1].values]]))
                 'height_bnds' : (('height', 'nv'), l2a_zen.height_bnds.values), #np.array([[h-l2a_zen.range_integration/2, h+l2a_zen.range_integration/2] for h in self.data.height.values])),
-                'frequency' : ((), c/lam),
+                'frequency' : ((), c/self.lam),
+                'instrument_wavelength' : ((), self.lam*1e9), # in nm
                 'vert_res' : ((), vert_res),
                 'hor_width' : (('height',), compute_hor_width(self.data.height.values))
         })

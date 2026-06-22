@@ -185,6 +185,12 @@ variables:
     units: Hz
     long_name: instrument_frequency
     comments: lidar operating frequency
+  instrument_wavelength: 
+    value: 386
+    dim:
+    units: nm
+    standard_name: instrument_wavelength
+    long_name: instrument_wavelength
   vert_res:
     dim:
     units: m

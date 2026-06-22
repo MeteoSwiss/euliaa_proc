@@ -239,7 +239,7 @@ import pandas as pd
 #         fig.write_html(fig_name)
 
 
-def plot_daily_quicklooks_interactive(fname_list, fig_dir, fig_title, fig_prefix='L2A_', ylim=50000, 
+def plot_daily_quicklooks_interactive(fname_list, fig_dir, fig_title, fig_prefix='L2A_', ylim=30000, 
                                      wind_str='', bsc_str='', T_str='', mask_flag=1):
     """
     Create interactive daily quicklooks from multiple L2A files using Plotly.
@@ -597,7 +597,7 @@ if __name__=='__main__':
     parser.add_argument('--l2a_file_list', type=str, nargs='+', help='List of paths to the L2A files for daily quicklooks')
     parser.add_argument('--fig_dir', type=str, default='./', help='Path to the directory where quicklooks are saved')
     parser.add_argument('--fig_prefix', type=str, default='L2A_', help='Figure filename prefix')
-    parser.add_argument('--ylim', type=int, default=50000, help='Y-axis limit for the plots')
+    parser.add_argument('--ylim', type=int, default=30000, help='Y-axis limit for the plots')
     parser.add_argument('--wind_str', type=str, default='', help='String in filename to identify proper wind data, e.g. time integration 20MIN')
     parser.add_argument('--bsc_str', type=str, default='', help='String in filename to identify proper backscatter data, e.g. time integration 20MIN')
     parser.add_argument('--T_str', type=str, default='', help='String in filename to identify proper temperature data, e.g. time integration 60MIN')

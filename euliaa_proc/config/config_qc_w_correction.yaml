@@ -73,10 +73,10 @@ VARIABLES_TO_KEEP_DAILY: # Uncomment the variables if they are good enough to in
 # - u_mie_flag
 - u
 - v
-- w
+# - w
 - u_flag
 - v_flag
-- w_flag
+# - w_flag
 # - temperature_int
 # - temperature_int_err
 # - temperature_int_flag
@@ -86,10 +86,10 @@ VARIABLES_TO_KEEP_DAILY: # Uncomment the variables if they are good enough to in
 # - temperature
 # - temperature_flag
 - backscatter_coef
-- backscatter_coef_err
+# - backscatter_coef_err
 - backscatter_coef_flag
-- backscatter_ratio
-- backscatter_ratio_err
+# - backscatter_ratio
+# - backscatter_ratio_err
 - latitude_mie
 - longitude_mie
 # - latitude_ray

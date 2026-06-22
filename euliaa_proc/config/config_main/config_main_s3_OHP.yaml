@@ -1,7 +1,7 @@
 campaign_name: OHP
 hdf5_file:
 config: /home/oper/euliaa_proc/euliaa_proc/config/config_nc/config_nc_OHP.yaml
-config_eprofile_wind: /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_wind.yaml
+config_eprofile_wind: /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_wind_UV.yaml
 # config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc.yaml
 config_qc: /home/oper/euliaa_proc/euliaa_proc/config/config_qc.yaml
 output_nc_dir: s3://euliaa-l2/OHP/ # for L2A and L2B products

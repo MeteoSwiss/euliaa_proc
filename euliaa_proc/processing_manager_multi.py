@@ -127,7 +127,8 @@ def run_processing_pipeline(filepath, config_template, operational_product={'win
         logger.info(f'Output L2A file will be: {config["output_nc_l2A"]}')
         logger.info(f'Output L2B file will be: {config["output_nc_l2B"]}')
 
-        date_str_eprofile = date_str.group(1).replace('-', '')
+        date_str_eprofile = date_str.group(1).replace('-', '').replace('_', '') # this is the date string format that we want for the E-Profile file naming, e.g., 20250522_214000 --> 20250522T214000Z
+        # logger.info(f'Extracted date string for E-Profile file naming: {date_str_eprofile}')
         if ('output_nc_eprofile_wind_dir' in config.keys()) and ('eprofile_wind_prefix' in config.keys()): # this is hte bucket for storing internally E-profile files
             config['output_nc_eprofile_wind'] = os.path.join(config['output_nc_eprofile_wind_dir'], year, month, day, config['eprofile_wind_prefix'] + date_str_eprofile[:-2] + '.nc')
         if 'output_nc_eprofile_wind_dir_DL' in config.keys(): # this is the bucket for actual operational E-Profile dissemination

@@ -48,7 +48,7 @@ variables:
       hdf5_group: null
       hdf5_var_name: null
     attributes:
-      long_name: Height bounds of the measurement, for combined Rayleigh/Mie peak measurements
+      long_name: Altitude bin edges above mean sea level
       units: m
   altitude:
     name: altitude
@@ -60,7 +60,7 @@ variables:
       hdf5_group: null
       hdf5_var_name: null
     attributes:
-      long_name: Altitude above mean sea level, for combined Rayleigh/Mie peak measurements
+      long_name: Altitude above mean sea level
       units: m
       comment: Altitude coordinate is at the center of integration window
   altitude_mie:
@@ -621,9 +621,9 @@ variables:
       hdf5_group: null
       hdf5_var_name: null
     attributes:
-      long_name: Upward air velocity combined from Doppler shift of Mie and Rayleigh peak
+      long_name: Upward air velocity from Doppler shift of Mie peak
       units: m s-1
-      scattering_regime: Mie and Rayleigh combined
+      scattering_regime: Mie 
   w_flag:
     name: w_flag
     dim:
@@ -635,7 +635,7 @@ variables:
       hdf5_group: null
       hdf5_var_name: null
     attributes:
-      long_name: Quality flag for upward air velocity combined from Doppler shift of Mie and Rayleigh peak
+      long_name: Quality flag for w
       units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   u_mie:
@@ -694,10 +694,10 @@ variables:
       hdf5_group: null
       hdf5_var_name: null
     attributes:
-      long_name: Eastward wind combined from Doppler shift of Mie and Rayleigh peak
+      long_name: Eastward wind from Doppler shift of Mie peak
       standard_name: eastward_wind
       units: m s-1
-      scattering_regime: Mie and Rayleigh combined
+      scattering_regime: Mie
   u_flag:
     name: u_flag
     dim:
@@ -709,7 +709,7 @@ variables:
       hdf5_group: null
       hdf5_var_name: null
     attributes:
-      long_name: Quality flag for eastward wind combined from Doppler shift of Mie and Rayleigh peak
+      long_name: Quality flag for u
       units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   v_mie:
@@ -768,10 +768,10 @@ variables:
       hdf5_group: null
       hdf5_var_name: null
     attributes:
-      long_name: Northward wind combined from Doppler shift of Mie and Rayleigh peak
+      long_name: Northward wind from Doppler shift of Mie peak
       standard_name: northward_wind
       units: m s-1
-      scattering_regime: Mie and Rayleigh combined
+      scattering_regime: Mie
   v_flag:
     name: v_flag
     dim:
@@ -783,7 +783,7 @@ variables:
       hdf5_group: null
       hdf5_var_name: null
     attributes:
-      long_name: Quality flag for northward wind combined from Doppler shift of Mie and Rayleigh peak
+      long_name: Quality flag for v
       units: "1"
       comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
   w_ray:
