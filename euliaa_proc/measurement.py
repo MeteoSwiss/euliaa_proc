@@ -48,8 +48,15 @@ class Measurement():
             self.data['altitude'] = self.data['altitude'] + self.data['station_altitude']
 
     def add_lat_lon(self):
-        self.data['latitude_mie'], self.data['longitude_mie'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_mie)
-        self.data['latitude_ray'], self.data['longitude_ray'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_ray)
+        if 'azimuth_offset' in self.data.keys():
+            azimuth_deg = self.data['azimuth_offset'].values
+        elif 'azimuth_offset' in self.conf['attributes'].keys():
+            azimuth_deg = self.conf['attributes']['azimuth_offset']
+        else:
+            logger.warning('No azimuth_offset found in data or config, cannot correct lat/lon for azimuth')
+            azimuth_deg = 0.
+        self.data['latitude_mie'], self.data['longitude_mie'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_mie, azimuth_offset=azimuth_deg)
+        self.data['latitude_ray'], self.data['longitude_ray'] = compute_lat_lon(lat_station=self.data.station_latitude, lon_station=self.data.station_longitude, altitude=self.data.altitude_ray, azimuth_offset=azimuth_deg)
 
     def add_time_bnds(self):
         if ('time_bnds' in self.data.keys()):
