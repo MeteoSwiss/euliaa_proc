@@ -1,28 +1,1218 @@
 
+dimensions:
+  unlimited:
+  - time
+  fixed:
+  - altitude_mie
+  - altitude_ray
+  - altitude
+  - line_of_sight
+  - bnds
+variables:
+  time:
+    name: time
+    dim:
+    - time
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: time
+    attributes:
+      long_name: Time (UTC) of the measurement
+      standard_name: time
+      units: seconds since 1970-01-01
+      comment: Time indication of samples is at the end of integration time
+  time_bnds:
+    name: time_bnds
+    dim:
+    - time
+    - bnds
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Time bounds (UTC) of the measurement
+      standard_name: time
+      units: seconds since 1970-01-01
+  height_bnds:
+    name: height_bnds
+    dim:
+    - altitude
+    - bnds
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Altitude bin edges above mean sea level
+      units: m
+  altitude:
+    name: altitude
+    dim:
+    - altitude
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Altitude above mean sea level
+      units: m
+      comment: Altitude coordinate is at the center of integration window
+  altitude_mie:
+    name: altitude_mie
+    dim:
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: altInt
+    attributes:
+      long_name: Altitude above mean sea level, for Mie peak measurements
+      units: m
+      comment: Altitude coordinate is at the center of integration window
+  altitude_ray:
+    name: altitude_ray
+    dim:
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: altInt
+    attributes:
+      long_name: Altitude above mean sea level, for Rayleigh peak measurements
+      units: m
+      comment: Altitude coordinate is at the center of integration window
+  line_of_sight:
+    name: line_of_sight
+    dim:
+    - line_of_sight
+    type: int64
+    _FillValue: null
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Measurement fields of view
+      comment: 0=zenith, then, if azimuth_offset is 0deg, 1=eastward, 2=northward (off-zenith beams are 30deg slanted)
+      units: "1"
+    value:
+    - 0
+    - 1
+    - 2
+  latitude_mie:
+    name: latitude_mie
+    dim:
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Latitude corresponding to altitude array in each field of view, for
+        Mie peak measurements
+      units: degrees_north
+      comment: Derived using 30deg off-zenith slant in line of sight direction
+  latitude_ray:
+    name: latitude_ray
+    dim:
+    - altitude_ray
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Latitude corresponding to altitude array in each field of view, for
+        Rayleigh peak measurements
+      units: degrees_north
+      standard_name: latitude
+      comment: Derived using 30deg off-zenith slant in line of sight direction
+  longitude_mie:
+    name: longitude_mie
+    dim:
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Longitude corresponding to altitude array in each field of view,
+        for Mie peak measurements
+      units: degrees_east
+      standard_name: longitude
+      comment: Derived using 30deg off-zenith slant in line of sight direction
+  longitude_ray:
+    name: longitude_ray
+    dim:
+    - altitude_ray
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Longitude corresponding to altitude array in each field of view,
+        for Rayleigh peak measurements
+      units: degrees_east
+      standard_name: longitude
+      comment: Derived using 30deg off-zenith slant in line of sight direction
+  station_latitude:
+    name: station_latitude
+    dim: ''
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: Latitude
+    attributes:
+      long_name: Latitude of measurement station
+      standard_name: latitude
+      units: degrees_north
+    # value: 54.12
+  station_longitude:
+    name: station_longitude
+    dim: ''
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: Longitude
+    attributes:
+      long_name: Longitude of measurement station
+      units: degrees_east
+      standard_name: longitude
+    # value: 11.77
+  station_altitude:
+    name: station_altitude
+    dim: ''
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Altitude of measurement station
+      standard_name: altitude
+      units: m
+    # value: 10.
+  range_integration:
+    name: range_integration
+    dim:
+    - line_of_sight
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: AltitudeIntegration
+    attributes:
+      long_name: Range integration window
+      units: m
+    # value: 
+    #   - 250
+    #   - 250
+    #   - 250
+  time_integration:
+    name: time_integration
+    dim: ''
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: glo
+      hdf5_var_name: shiftSec
+    attributes:
+      long_name: Time integration window
+      units: s
+      comment: As raw spectra are measured successively in the different lines of sight,
+        the effective cumulated duration of the measurement per line of sight is time_integration divided
+        by number of line_of_sight entries. 
+  status:
+    name: status
+    dim:
+    - time
+    type: int64
+    _FillValue: -999
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Status of the measurement
+      units: "1"
+      comment: 0 = running, 1 = paused for rain, 2 = paused for aircraft, 3 = scheduled maintenance, 4 = faulty
+  backscatter_coef:
+    name: backscatter_coef
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - BSCMieZ
+      - BSCMieE
+      - BSCMieN
+    attributes:
+      long_name: Particle backscatter coefficient
+      units: m-1 sr-1
+      scattering_regime: Mie
+  backscatter_coef_err:
+    name: backscatter_coef_err
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - BSCMieZErr
+      - BSCMieEErr
+      - BSCMieNErr
+    attributes:
+      long_name: Uncertainty on particle backscatter coefficient
+      units: m-1 sr-1
+      scattering_regime: Mie
+      comment: Error propagated from photon count
+  backscatter_coef_flag:
+    name: backscatter_coef_flag
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for particle backscatter coefficient
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range, 16 = inside cloud, 32 = below cloud/aerosol layer top)
+  
+  backscatter_coef_depol:
+    name: backscatter_coef_depol
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: BSCMieD
+    attributes:
+      long_name: Particle backscatter coefficient calculated from cross-polar zenith channel
+      units: m-1 sr-1
+      scattering_regime: Mie
+  backscatter_coef_depol_err:
+    name: backscatter_coef_depol_err
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: BSCMieDErr
+    attributes:
+      long_name: Uncertainty on particle backscatter coefficient calculated from cross-polar zenith channel
+      units: m-1 sr-1
+      scattering_regime: Mie
+      comment: Error propagated from photon count
+  backscatter_coef_depol_flag:
+    name: backscatter_coef_depol_flag
+    dim:
+    - time
+    - altitude_mie
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for particle backscatter coefficient calculated from cross-polar zenith channel
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  
+  aerosol_depolarization_ratio:
+    name: aerosol_depolarization_ratio
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null 
+      hdf5_var_name: null
+    attributes:
+      long_name: Linear aerosol depolarization ratio
+      units: "1"
+      scattering_regime: Mie
+  aerosol_depolarization_ratio_err:
+    name: aerosol_depolarization_ratio_err
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Uncertainty on linear aerosol depolarization ratio
+      units: "1"
+      scattering_regime: Mie
+      comment: Error propagated from photon count
+  aerosol_depolarization_ratio_flag:
+    name: aerosol_depolarization_ratio_flag
+    dim:
+    - time
+    - altitude_mie
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for linear aerosol depolarization ratio
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  backscatter_ratio:
+    name: backscatter_ratio
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - BSRMieZ
+      - BSRMieE
+      - BSRMieN
+    attributes:
+      long_name: Backscatter ratio
+      units: "1"
+      scattering_regime: Mie
+  backscatter_ratio_err:
+    name: backscatter_ratio_err
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - BSRMieZErr
+      - BSRMieEErr
+      - BSRMieNErr
+    attributes:
+      long_name: Uncertainty on backscatter ratio
+      units: "1"
+      scattering_regime: Mie
+      comment: Error propagated from photon count
+  temperature_int:
+    name: temperature_int
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - TRayIntZ
+      - TRayIntE
+      - TRayIntN
+    attributes:
+      long_name: Temperature from Rayleigh integration
+      standard_name: air_temperature
+      units: K
+      scattering_regime: Rayleigh
+      retrieval_method: Rayleigh integration
+  temperature_int_err:
+    name: temperature_int_err
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - TRayIntZErr
+      - TRayIntEErr
+      - TRayIntNErr
+    attributes:
+      long_name: Uncertainty on temperature from Rayleigh integration
+      units: K
+      scattering_regime: Rayleigh
+      retrieval_method: Rayleigh integration
+      comment: Error propagated from photon count
+  temperature_int_flag:
+    name: temperature_int_flag
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for temperature from Rayleigh integration
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below top of transparent cloud)
+  temperature_broad:
+    name: temperature_broad
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Temperature from Doppler broadening
+      standard_name: air_temperature
+      units: K
+      scattering_regime: Rayleigh
+      retrieval_method: Doppler broadening
+  temperature_broad_err:
+    name: temperature_broad_err
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Uncertainty on temperature from Doppler broadening
+      units: K
+      scattering_regime: Rayleigh
+      retrieval_method: Doppler broadening
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  temperature_broad_flag:
+    name: temperature_broad_flag
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for temperature from Doppler broadening
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  temperature:
+    name: temperature
+    dim:
+    - time
+    - altitude
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Temperature combined from Doppler broadening and Rayleigh integration
+      standard_name: air_temperature
+      units: K
+      scattering_regime: Rayleigh
+      retrieval_method: Doppler broadening and Rayleigh integration combined
+  temperature_flag:
+    name: temperature_flag
+    dim:
+    - time
+    - altitude
+    - line_of_sight
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for temperature combined from Doppler broadening and Rayleigh integration
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  w_mie:
+    name: w_mie
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: VMieZ
+    attributes:
+      long_name: Upward air velocity from Doppler shift of Mie peak
+      units: m s-1
+      scattering_regime: Mie
+      # comment: Bias-corrected, see global attribute w_bias_correction
+  w_mie_err:
+    name: w_mie_err
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: VMieZErr
+    attributes:
+      long_name: Uncertainty on upward air velocity from Doppler shift of Mie peak
+      units: m s-1
+      scattering_regime: Mie
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  w_mie_flag:
+    name: w_mie_flag
+    dim:
+    - time
+    - altitude_mie
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for upward air velocity from Doppler shift of Mie peak
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  w:
+    name: w
+    dim:
+    - time
+    - altitude
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Upward air velocity from Doppler shift of Mie peak
+      units: m s-1
+      scattering_regime: Mie 
+  w_flag:
+    name: w_flag
+    dim:
+    - time
+    - altitude
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for w
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  u_mie:
+    name: u_mie
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: VMieE
+    attributes:
+      long_name: Eastward wind from Doppler shift of Mie peak
+      standard_name: eastward_wind
+      units: m s-1
+      scattering_regime: Mie
+  u_mie_err:
+    name: u_mie_err
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: VMieEErr
+    attributes:
+      long_name: 'Uncertainty on eastward wind from Doppler shift of Mie peak '
+      units: m s-1
+      scattering_regime: Mie
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  u_mie_flag:
+    name: u_mie_flag
+    dim:
+    - time
+    - altitude_mie
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for eastward wind from Doppler shift of Mie peak
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  u:
+    name: u
+    dim:
+    - time
+    - altitude
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Eastward wind from Doppler shift of Mie peak
+      standard_name: eastward_wind
+      units: m s-1
+      scattering_regime: Mie
+  u_flag:
+    name: u_flag
+    dim:
+    - time
+    - altitude
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for u
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  v_mie:
+    name: v_mie
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: VMieN
+    attributes:
+      long_name: Northward wind from Doppler shift of Mie peak
+      standard_name: northward_wind
+      units: m s-1
+      scattering_regime: Mie
+  v_mie_err:
+    name: v_mie_err
+    dim:
+    - time
+    - altitude_mie
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: VMieNErr
+    attributes:
+      long_name: Uncertainty on northward wind from Doppler shift of Mie peak
+      units: m s-1
+      scattering_regime: Mie
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  v_mie_flag:
+    name: v_mie_flag
+    dim:
+    - time
+    - altitude_mie
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for northward wind from Doppler shift of Mie peak
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  v:
+    name: v
+    dim:
+    - time
+    - altitude
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Northward wind from Doppler shift of Mie peak
+      standard_name: northward_wind
+      units: m s-1
+      scattering_regime: Mie
+  v_flag:
+    name: v_flag
+    dim:
+    - time
+    - altitude
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for v
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  w_ray:
+    name: w_ray
+    dim:
+    - time
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Upward air velocity from Doppler shift of Rayleigh peak
+      units: m s-1
+      scattering_regime: Rayleigh
+  w_ray_err:
+    name: w_ray_err
+    dim:
+    - time
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Uncertainty on upward air velocity from Doppler shift of Rayleigh
+        peak
+      units: m s-1
+      scattering_regime: Rayleigh
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  w_ray_flag:
+    name: w_ray_flag
+    dim:
+    - time
+    - altitude_ray
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for upward air velocity from Doppler shift of Rayleigh
+        peak
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  u_ray:
+    name: u_ray
+    dim:
+    - time
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Eastward wind from Doppler shift of Rayleigh peak
+      standard_name: eastward_wind
+      units: m s-1
+      scattering_regime: Rayleigh
+  u_ray_err:
+    name: u_ray_err
+    dim:
+    - time
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: 'Uncertainty on eastward wind from Doppler shift of Rayleigh peak '
+      units: m s-1
+      scattering_regime: Rayleigh
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  u_ray_flag:
+    name: u_ray_flag
+    dim:
+    - time
+    - altitude_ray
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for eastward wind from Doppler shift of Rayleigh peak
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  v_ray:
+    name: v_ray
+    dim:
+    - time
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Northward wind from Doppler shift of Rayleigh peak
+      standard_name: northward_wind
+      units: m s-1
+      scattering_regime: Rayleigh
+  v_ray_err:
+    name: v_ray_err
+    dim:
+    - time
+    - altitude_ray
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Uncertainty on northward wind from Doppler shift of Rayleigh peak
+      units: m s-1
+      scattering_regime: Rayleigh
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  v_ray_flag:
+    name: v_ray_flag
+    dim:
+    - time
+    - altitude_ray
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for northward wind from Doppler shift of Rayleigh peak
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  width_mie:
+    name: width_mie
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - WidthMieZ
+      - WidthMieE
+      - WidthMieN
+    attributes:
+      long_name: Spectrum width of Mie peak
+      units: MHz
+      scattering_regime: Mie
+  width_mie_err:
+    name: width_mie_err
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - WidthMieZErr
+      - WidthMieNErr
+      - WidthMieNErr
+    attributes:
+      long_name: Uncertainty on spectrum width of Mie peak
+      units: MHz
+      scattering_regime: Mie
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  width_mie_flag:
+    name: width_mie_flag
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for spectrum width of Mie peak
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  width_ray:
+    name: width_ray
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Spectrum width of Rayleigh peak
+      units: MHz
+      scattering_regime: Rayleigh
+  width_ray_err:
+    name: width_ray_err
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Uncertainty on spectrum width of Rayleigh peak
+      units: MHz
+      scattering_regime: Rayleigh
+      comment: Error propagated from spectrum fitting, combines statistical measurement
+        uncertainty and spectral properties
+  width_ray_flag:
+    name: width_ray_flag
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Quality flag for spectrum width of Rayleigh peak
+      units: "1"
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+  signal_mie:
+    name: signal_mie
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - signalAPD1Z
+      - signalAPD1E
+      - signalAPD1N
+    attributes:
+      long_name: Signal strength of Mie channel
+      units: "1"
+      scattering_regime: Mie
+  signal_ray:
+    name: signal_ray
+    dim:
+    - time
+    - altitude_ray
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name:
+      - signalAPD2Z
+      - signalAPD2E
+      - signalAPD2N
+    attributes:
+      long_name: Signal strength of Rayleigh channel
+      units: "1"
+      scattering_regime: Rayleigh
+  noise_level_mie:
+    name: noise_level_mie
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Noise level in Mie channel
+      units: "1"
+      scattering_regime: Mie
+  noise_level_ray:
+    name: noise_level_ray
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Noise level in Rayleigh channel
+      units: "1"
+      scattering_regime: Rayleigh
+  snr_mie:
+    name: snr_mie
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Signal-to-Noise ratio in Mie channel
+      units: "1"
+      scattering_regime: Mie
+  snr_ray:
+    name: snr_ray
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: float32
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Signal-to-Noise ratio in Rayleigh channel
+      units: "1"
+      scattering_regime: Rayleigh
+  cloud_mask:
+    name: cloud_mask
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Cloud mask
+      units: "1"
+      comment: 0 = no cloud, 1 = transparent cloud detected
+  below_cloud_top:
+    name: below_cloud_top
+    dim:
+    - time
+    - altitude_mie
+    - line_of_sight
+    type: int64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: null
+      hdf5_var_name: null
+    attributes:
+      long_name: Mask for below top of transparent cloud (or strong aerosol layer)
+      units: "1"
+      comment: 0 = above cloud top, 1 = below cloud top. Note that the definition for top of transparent cloud is less strict than cloud mask, so cloud top can be identified without cloud mask
+  time_mean:
+    name: time_mean
+    dim:
+    - time
+    type: float64
+    _FillValue: -999.0
+    original_hdf5:
+      hdf5_group: rec
+      hdf5_var_name: meanTime
+    attributes:
+      long_name: Mean time of measurement
+      standard_name: time
+      units: seconds since 1970-01-01
+      comment: If gaps in measurement, meantime is the mean time of actually used
+        measurements
+  # range_resolution:
+  #   name: range_resolution
+  #   dim:
+  #   - line_of_sight
+  #   type: int64
+  #   _FillValue: -999.0
+  #   original_hdf5:
+  #     hdf5_group: glo
+  #     hdf5_var_name: ShiftAlt
+  #   attributes:
+  #     long_name: Shift step of the integration window
+  #     units: m
+  # time_resolution:
+  #   name: time_resolution
+  #   dim: ''
+  #   type: int64
+  #   _FillValue: -999.0
+  #   original_hdf5:
+  #     hdf5_group: glo
+  #     hdf5_var_name: ShiftTime
+  #   attributes:
+  #     long_name: Shift step of the time integration window
+  #     units: s
+
 attributes:
-  Conventions: CF-1.8
+  conventions: CF-1.8
   campaign_name: EULIAA-JFJ
-  license:
+  license: Creative Commons Attribution Non Commercial 4.0 International
   version: 1.0
   references:
   wigos_station_id: 0-20000-0-06730
   wmo_id: 
   instrument_type: 'high_spectral_resolution_lidar'
-  instrument_id: EULIAA_2
-  instrument_serial_number: 
-  instrument_wavelength: 386 # wavelength of the laser in nm
-  instrument_model: EULIAA
-  instrument_manufacturer:
+  instrument_id: EULIAA_UV2
+  instrument_wavelength: '386nm' # wavelength of the laser in nm
+  instrument_model: EULIAA-UV
+  instrument_manufacturer: Leibniz Institute for Atmospheric Physics, Kuehlungsborn (DE), and Fraunhofer Institute for Laser Technology, Aachen (DE)
   site_location: Jungfraujoch Research Facility (Sphinx Observatory), Switzerland
   station_altitude: 3562.
+  station_altitude_unit: meters above sea level
   station_latitude: 46.54
   station_longitude: 7.98
+  station_latitude_unit: degrees north
+  station_longitude_unit: degrees east
   azimuth_offset: 0.0
+  zenith_offset: 0.0
+  azimuth_and_zenith_offset_explanation: Azimuth and zenith offsets (degrees) are determined from the alignment of the beam w.r.t. the north and vertical directions, respectively. zenith_offset corresponds to the vertical misalignment of the zenith-pointing beam.
   history:
   institution: Leibniz Institute for Atmospheric Physics, Kuehlungsborn
-  comment:
-  principal_investigator:
-  conventions:
+  comment: This project has received support from the European Union's Horizon 2020 framework programme for research and innovation under grant agreement no. 101086317 (EULIAA).
   operation_mode: 'campaign'
     # original_hdf5:
     #   hdf5_group: glo
@@ -33,11 +1223,10 @@ attributes:
     #   hdf5_var_name: Version
   retrieval_code: # Algorithm should include description of both measurement method, retrieval and correction / postproc (or split into several fields)
   retrieval_reference:
-  # correction_w_offset: 0.0 # vertical velocity correction
-  # correction_w_offset_description: Determined from averaging w over a few days period and calculating the mean bias from zero. It has been applied to correct w, u, v.
-  calibration_status:
-  calibration_time:
-  height_above_ground:
+  # calibration_status:
+  # calibration_time:
+  # height_above_ground:
   date_of_installation:
-  maintenance: #preventive and corrective maintenance (recommended and scheduled maintenance and calibration procedures, including frequency, and a description of procedures)
-  comparison_to_reference: #results of comparison with travelling standards
+  # maintenance: #preventive and corrective maintenance (recommended and scheduled maintenance and calibration procedures, including frequency, and a description of procedures)
+  # comparison_to_reference: #results of comparison with travelling standards
+  doi: '10.60566/fkvdv-51b32'

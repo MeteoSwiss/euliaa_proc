@@ -1188,29 +1188,31 @@ variables:
   #     units: s
 
 attributes:
-  Conventions: CF-1.8
+  conventions: CF-1.8
   campaign_name: EULIAA-Andoya
-  license:
+  license: Creative Commons Attribution Non Commercial 4.0 International
   version: 1.0
   references:
   wigos_station_id: 0-20008-0-ARR
   wmo_id: 
   instrument_type: 'high_spectral_resolution_lidar'
   instrument_id: EULIAA_IR1
-  instrument_serial_number: 
-  instrument_wavelength: 772 # wavelength of the laser in nm
+  instrument_wavelength: '770nm' # wavelength of the laser in nm
   instrument_model: EULIAA-IR
-  instrument_manufacturer:
+  instrument_manufacturer: Leibniz Institute for Atmospheric Physics, Kuehlungsborn (DE), and Fraunhofer Institute for Laser Technology, Aachen (DE)
   site_location: Andoya Space Center, Andenes, Norway
   station_altitude: 396.
+  station_altitude_unit: meters above sea level
   station_latitude: 69.278
   station_longitude: 16.007
-  azimuth_offset: 180.0
+  station_latitude_unit: degrees north
+  station_longitude_unit: degrees east
+  azimuth_offset: 181.3766
+  zenith_offset: 0.2599
+  azimuth_and_zenith_offset_explanation: Azimuth and zenith offsets (degrees) are determined from the alignment of the beam w.r.t. the north and vertical directions, respectively. zenith_offset corresponds to the vertical misalignment of the zenith-pointing beam.
   history:
   institution: Leibniz Institute for Atmospheric Physics, Kuehlungsborn
-  comment:
-  principal_investigator:
-  conventions:
+  comment: This project has received support from the European Union's Horizon 2020 framework programme for research and innovation under grant agreement no. 101086317 (EULIAA).
   operation_mode: 'campaign'
     # original_hdf5:
     #   hdf5_group: glo
@@ -1221,14 +1223,10 @@ attributes:
     #   hdf5_var_name: Version
   retrieval_code: # Algorithm should include description of both measurement method, retrieval and correction / postproc (or split into several fields)
   retrieval_reference:
-  # correction_w_bias: #0.0 # vertical velocity correction
-  #   original_hdf5:
-  #     hdf5_group: glo
-  #     hdf5_var_name: wbias
-  # correction_w_offset_description: Determined from averaging w over a few days period and calculating the mean bias from zero. It has been applied to correct w.
-  calibration_status:
-  calibration_time:
-  height_above_ground:
+  # calibration_status:
+  # calibration_time:
+  # height_above_ground:
   date_of_installation: '2025-10-28'
-  maintenance: #preventive and corrective maintenance (recommended and scheduled maintenance and calibration procedures, including frequency, and a description of procedures)
-  comparison_to_reference: #results of comparison with travelling standards
+  # maintenance: #preventive and corrective maintenance (recommended and scheduled maintenance and calibration procedures, including frequency, and a description of procedures)
+  # comparison_to_reference: #results of comparison with travelling standards
+  doi: '10.60566/fkvdv-51b32'

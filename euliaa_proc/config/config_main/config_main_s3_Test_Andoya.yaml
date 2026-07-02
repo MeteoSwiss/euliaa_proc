@@ -1,7 +1,7 @@
 campaign_name: Test_Andoya
 hdf5_file:
 config: /home/oper/euliaa_proc/euliaa_proc/config/config_nc/config_nc_Andoya.yaml
-config_eprofile_wind: /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_wind.yaml
+config_eprofile_wind: /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_wind_Andoya.yaml
 # config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc.yaml
 config_qc: /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml # if needed, create a new qc config file specific for campaign
 output_nc_dir: s3://euliaa-l2/Test_Andoya/ # for L2A and L2B products
