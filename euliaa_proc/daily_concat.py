@@ -4,11 +4,23 @@ import s3fs
 from pathlib import Path
 import logging
 import tempfile
+import datetime
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+def add_concatenation_attr(data):
+        """add global attribute 'history' with date and version of code run"""
+        import getpass
+        import socket
+        # get current time in UTC
+        current_time_str = datetime.datetime.now(tz=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')  # ensure UTC
+        username = getpass.getuser()
+        host = socket.gethostname()
+        concat_str = f'Daily concatenation run by user {username} on {host} on {current_time_str}'
+        data.attrs['concatenation_history'] = concat_str
+        return data
 
 def concat_netcdf_files(input_files, output_file, s3_kwargs=None, config_file=None, rename_latlon=True):
     """
@@ -62,6 +74,8 @@ def concat_netcdf_files(input_files, output_file, s3_kwargs=None, config_file=No
             if 'latitude_mie' in ds.keys() and 'latitude_ray' not in ds.keys() and 'latitude' not in ds.keys():
                 print("Renaming latitude_mie and longitude_mie to latitude and longitude")
                 ds = ds.rename({'latitude_mie':'latitude','longitude_mie':'longitude'})
+
+        ds = add_concatenation_attr(ds)
 
         logger.info(f"Dataset shape: {ds.dims}")
         logger.info(f"Time range: {ds.time.min().values} to {ds.time.max().values}")
