@@ -1,7 +1,7 @@
 #!/bin/bash
 
-start="2025-10-28"
-end="2026-04-30"
+start="2026-06-27"
+end="2026-06-28"
 
 current="$start"
 
