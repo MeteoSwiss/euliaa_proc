@@ -10,7 +10,7 @@ YESTERDAY=$(date -d "yesterday" +%Y-%m-%d)
 # YESTERDAY=$(date +%Y-%m-%d)
 FILE_RECAP="/home/oper/daily_recaps/daily_recap_${YESTERDAY}.txt"
 FILE_RECAP_HTML="/home/oper/daily_recaps/daily_recap_${YESTERDAY}.html"
-BUCKETS=("s3://euliaa-l1" "s3://euliaa-l2" "s3://euliaa-quicklooks/campaigns") # "s3://euliaa-eprofile" "s3://euliaa-daily") # "s3://euliaa-val" "s3://euliaa-val-gkh")
+BUCKETS=("s3://euliaa-l1" "s3://euliaa-l2" "s3://euliaa-quicklooks/campaigns" "s3://euliaa-eprofile" "s3://euliaa-daily" "s3://euliaa-val" "s3://euliaa-val-gkh")
 TMP_DIR=$(mktemp -d)
 
 cleanup() {
@@ -71,7 +71,7 @@ analyze_bucket_txt() {
 
     # echo $files
     if [[ -z "$files" ]]; then
-        echo -e "No files uploaded yesterday"
+        echo -e "No files uploaded"
         echo ""
         return
     fi
@@ -149,17 +149,17 @@ analyze_bucket_txt() {
         while IFS= read -r subdir; do
             if [[ "$subdir" == "$campaign"* ]]; then
                 echo -e "    - ${subdir}: ${subdir_counts[$subdir]} file(s)"
-                if [[ ${subdir_counts[$subdir]} -lt 4 ]]; then
+                if [[ ${subdir_counts[$subdir]} -lt 2 ]]; then
                     list_direct_files "$subdir" | while read -r filepath; do
                         echo -e "      - ${filepath}"
                     done
                 else
-                    list_direct_files "$subdir" | head -n 2 | while read -r filepath; do
-                        echo -e "      - ${filepath}"
-                    done
-                    echo "      ..."
+                    # list_direct_files "$subdir" | head -n 2 | while read -r filepath; do
+                    #     echo -e "      - ${filepath}"
+                    # done
+                    # echo "      ..."
                     list_direct_files "$subdir" | tail -n 1 | while read -r filepath; do
-                        echo -e "      - ${filepath}"
+                        echo -e "...      - ${filepath}"
                     done
                 fi
             fi
@@ -185,7 +185,7 @@ analyze_bucket_html() {
     echo "      <h2>Bucket: $(html_escape "$bucket")</h2>"
 
     if [[ -z "$files" ]]; then
-        echo "      <p class=\"empty\">No files uploaded yesterday.</p>"
+        echo "      <p class=\"empty\">No files uploaded.</p>"
         echo "    </section>"
         return
     fi
@@ -294,7 +294,7 @@ done
     echo "</head>"
     echo "<body>"
     echo "  <main class=\"wrap\">"
-    echo "    <h1>Daily S3 Upload Recap</h1>"
+    echo "    <h2>Daily S3 Upload Recap</h2>"
     echo "    <p class=\"date\">Date analyzed: ${YESTERDAY}</p>"
 
     for bucket in "${BUCKETS[@]}"; do
