@@ -2,7 +2,7 @@ import boto3
 from botocore.client import Config 
 import yaml
 
-config_credentials_file = '/home/oper/euliaa_proc/euliaa_proc/config/credentials.yaml'
+config_credentials_file = '/home/oper/.config/euliaa/credentials.yaml'  # '/home/oper/euliaa_proc/euliaa_proc/config/credentials.yaml'
 with open(config_credentials_file, 'r') as file:
     config = yaml.safe_load(file)
 

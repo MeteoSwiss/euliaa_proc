@@ -8,7 +8,7 @@ set -e
 
 # Configuration - Load environment variables + FTP credentials 
 PROJECT_DIR=${HOME}/euliaa_proc/euliaa_proc/
-CONFIG_FILE=${PROJECT_DIR}/config/credentials_ftp.conf
+CONFIG_FILE=${HOME}/.config/euliaa/credentials_ftp.conf
 source ${CONFIG_FILE}
 
 # Logging

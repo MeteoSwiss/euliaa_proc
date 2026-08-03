@@ -5,7 +5,7 @@ import os
 
 # Load the configuration file
 cwd = os.getcwd()
-config_credentials_file = os.path.join(cwd,'../config/credentials.yaml')
+config_credentials_file = '/home/oper/.config/euliaa/credentials.yaml'  # os.path.join(cwd,'../config/credentials.yaml')
 
 with open(config_credentials_file, 'r') as file:
     config = yaml.safe_load(file)
