@@ -11,8 +11,15 @@ from netCDF4 import Dataset
 var_fig_dict_general = {
         'backscatter_coef': {'var_names':['BSCMieZ','BSCMieE','BSCMieN'], 'spacing': 0.05, 'ylim': 50000},
         'signal_mie': {'var_names':['signalAPD1Z','signalAPD1E','signalAPD1N','signalAPD1D'], 'spacing': 0.03, 'ylim': 50000},
-        'signal_ray': {'var_names':['signalAPD2Z','signalAPD2E','signalAPD2N','signalAPD2D'], 'spacing': 0.03, 'ylim': 100000},
+        'signal_ray': {'var_names':['signalAPD2Z','signalAPD2E','signalAPD2N','signalAPD2D','background'], 'spacing': 0.03, 'ylim': 100000},
     }
+
+def compute_background(signal, number_of_gates=20):
+    """Compute background rate from signal data."""
+    inds_for_bg = np.where(signal.mean(axis=0)>1)[0][-number_of_gates:]
+    background_photons = np.nanmean(signal[:,inds_for_bg],axis=1)
+    background_rate = background_photons / 1e-6 # Assuming 1 microsecond integration time
+    return background_rate*1e-6 # in MHz 
 
 # Interactive quicklooks using Plotly for web viewing with zoom capabilities
 
@@ -218,7 +225,7 @@ def plot_daily_signal_quicklooks_interactive(fname_list, fig_dir, fig_title, fig
                 customdata=ds_combined.signalAPD1D.values.T,
                 colorscale='Turbo',
                 zmin=0,
-                zmax=8,
+                zmax=5,
                 colorbar=dict(
                     title='log10(Signal Mie D)<br>[-]' if np.max(ds_combined.signalAPD1D.values) > 0 else 'Signal Mie D<br>[-]',
                     len=subplot_height * 0.85,
@@ -244,8 +251,8 @@ def plot_daily_signal_quicklooks_interactive(fname_list, fig_dir, fig_title, fig
                 z=np.log10(ds_combined.signalAPD2Z.values.T),
                 customdata=ds_combined.signalAPD2Z.values.T,
                 colorscale='Turbo',
-                zmin=0,
-                zmax=8,
+                zmin=1,
+                zmax=5.5,
                 colorbar=dict(
                     title='log10(Signal Ray Z)<br>[-]',
                     len=subplot_height * 0.85,
@@ -266,8 +273,8 @@ def plot_daily_signal_quicklooks_interactive(fname_list, fig_dir, fig_title, fig
                 z=np.log10(ds_combined.signalAPD2E.values.T),
                 customdata=ds_combined.signalAPD2E.values.T,
                 colorscale='Turbo',
-                zmin=0,
-                zmax=8,
+                zmin=1,
+                zmax=5.5,
                 colorbar=dict(
                     title='log10(Signal Ray E)<br>[-]',
                     len=subplot_height * 0.85,
@@ -288,8 +295,8 @@ def plot_daily_signal_quicklooks_interactive(fname_list, fig_dir, fig_title, fig
                 z=np.log10(ds_combined.signalAPD2N.values.T),
                 customdata=ds_combined.signalAPD2N.values.T,
                 colorscale='Turbo',
-                zmin=0,
-                zmax=8,
+                zmin=1,
+                zmax=5.5,
                 colorbar=dict(
                     title='log10(Signal Ray N)<br>[-]',
                     len=subplot_height * 0.85,
@@ -325,6 +332,68 @@ def plot_daily_signal_quicklooks_interactive(fname_list, fig_dir, fig_title, fig
             row=4, col=1
         )
 
+        # Compute and plot background rates
+        try:
+            bg2Z = compute_background(ds_combined.signalAPD2Z.values * 1., number_of_gates=20)
+            bg2E = compute_background(ds_combined.signalAPD2E.values * 1., number_of_gates=20)
+            bg2N = compute_background(ds_combined.signalAPD2N.values * 1., number_of_gates=20)
+            bg2D = compute_background(ds_combined.signalAPD2D.values * 1., number_of_gates=20)
+            
+            fig_dict['signal_ray'].add_trace(
+                go.Scatter(
+                    x=ds_combined.timestamp.values,
+                    y=bg2Z,
+                    mode='lines',
+                    line=dict(color='black', width=1),
+                    name='Z',
+                    hovertemplate='Time: %{x}<br>Background Z: %{y:.2e}<extra></extra>'
+                ),
+                row=5, col=1
+            )
+            fig_dict['signal_ray'].add_trace(
+                go.Scatter(
+                    x=ds_combined.timestamp.values,
+                    y=bg2E,
+                    mode='lines',
+                    line=dict(color='blue', width=1),
+                    name='E',
+                    hovertemplate='Time: %{x}<br>Background E: %{y:.2e}<extra></extra>'
+                ),
+                row=5, col=1
+            )
+            fig_dict['signal_ray'].add_trace(
+                go.Scatter(
+                    x=ds_combined.timestamp.values,
+                    y=bg2N,
+                    mode='lines',
+                    line=dict(color='red', width=1),
+                    name='N',
+                    hovertemplate='Time: %{x}<br>Background N: %{y:.2e}<extra></extra>'
+                ),
+                row=5, col=1
+            )
+            fig_dict['signal_ray'].add_trace(
+                go.Scatter(
+                    x=ds_combined.timestamp.values,
+                    y=bg2D,
+                    mode='lines',
+                    line=dict(color='green', width=1),
+                    name='D',
+                    hovertemplate='Time: %{x}<br>Background D: %{y:.2e}<extra></extra>'
+                ),
+                row=5, col=1
+            )
+            
+            # Update y-axis for background subplot (log scale, specific range)
+            fig_dict['signal_ray'].update_yaxes(
+                title_text='Background [MHz]',
+                type='log',
+                range=[0.5, 3.5], 
+                row=5, col=1
+            )
+        except Exception as e:
+            print(f"Error computing background: {e}")
+
     
     # Set time range
     ds0 = all_ds[0]
@@ -345,8 +414,22 @@ def plot_daily_signal_quicklooks_interactive(fname_list, fig_dir, fig_title, fig
         fig = fig_dict[var]
         n_plots = len(var_fig_dict[var]['var_names'])  # Number of subplots in the current figure
         subplot_height = (1.0 - spacing * (n_plots - 1)) / n_plots
+        
+        # Check if this is signal_ray with background subplot
+        is_signal_ray_with_bg = (var == 'signal_ray' and 'background' in var_fig_dict[var]['var_names'])
+        n_heatmap_plots = n_plots - 1 if is_signal_ray_with_bg else n_plots
 
         for i in range(1, n_plots + 1):
+            # Skip the background subplot - it's already configured
+            if is_signal_ray_with_bg and i == n_plots:
+                # Only update x-axis for background subplot
+                fig.update_xaxes(
+                    title_text='Time [UTC]',
+                    showticklabels=True,
+                    row=i, col=1
+                )
+                continue
+                
             if i==1:
                 fig.update_yaxes(
                     title_text='Altitude [masl]',
@@ -359,36 +442,48 @@ def plot_daily_signal_quicklooks_interactive(fname_list, fig_dir, fig_title, fig
                     title_text='Altitude [masl]',
                     row=i, col=1
                 )
-            # fig.update_yaxes(
-            #     title_text='Altitude [masl]',
-            #     range=[0, ylim],
-            #     row=i, col=1
-            # )
-            fig.update_yaxes(matches='y')
-
 
             # Only show x-axis title on the bottom plot to reduce clutter
             if i == n_plots:
                 fig.update_xaxes(
                     title_text='Time [UTC]',
-                    # range=[dt_start, dt_end],
                     showticklabels=True,
                     row=i, col=1
                 )
             else:
                 fig.update_xaxes(
-                    # range=[dt_start, dt_end],s
                     showticklabels=True,
                     row=i, col=1
                 )
+        
+        # Match y-axes only for heatmap plots (exclude background)
+        if is_signal_ray_with_bg:
+            # Match y-axes for first 4 subplots only
+            for i in range(1, n_heatmap_plots + 1):
+                fig.update_yaxes(matches='y', row=i, col=1)
+        else:
+            fig.update_yaxes(matches='y')
             
         # Update layout
         fig.update_layout(
             title=dict(text=fig_title, x=0.5, xanchor='center'),
             height=300 * n_plots,
-            showlegend=False,
+            showlegend=is_signal_ray_with_bg,  # Show legend for background traces
             hovermode='closest'
         )
+        
+        # Position legend for signal_ray background plot
+        if is_signal_ray_with_bg:
+            fig.update_layout(
+                legend=dict(
+                    orientation='v',
+                    yanchor='middle',
+                    y=0.08,  # Position at bottom subplot
+                    xanchor='left',
+                    x=1.02,
+                    font=dict(size=10)
+                )
+            )
         
         # Generate figure name
         try:

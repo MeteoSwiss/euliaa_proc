@@ -12,17 +12,26 @@ import pandas as pd
 
 # Example use with L1 files on s3 bucket: python3 quicklooks.py --l1_file_list $(s3cmd ls s3://euliaa-l1/TESTS/L1_20250723* | awk '{print $4}')
 
+def compute_background(signal, number_of_gates=20):
+    inds_for_bg = np.where(signal.mean(axis=0)>1)[0][-number_of_gates:]
+    background_photons = np.nanmean(signal[:,inds_for_bg],axis=1)
+    background_rate = background_photons / 1e-6 # Assuming 1 microsecond integration time
+    return background_rate
 
 def plot_daily_signal_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L1_', ylim=50000):
     if not os.path.exists(fig_dir) and not fig_dir.startswith('s3://'):
     # Create the directory if it does not exist
         os.makedirs(fig_dir)
     
-    fig1, axs1 = plt.subplots(4,figsize=(12,10))
-    fig2, axs2 = plt.subplots(4,figsize=(12,10))
-    fig3, axs3 = plt.subplots(3,figsize=(12,7.5))
+    fig1, axs1 = plt.subplots(4,figsize=(12,10),sharex=True, constrained_layout=True)
+    fig2, axs2 = plt.subplots(5,figsize=(12,10), sharex=True, constrained_layout=True)
+    fig3, axs3 = plt.subplots(3,figsize=(12,7.5), sharex=True, constrained_layout=True)
     plotBSC=0
     
+    bg2Z_list, bg2E_list, bg2N_list, bg2D_list = [], [], [], []
+    t_list = []
+    plot_background = True # Flag to control background computation
+
     for fname in fname_list:
         nc = Dataset(fname, diskless=True, persist=False)
         rec = xr.open_dataset(xr.backends.NetCDF4DataStore(nc.groups.get('rec')))
@@ -40,11 +49,21 @@ def plot_daily_signal_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L1_
         im12=axs1[2].pcolormesh(t_edges,alt_edges, rec.signalAPD1N.T,shading='flat',norm=colors.LogNorm(vmin=1,vmax=1e4))
         im13=axs1[3].pcolormesh(t_edges,alt_edges, rec.signalAPD1D.T,shading='flat',vmin=0,vmax=1)
 
-        im20=axs2[0].pcolormesh(t_edges,alt_edges, rec.signalAPD2Z.T,shading='flat',norm=colors.LogNorm(vmin=1,vmax=1e6))
-        im21=axs2[1].pcolormesh(t_edges,alt_edges, rec.signalAPD2E.T,shading='flat',norm=colors.LogNorm(vmin=1,vmax=1e6))
-        im22=axs2[2].pcolormesh(t_edges,alt_edges, rec.signalAPD2N.T,shading='flat',norm=colors.LogNorm(vmin=1,vmax=1e6))
+        im20=axs2[0].pcolormesh(t_edges,alt_edges, rec.signalAPD2Z.T,shading='flat',norm=colors.LogNorm(vmin=1,vmax=2e5))
+        im21=axs2[1].pcolormesh(t_edges,alt_edges, rec.signalAPD2E.T,shading='flat',norm=colors.LogNorm(vmin=1,vmax=2e5))
+        im22=axs2[2].pcolormesh(t_edges,alt_edges, rec.signalAPD2N.T,shading='flat',norm=colors.LogNorm(vmin=1,vmax=2e5))
         im23=axs2[3].pcolormesh(t_edges,alt_edges, rec.signalAPD2D.T,shading='flat',vmin=0,vmax=1)
 
+        try:
+            bg2Z_list.append(compute_background(rec.signalAPD2Z.values*1., number_of_gates=20))
+            bg2E_list.append(compute_background(rec.signalAPD2E.values*1., number_of_gates=20))
+            bg2N_list.append(compute_background(rec.signalAPD2N.values*1., number_of_gates=20))
+            bg2D_list.append(compute_background(rec.signalAPD2D.values*1., number_of_gates=20))
+        except Exception as e:
+            plot_background = False
+            print(f"Error computing background for file {fname}: {e}")
+
+        t_list+= t
 
         if 'BSCMieZ' in rec.keys():
             # if not(np.isnan(rec.BSCMieZ.max()) and np.isnan(rec.BSCMieE.max()) and np.isnan(rec.BSCMieN.max())): # That's if we don't want empty quicklooks
@@ -52,6 +71,12 @@ def plot_daily_signal_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L1_
             im31=axs3[1].pcolormesh(t_edges,alt_edges, rec.BSCMieE.T,shading='flat',norm=colors.LogNorm(vmin=1e-9,vmax=1e-5),cmap='viridis')
             im32=axs3[2].pcolormesh(t_edges,alt_edges, rec.BSCMieN.T,shading='flat',norm=colors.LogNorm(vmin=1e-9,vmax=1e-5),cmap='viridis')
             plotBSC=1
+
+    if plot_background:
+        axs2[4].plot(t_list, np.array(bg2Z_list), color='k', linewidth=0.5, label='Background Z')
+        axs2[4].plot(t_list, np.array(bg2E_list), color='b', linewidth=0.5, label='Background E')
+        axs2[4].plot(t_list, np.array(bg2N_list), color='r', linewidth=0.5, label='Background N')
+        axs2[4].plot(t_list, np.array(bg2D_list), color='g', linewidth=0.5, label='Background D')
 
     plt.colorbar(im10,ax=axs1[0],label='Signal Mie Z [-]',extend='both')
     plt.colorbar(im11,ax=axs1[1],label='Signal Mie E [-]',extend='both')
@@ -103,6 +128,16 @@ def plot_daily_signal_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L1_
         ax.set_xlabel('Time [UTC]')
         ax.set_ylabel('Altitude [masl]')
         ax.set_xlim(dt_start, dt_end)
+        ax.tick_params(axis='x', labelbottom=True)
+
+    if plot_background:
+        axs2[4].legend(loc='upper right', fontsize=8)
+        axs2[4].set_ylabel('Background [Hz]')
+        axs2[4].set_ylim(5e6, 1e9)
+        axs2[4].set_yscale('log')
+    else:
+        axs2[4].set_visible(False)
+        
     try:
         date_from_fname = re.search("([0-9]{4}\-[0-9]{2}\-[0-9]{2})", fname_list[0]).group(1)
     except:
@@ -116,15 +151,15 @@ def plot_daily_signal_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L1_
     fig_name2 = os.path.join(fig_dir, fig_prefix+pd.Timestamp(date_from_fname).strftime('%Y-%m-%d')+'_signal_ray.png')
     axs1[0].set_title(fig_title)
     axs2[0].set_title(fig_title)
-    fig1.tight_layout()
-    fig2.tight_layout()
+    # fig1.tight_layout()
+    # fig2.tight_layout()
     savefig(fig1,fig_name1)
     savefig(fig2,fig_name2)
 
     if plotBSC:
         fig_name3 = os.path.join(fig_dir, fig_prefix+pd.Timestamp(date_from_fname).strftime('%Y-%m-%d')+'_backscatter_coef.png')    
         axs3[0].set_title(fig_title)
-        fig3.tight_layout()
+        # fig3.tight_layout()
         savefig(fig3,fig_name3)
     
     
