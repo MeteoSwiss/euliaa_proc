@@ -6,6 +6,7 @@ old/
 **/data/BUFR*
 **/data/DWL_*
 tests/test*
+notebooks_and_tests/test*
 poetry.lock
 **/*.h5
 **/logs
