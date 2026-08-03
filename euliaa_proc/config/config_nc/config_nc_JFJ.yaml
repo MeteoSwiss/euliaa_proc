@@ -1201,10 +1201,10 @@ attributes:
   instrument_model: EULIAA-UV
   instrument_manufacturer: Leibniz Institute for Atmospheric Physics, Kuehlungsborn (DE), and Fraunhofer Institute for Laser Technology, Aachen (DE)
   site_location: Jungfraujoch Research Facility (Sphinx Observatory), Switzerland
-  station_altitude: 3562.
+  station_altitude: 3580.
   station_altitude_unit: meters above sea level
-  station_latitude: 46.54
-  station_longitude: 7.98
+  station_latitude: 46.547
+  station_longitude: 7.985
   station_latitude_unit: degrees north
   station_longitude_unit: degrees east
   azimuth_offset: 0.0
@@ -1226,7 +1226,7 @@ attributes:
   # calibration_status:
   # calibration_time:
   # height_above_ground:
-  date_of_installation:
+  date_of_installation: '2026-07-20'
   # maintenance: #preventive and corrective maintenance (recommended and scheduled maintenance and calibration procedures, including frequency, and a description of procedures)
   # comparison_to_reference: #results of comparison with travelling standards
   doi: '10.60566/fkvdv-51b32'
