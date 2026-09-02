@@ -1,21 +1,20 @@
 # euliaa_proc
 
-Processing code for EULIAA lidar data: reads L1 HDF5 files and produces L2 netCDF products,
-E-PROFILE wind files, BUFR messages and quicklooks.
+Processing code for EULIAA lidar data: reads L1 HDF5 files and produces L2 netCDF products, E-PROFILE wind files, BUFR messages and quicklooks.
 
 Further documentation (MeteoSwiss internal): [Confluence page](https://meteoswiss.atlassian.net/wiki/spaces/MDA/pages/679937188/EULIAA+processing+and+data+flow).
 
 ## Data flow
 
 ```
-s3://euliaa-l1  (L1 HDF5 uploaded by IAP)
+s3://euliaa-l1  (L1 HDF5 uploaded by lidar)
       |  bucket notification -> processing_manager_multi.py
       v
 s3://euliaa-l2         L2A / L2B netCDF (+ BUFR/ for temperature BUFR)
 s3://euliaa-eprofile   wind-only netCDF in E-PROFILE DWL format
    -> copied to s3://eprofile-dl-l1 for GTS dissemination via E-PROFILE/UKMO
-s3://euliaa-daily      daily concatenated files (cron, daily_concat.sh)
-s3://euliaa-quicklooks daily quicklooks (cron, quicklooks_multi.sh)
+s3://euliaa-daily      daily concatenated files (cron, daily_concat.sh) with validated variables
+s3://euliaa-quicklooks quicklooks (cron, quicklooks_multi.sh)
 ```
 
 ## Requirements
@@ -40,9 +39,7 @@ source ~/.env_euliaa/bin/activate
 pip install -e .
 ```
 
-On the operational VM the environment already exists at `~/.env_euliaa` and the repo at
-`~/euliaa_proc`. **To do - this could be improved - Config files and shell scripts contain absolute paths** (`/home/oper/...`),
-so adapt them if you install elsewhere.
+On the operational VM (European Weather CLoud) the environment already exists at `~/.env_euliaa` and the repo at `~/euliaa_proc`. **To do - this could be improved - Config files and shell scripts contain absolute paths** (`/home/oper/...`), so adapt them if you install elsewhere.
 
 ## Configuration
 
@@ -52,7 +49,7 @@ All config files are in `euliaa_proc/config/`:
 | --- | --- |
 | `config_main/config_main_s3_<campaign>.yaml` | entry point per campaign: output buckets, BUFR types, paths to the other configs |
 | `config_nc/config_nc_<campaign>.yaml` | netCDF variables, dimensions, attributes, HDF5 → netCDF mapping |
-| `config_qc_w_correction.yaml` | QC thresholds, velocity/azimuth corrections, variable lists |
+| `config_qc_w_correction.yaml` | QC thresholds, velocity/azimuth corrections, variable lists to use in daily concat |
 | `config_eprofile_wind_*.yaml` | netCDF variables etc. corresponding to output format for E-Profile (copied from L1_DWL template) |
 | `config_quicklooks_multi.yaml` | paths and configs for quicklooks, per campaign |
 | `config_log.yaml` | log level and log file location (`euliaa_proc/logs/`) |
@@ -100,7 +97,7 @@ run_processing_pipeline(
 
 ### Quicklooks, daily files, recap (crontab)
 
-These are **not** triggered by notifications. If needed (e.g. old data uploaded), run manually.
+These are **not** triggered by notifications, run in cron instead. If needed (e.g. old data uploaded), run manually.
 
 ```bash
 euliaa_proc/scripts/quicklooks_multi.sh [--year YYYY --month MM --day DD]   # every 5 min
