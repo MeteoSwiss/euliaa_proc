@@ -56,16 +56,23 @@ def catch_root_post():
         TO DO Lines below should be adapted depending on choices made for operational products: e.g.,
         - 20MIN files: wind and backscatter profiles considered suitable for dissemination
         - 60MIN files: temperature profiles considered suitable for dissemination
+        - note August 2026: it seems that backscatter will never be used operationally, so doesn't really matter what we set here
         """
-        if (('20MIN' in filepath) or ('20min' in filepath)):
+        if (('dT20MIN' in filepath) or ('dT20min' in filepath)):
             operational_product = {'wind': 1, 'temperature': 0, 'backscatter': 1}
             integration_time_str = '20MIN'
-        elif (('10MIN' in filepath) or ('10min' in filepath)):
+        elif (('dT30MIN' in filepath) or ('dT30min' in filepath)):
+            operational_product = {'wind': 1, 'temperature': 0, 'backscatter': 1}
+            integration_time_str = '30MIN'
+        elif (('dT10MIN' in filepath) or ('dT10min' in filepath)):
             operational_product = {'wind': 1, 'temperature': 0, 'backscatter': 1}
             integration_time_str = '10MIN'
-        elif (('60MIN' in filepath) or ('60min' in filepath)):
+        elif (('dT60MIN' in filepath) or ('dT60min' in filepath)):
             operational_product = {'wind': 0, 'temperature': 1, 'backscatter': 0}
             integration_time_str = '60MIN'
+        elif (('dT120MIN' in filepath) or ('dT120min' in filepath)):
+            operational_product = {'wind': 1, 'temperature': 1, 'backscatter': 0}
+            integration_time_str = '120MIN'
         else:
             operational_product = {'wind': 1, 'temperature': 1, 'backscatter': 1}
             integration_time_str = ''
@@ -165,7 +172,7 @@ def run_processing_pipeline(filepath, config_template, operational_product={'win
 
             if write_eprofile==1:
                 runner.write_dwl_eprofile() # that's the local storage of the e-rprofile file 
-                logger.info("DWL E-Profile written.")
+                logger.info("DWL E-Profile written (internal bucket).")
 
                 # --------> IMPORTANT <--------- #
                 # Below is the transfer to the actual E-Profile OPERATIONAL bucket, if set in the main config file
