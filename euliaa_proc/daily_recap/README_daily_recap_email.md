@@ -33,7 +33,7 @@ Permissions are already restricted to owner-only (`chmod 600`).
 Cron entry installed under user `oper`:
 
 - `CRON_TZ=UTC`
-- `0 7 * * * /bin/bash /home/oper/euliaa_proc/euliaa_proc/scripts/send_daily_recap.sh >> /home/oper/euliaa_proc/euliaa_proc/logs/daily_recap_email.log 2>&1`
+- `0 7 * * * /bin/bash /home/oper/euliaa_proc/euliaa_proc/daily_recap/send_daily_recap.sh >> /home/oper/euliaa_proc/euliaa_proc/logs/daily_recap_email.log 2>&1`
 
 To re-install/update this managed cron block:
 
@@ -47,7 +47,7 @@ To re-install/update this managed cron block:
 - If you ever want the sender wrapper to regenerate recap first:
 
 ```bash
-GENERATE_RECAP_FIRST=1 /bin/bash /home/oper/euliaa_proc/euliaa_proc/scripts/send_daily_recap.sh
+GENERATE_RECAP_FIRST=1 /bin/bash /home/oper/euliaa_proc/euliaa_proc/daily_recap/send_daily_recap.sh
 ```
 
 ## Manual test

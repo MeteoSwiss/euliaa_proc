@@ -16,7 +16,7 @@ def compute_background(signal, number_of_gates=20):
     inds_for_bg = np.where(signal.mean(axis=0)>1)[0][-number_of_gates:]
     background_photons = np.nanmean(signal[:,inds_for_bg],axis=1)
     background_rate = background_photons / 1e-6 # Assuming 1 microsecond integration time
-    return background_rate
+    return background_rate*1e-6 # Return background in MHz
 
 def plot_daily_signal_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L1_', ylim=50000):
     if not os.path.exists(fig_dir) and not fig_dir.startswith('s3://'):
@@ -55,10 +55,10 @@ def plot_daily_signal_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L1_
         im23=axs2[3].pcolormesh(t_edges,alt_edges, rec.signalAPD2D.T,shading='flat',vmin=0,vmax=1)
 
         try:
-            bg2Z_list.append(compute_background(rec.signalAPD2Z.values*1., number_of_gates=20))
-            bg2E_list.append(compute_background(rec.signalAPD2E.values*1., number_of_gates=20))
-            bg2N_list.append(compute_background(rec.signalAPD2N.values*1., number_of_gates=20))
-            bg2D_list.append(compute_background(rec.signalAPD2D.values*1., number_of_gates=20))
+            bg2Z_list.extend(compute_background(rec.signalAPD2Z.values*1., number_of_gates=20).tolist())
+            bg2E_list.extend(compute_background(rec.signalAPD2E.values*1., number_of_gates=20).tolist())
+            bg2N_list.extend(compute_background(rec.signalAPD2N.values*1., number_of_gates=20).tolist())
+            bg2D_list.extend(compute_background(rec.signalAPD2D.values*1., number_of_gates=20).tolist())
         except Exception as e:
             plot_background = False
             print(f"Error computing background for file {fname}: {e}")
@@ -73,10 +73,10 @@ def plot_daily_signal_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L1_
             plotBSC=1
 
     if plot_background:
-        axs2[4].plot(t_list, np.array(bg2Z_list), color='k', linewidth=0.5, label='Background Z')
-        axs2[4].plot(t_list, np.array(bg2E_list), color='b', linewidth=0.5, label='Background E')
-        axs2[4].plot(t_list, np.array(bg2N_list), color='r', linewidth=0.5, label='Background N')
-        axs2[4].plot(t_list, np.array(bg2D_list), color='g', linewidth=0.5, label='Background D')
+        axs2[4].plot(t_list, bg2Z_list, color='k', linewidth=0.5, label='Background Z')
+        axs2[4].plot(t_list, bg2E_list, color='b', linewidth=0.5, label='Background E')
+        axs2[4].plot(t_list, bg2N_list, color='r', linewidth=0.5, label='Background N')
+        axs2[4].plot(t_list, bg2D_list, color='g', linewidth=0.5, label='Background D')
 
     plt.colorbar(im10,ax=axs1[0],label='Signal Mie Z [-]',extend='both')
     plt.colorbar(im11,ax=axs1[1],label='Signal Mie E [-]',extend='both')
@@ -132,8 +132,8 @@ def plot_daily_signal_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L1_
 
     if plot_background:
         axs2[4].legend(loc='upper right', fontsize=8)
-        axs2[4].set_ylabel('Background [Hz]')
-        axs2[4].set_ylim(5e6, 1e9)
+        axs2[4].set_ylabel('Background [MHz]')
+        axs2[4].set_ylim(1, 1e3)
         axs2[4].set_yscale('log')
     else:
         axs2[4].set_visible(False)
@@ -217,6 +217,7 @@ if __name__=='__main__':
         fig_title = fig_title0 + ' to ' + fig_title1
         plot_daily_signal_quicklooks(args.l1_file_list, args.fig_dir, fig_title, ylim=args.ylim, fig_prefix=args.fig_prefix)  # Pass ylim and mask to the function
     elif args.l1_file:
+        print('Generating quicklook for file:', args.l1_file)
         fig_title = args.l1_file.split('/')[-1]
         try:
             fig_title = 'L1_'+re.search("([0-9]{4}\-[0-9]{2}\-[0-9]{2})", fig_title).group(1)

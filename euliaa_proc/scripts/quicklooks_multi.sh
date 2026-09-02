@@ -60,7 +60,7 @@ for campaign in $campaigns; do
         
     # fi
 
-    file_list=$(s3cmd ls --recursive "${L2A_DIR}*" | grep "20MIN/${year}/${month}/${day}.*\.nc$" 2>/dev/null | awk '{print $4}')
+    file_list=$(s3cmd ls --recursive "${L2A_DIR}*" | grep "MIN/${year}/${month}/${day}.*\.nc$" 2>/dev/null | awk '{print $4}')
     file_list_l1=$(ls ${L1_DIR}/EULIAA_L1_${year}-${month}-${day}*.h5)     # L1 files cannot be read directly from S3, so we use the path of the mounted bucket
 
     # echo "L2A files found: $file_list"
@@ -69,22 +69,40 @@ for campaign in $campaigns; do
     if [ -z "$file_list" ]; then
         echo "No L2A files found for date $date in $L2A_DIR_W_DATE or its subdirectories. Skipping campaign."
     else
-        echo "$HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks.py --l2a_file_list $file_list --fig_dir "$QUICKLOOKS_DIR" --fig_prefix ${FIG_PREFIX} --wind_str ${WIND_STR} --bsc_str ${BSC_STR} --T_str ${T_STR} --mask_flag ${MASK_FLAG}"
-        $HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks.py --l2a_file_list $file_list --fig_dir "$QUICKLOOKS_DIR" --fig_prefix ${FIG_PREFIX} --wind_str ${WIND_STR} --bsc_str ${BSC_STR} --T_str ${T_STR} --mask_flag ${MASK_FLAG}
-        $HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks_interactive.py --l2a_file_list $file_list --fig_dir "$QUICKLOOKS_DIR" --fig_prefix ${FIG_PREFIX} --wind_str ${WIND_STR} --bsc_str ${BSC_STR} --T_str ${T_STR} --mask_flag ${MASK_FLAG}
-        if [ $? -ne 0 ]; then
-            echo "  ✗ Error running quicklooks for $campaign"
-        fi
+        # Files can come from several time-integration subdirectories (e.g. L2A/20MIN/, L2A/60MIN/).
+        # Produce one quicklook per integration time, with the integration as a suffix in the filename.
+        integrations=$(echo "$file_list" | grep -oP '(?<=/)[0-9]+MIN(?=/)' | sort -u)
+        for integration in $integrations; do
+            echo "  Integration time: $integration"
+            integration_file_list=$(echo "$file_list" | grep "/${integration}/")
+            integration_fig_prefix="${FIG_PREFIX}${integration}_"
+            echo "$HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks.py --l2a_file_list $integration_file_list --fig_dir "$QUICKLOOKS_DIR" --fig_prefix ${integration_fig_prefix} --wind_str ${WIND_STR} --bsc_str ${BSC_STR} --T_str ${T_STR} --mask_flag ${MASK_FLAG}"
+            $HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks.py --l2a_file_list $integration_file_list --fig_dir "$QUICKLOOKS_DIR" --fig_prefix ${integration_fig_prefix} --wind_str ${WIND_STR} --bsc_str ${BSC_STR} --T_str ${T_STR} --mask_flag ${MASK_FLAG}
+            $HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks_interactive.py --l2a_file_list $integration_file_list --fig_dir "$QUICKLOOKS_DIR" --fig_prefix ${integration_fig_prefix} --wind_str ${WIND_STR} --bsc_str ${BSC_STR} --T_str ${T_STR} --mask_flag ${MASK_FLAG}
+            if [ $? -ne 0 ]; then
+                echo "  ✗ Error running quicklooks for $campaign ($integration)"
+            fi
+        done
     fi
     
     if [ -z "$file_list_l1" ]; then
         echo "No L1 files found for date $date in $L1_DIR_W_DATE or its subdirectories. Skipping campaign."
     else
-        $HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks_signal.py --l1_file_list $file_list_l1 --fig_dir "$L1_QUICKLOOKS_DIR" --fig_prefix ${L1_FIG_PREFIX}
-        $HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks_signal_interactive.py --l1_file_list $file_list_l1 --fig_dir "$L1_QUICKLOOKS_DIR" --fig_prefix ${L1_FIG_PREFIX}
-        if [ $? -ne 0 ]; then
-            echo "  ✗ Error running quicklooks signal for $campaign"
-        fi
+        # L1 files live in a flat directory but can correspond to several time integrations,
+        # encoded in the filename as e.g. "_dT20min_", "_dT60min_". Produce one quicklook per
+        # integration time, with the integration (normalized to match the L2A convention, e.g. 20MIN) as a filename suffix.
+        integrations_l1=$(echo "$file_list_l1" | grep -oP 'dT\K[0-9]+(?=min)' | sort -u)
+        for integration_min in $integrations_l1; do
+            integration_l1="${integration_min}MIN"
+            echo "  L1 integration time: $integration_l1"
+            integration_file_list_l1=$(echo "$file_list_l1" | grep "_dT${integration_min}min_")
+            integration_l1_fig_prefix="${L1_FIG_PREFIX}${integration_l1}_"
+            $HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks_signal.py --l1_file_list $integration_file_list_l1 --fig_dir "$L1_QUICKLOOKS_DIR" --fig_prefix ${integration_l1_fig_prefix}
+            $HOME/.env_euliaa/bin/python $HOME/euliaa_proc/euliaa_proc/quicklooks_signal_interactive.py --l1_file_list $integration_file_list_l1 --fig_dir "$L1_QUICKLOOKS_DIR" --fig_prefix ${integration_l1_fig_prefix}
+            if [ $? -ne 0 ]; then
+                echo "  ✗ Error running quicklooks signal for $campaign ($integration_l1)"
+            fi
+        done
     fi
     echo "----------------------------------------"
 done

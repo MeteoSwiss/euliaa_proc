@@ -388,7 +388,7 @@ def plot_daily_signal_quicklooks_interactive(fname_list, fig_dir, fig_title, fig
             fig_dict['signal_ray'].update_yaxes(
                 title_text='Background [MHz]',
                 type='log',
-                range=[0.5, 3.5], 
+                range=[0, 3.5], 
                 row=5, col=1
             )
         except Exception as e:
