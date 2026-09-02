@@ -482,7 +482,7 @@ variables:
     attributes:
       long_name: Quality flag for temperature from Rayleigh integration
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below top of transparent cloud)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 32 = below top of transparent cloud)
   temperature_broad:
     name: temperature_broad
     dim:
@@ -609,7 +609,7 @@ variables:
     attributes:
       long_name: Quality flag for upward air velocity from Doppler shift of Mie peak
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range, 16 = inside cloud)
   w:
     name: w
     dim:
@@ -682,7 +682,7 @@ variables:
     attributes:
       long_name: Quality flag for eastward wind from Doppler shift of Mie peak
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range))
   u:
     name: u
     dim:
@@ -756,7 +756,7 @@ variables:
     attributes:
       long_name: Quality flag for northward wind from Doppler shift of Mie peak
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range)
   v:
     name: v
     dim:
@@ -1210,6 +1210,10 @@ attributes:
   azimuth_offset: 181.3766
   zenith_offset: 0.2599
   azimuth_and_zenith_offset_explanation: Azimuth and zenith offsets (degrees) are determined from the alignment of the beam w.r.t. the north and vertical directions, respectively. zenith_offset corresponds to the vertical misalignment of the zenith-pointing beam.
+  u_bias_correction: 2.0
+  v_bias_correction: 0.0
+  w_bias_correction: 0.0
+  velocity_bias_correction_explanation: Bias correction values (m/s) are determined a posteriori from the comparison of the lidar wind measurements with ERA5. The file contains bias-corrected u, v, and w values (bias value *removed* from the original measurements).
   history:
   institution: Leibniz Institute for Atmospheric Physics, Kuehlungsborn
   comment: This project has received support from the European Union's Horizon 2020 framework programme for research and innovation under grant agreement no. 101086317 (EULIAA).

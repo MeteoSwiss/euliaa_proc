@@ -217,6 +217,9 @@ class Measurement():
         """
         for var in var_list:
             if var in self.data:
+                if 'DIVIDE_BEFORE_CORR_BY' in self.qc_conf: # For certain campaigns this needs to be done (UV? unclear exactly when)
+                    self.data[var] = self.data[var]/self.qc_conf['DIVIDE_BEFORE_CORR_BY'] 
+                    logger.info(f'Divided {var} by {self.qc_conf["DIVIDE_BEFORE_CORR_BY"]} for laser frequency offset')
                 if 'CORRECTION' in self.qc_conf: # This is a general correction applied to all campaigns, so should be in the qc config file
                     self.data[var] = self.data[var] - self.qc_conf['CORRECTION'] # certain files from iap has a velocity bias
                     # logger.info(f'Corrected {var} for velocity offset of {self.qc_conf["CORRECTION"]}')
@@ -228,6 +231,14 @@ class Measurement():
                     continue
                 self.data[var] = self.data[var]*self.qc_conf['MULTIPLY_BY']# 2 # off-zenith slant # This is a general correction applied to all campaigns, so should be in the qc config file
                 logger.info(f'Corrected {var} for velocity offset of {self.qc_conf["CORRECTION"]} and multiplied by {self.qc_conf["MULTIPLY_BY"]}')
+
+        for var_short in ['u', 'v', 'w']:
+            if f'{var_short}_bias_correction' in self.conf['attributes']:
+                for var in [f'{var_short}_mie', f'{var_short}', f'{var_short}_ray']:
+                    if var in self.data:
+                        self.data[var] = self.data[var] - self.conf['attributes'][f'{var_short}_bias_correction']
+                logger.info(f'Corrected {var_short} for bias offset of {self.conf["attributes"][f"{var_short}_bias_correction"]}')
+
 
     def add_quality_flag(self, var_list = ['u_mie', 'v_mie', 'w_mie', 'temperature_int', 'backscatter_coef', 'backscatter_coef_depol']):
         """
@@ -565,7 +576,7 @@ class H5Reader(Measurement):
             else:
                 self.data[var] = (specs['dim'],  hdf5_ds[hdf5_var].data)
 
-            if var in ['u_mie', 'u_ray', 'u', 'v_mie', 'v_ray', 'v', 'w_mie', 'w_ray', 'w']:
+            if var in ['u_mie', 'u_ray', 'u', 'v_mie', 'v_ray', 'v', 'w_mie', 'w_ray', 'w']: # invert the sign of the wind components to follow the convention of positive values for upward and northward winds
                 self.data[var] = -self.data[var]
                 logger.info(f'Inverting sign of {var}')
 
