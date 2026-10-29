@@ -637,7 +637,7 @@ variables:
     attributes:
       long_name: Quality flag for w
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range)
   u_mie:
     name: u_mie
     dim:
@@ -711,7 +711,7 @@ variables:
     attributes:
       long_name: Quality flag for u
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range)
   v_mie:
     name: v_mie
     dim:
@@ -785,7 +785,7 @@ variables:
     attributes:
       long_name: Quality flag for v
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range)
   w_ray:
     name: w_ray
     dim:
@@ -831,7 +831,7 @@ variables:
       long_name: Quality flag for upward air velocity from Doppler shift of Rayleigh
         peak
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range)
   u_ray:
     name: u_ray
     dim:
@@ -876,7 +876,7 @@ variables:
     attributes:
       long_name: Quality flag for eastward wind from Doppler shift of Rayleigh peak
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range)
   v_ray:
     name: v_ray
     dim:
@@ -921,7 +921,7 @@ variables:
     attributes:
       long_name: Quality flag for northward wind from Doppler shift of Rayleigh peak
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range)
   width_mie:
     name: width_mie
     dim:
@@ -974,7 +974,7 @@ variables:
     attributes:
       long_name: Quality flag for spectrum width of Mie peak
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range)
   width_ray:
     name: width_ray
     dim:
@@ -1021,7 +1021,7 @@ variables:
     attributes:
       long_name: Quality flag for spectrum width of Rayleigh peak
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range)
   signal_mie:
     name: signal_mie
     dim:

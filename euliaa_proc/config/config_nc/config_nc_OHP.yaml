@@ -440,8 +440,8 @@ variables:
       hdf5_group: rec
       hdf5_var_name:
       - TRayIntZ
-      - TRayIntE
-      - TRayIntN
+      - TRayIntZ
+      - TRayIntZ
     attributes:
       long_name: Temperature from Rayleigh integration
       standard_name: air_temperature
@@ -460,8 +460,8 @@ variables:
       hdf5_group: rec
       hdf5_var_name:
       - TRayIntZErr
-      - TRayIntEErr
-      - TRayIntNErr
+      - TRayIntZErr
+      - TRayIntZErr
     attributes:
       long_name: Uncertainty on temperature from Rayleigh integration
       units: K
@@ -482,7 +482,7 @@ variables:
     attributes:
       long_name: Quality flag for temperature from Rayleigh integration
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below top of transparent cloud)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 32 = below top of transparent cloud)
   temperature_broad:
     name: temperature_broad
     dim:
@@ -609,7 +609,7 @@ variables:
     attributes:
       long_name: Quality flag for upward air velocity from Doppler shift of Mie peak
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range, 16 = inside cloud)
   w:
     name: w
     dim:
@@ -682,7 +682,7 @@ variables:
     attributes:
       long_name: Quality flag for eastward wind from Doppler shift of Mie peak
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range)
   u:
     name: u
     dim:
@@ -756,7 +756,7 @@ variables:
     attributes:
       long_name: Quality flag for northward wind from Doppler shift of Mie peak
       units: "1"
-      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error)
+      comment: 0 = valid, >1 = suspect, -9 = no data. Flag>1 is sum of all flag conditions (1 = unrealistic value, 2 = low SNR, 4 = high error, 8 = below minimum valid range)
   v:
     name: v
     dim:
@@ -1148,21 +1148,21 @@ variables:
       long_name: Mask for below top of transparent cloud (or strong aerosol layer)
       units: "1"
       comment: 0 = above cloud top, 1 = below cloud top. Note that the definition for top of transparent cloud is less strict than cloud mask, so cloud top can be identified without cloud mask
-  time_mean:
-    name: time_mean
-    dim:
-    - time
-    type: float64
-    _FillValue: -999.0
-    original_hdf5:
-      hdf5_group: rec
-      hdf5_var_name: meanTime
-    attributes:
-      long_name: Mean time of measurement
-      standard_name: time
-      units: seconds since 1970-01-01
-      comment: If gaps in measurement, meantime is the mean time of actually used
-        measurements
+  # time_mean:
+  #   name: time_mean
+  #   dim:
+  #   - time
+  #   type: float64
+  #   _FillValue: -999.0
+  #   original_hdf5:
+  #     hdf5_group: rec
+  #     hdf5_var_name: meanTime
+  #   attributes:
+  #     long_name: Mean time of measurement
+  #     standard_name: time
+  #     units: seconds since 1970-01-01
+  #     comment: If gaps in measurement, meantime is the mean time of actually used
+  #       measurements
   # range_resolution:
   #   name: range_resolution
   #   dim:
@@ -1197,7 +1197,7 @@ attributes:
   wmo_id: 
   instrument_type: 'high_spectral_resolution_lidar'
   instrument_id: EULIAA_UV1
-  instrument_wavelength: '386nm'
+  instrument_wavelength: '358nm'
   instrument_model: EULIAA-UV
   instrument_manufacturer: Leibniz Institute for Atmospheric Physics, Kuehlungsborn (DE), and Fraunhofer Institute for Laser Technology, Aachen (DE)
   site_location: Observatoire de Haute Provence, France

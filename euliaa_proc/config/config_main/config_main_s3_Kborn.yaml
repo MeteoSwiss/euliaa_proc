@@ -2,9 +2,9 @@ campaign_name: Kuehlungsborn
 hdf5_file:
 config: /home/oper/euliaa_proc/euliaa_proc/config/config_nc/config_nc_Kborn.yaml
 config_eprofile_wind: /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_wind.yaml
-config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc.yaml
+# config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc.yaml
 config_qc: /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml
-output_nc_dir: s3://euliaa-l2/TESTS/Kuehlungsborn/ # for L2A and L2B products
+output_nc_dir: s3://euliaa-l2/Kuehlungsborn/ # for L2A and L2B products
 
 # E-Profile DWL configuration
 output_nc_eprofile_wind_dir: s3://euliaa-eprofile/EProfile_DWL/Kuehlungsborn/ # for E-Profile DWL products, stored on our own s3 bucket
@@ -12,17 +12,10 @@ eprofile_wind_prefix: 'DWL_L1_EU3WL_' # should be DWL_L1_EU1WL_ (for IR unit), D
 # s3cfg_eprofile_path: /home/oper/.s3cfg_eprofile # uncomment this line to upload on E-Profile DWL s3 bucket
 # output_nc_eprofile_wind_dir_DL: s3://eprofile-dl-l1/ # uncomment this line to upload on E-Profile DWL s3 bucket
 
-# Uncomment following lines to activate creation of CHM15k-like files for E-Profile BSC products
-# chm_template_file: '/home/oper/euliaa_proc/data/20251001_pay_CHM200110_0920_000.nc'
-# eprofile_bsc_prefix: '99901_B'
-# eprofile_bsc_suffix: '_CHM15k'
-# output_nc_eprofile_bsc_dir: s3://euliaa-eprofile/EProfile_ALC/Kuehlungsborn/ # for E-Profile BSC products, stored on our own s3 bucket
-# upload_to_UKMO_FTP: 1 # uncomment this line to ACTUALLY upload on UKMO FTP server
-
-output_bufr_dir: s3://euliaa-l2/TESTS_BUFR/Kuehlungsborn/
+# output_bufr_dir: s3://euliaa-l2/TESTS_BUFR/Kuehlungsborn/
 bufr_types:
   #- wind # in principle this is never used
-  - temperature
+  # - temperature
 
 # OLD
 # fig_dir: s3://euliaa-quicklooks/TESTS/Kuehlungsborn/

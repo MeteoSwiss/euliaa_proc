@@ -186,7 +186,7 @@ variables:
     long_name: instrument_frequency
     comments: lidar operating frequency
   instrument_wavelength: 
-    value: 386
+    value: 358
     dim:
     units: nm
     standard_name: instrument_wavelength
@@ -223,7 +223,7 @@ attributes:
   instrument_type: 'SET BY HUB'
   instrument_mode: 'N/A'
   instrument_firmware_version: 'N/A'
-  instrument_id: 'EU1WL'
+  instrument_id: 'EU2WL'
   instrument_contact: 'SET BY HUB'
   conventions: 'CF-1.8'
   # processing_date: ''

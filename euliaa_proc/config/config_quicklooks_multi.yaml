@@ -37,17 +37,17 @@ campaign:
   #   - BSC_STR: 20MIN
   #   - T_STR: 20MIN
   #   - MASK_FLAG: 0
-  # OHP:
-  #   - L2A_DIR: s3://euliaa-l2/OHP/L2A/
-  #   - L1_DIR: /data/euliaa-l1/OHP/ #should be mounted to fs (not bucket path)
-  #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/OHP/quicklooks/
-  #   - L1_QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/OHP/quicklooks_l1/
-  #   - FIG_PREFIX: L2A_OHP_
-  #   - L1_FIG_PREFIX: L1_OHP_
-  #   - WIND_STR: 20MIN
-  #   - BSC_STR: 20MIN
-  #   - T_STR: 20MIN
-    # - MASK_FLAG: 0
+  OHP:
+    - L2A_DIR: s3://euliaa-l2/OHP/L2A/
+    - L1_DIR: /data/euliaa-l1/OHP/ #should be mounted to fs (not bucket path)
+    - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/OHP/quicklooks/
+    - L1_QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/OHP/quicklooks_l1/
+    - FIG_PREFIX: L2A_OHP_
+    - L1_FIG_PREFIX: L1_OHP_
+    - WIND_STR: None #20MIN
+    - BSC_STR: None
+    - T_STR: None
+    - MASK_FLAG: 0
   Jungfraujoch:
     - L2A_DIR: s3://euliaa-l2/Jungfraujoch/L2A/
     - L1_DIR: /data/euliaa-l1/Jungfraujoch/ #should be mounted to fs (not bucket path)
@@ -59,14 +59,17 @@ campaign:
     - BSC_STR: None #20MIN
     - T_STR: None #20MIN
     - MASK_FLAG: 0
-  # Payerne:
-  #   - L2A_DIR: s3://euliaa-l2/Payerne/L2A/
-  #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Payerne/quicklooks/
-  #   - FIG_PREFIX: L2A_Payerne_
-    # - WIND_STR: 20MIN
-    # - BSC_STR: 20MIN
-    # - T_STR: 20MIN
-    # - MASK_FLAG: 0
+  Payerne:
+    - L2A_DIR: s3://euliaa-l2/Payerne/L2A/
+    - L1_DIR: /data/euliaa-l1/Payerne/ #should be mounted to fs (not bucket path)
+    - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Payerne/quicklooks/
+    - L1_QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Payerne/quicklooks_l1/
+    - FIG_PREFIX: L2A_Payerne_
+    - L1_FIG_PREFIX: L1_Payerne_
+    - WIND_STR: None #20MIN
+    - BSC_STR: None #20MIN
+    - T_STR: None #20MIN
+    - MASK_FLAG: 0
   # Maido:
   #   - L2A_DIR: s3://euliaa-l2/Maido/L2A/
   #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Maido/quicklooks/

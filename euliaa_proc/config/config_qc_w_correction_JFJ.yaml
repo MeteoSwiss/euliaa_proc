@@ -35,9 +35,10 @@ MIN_RANGE_FOR_FLAG:
   backscatter_coef: 0. # m # note: if we set this too high we might lose data that is relevant for cloud detection. better not be too conservative here, though 0 might be a bit extreme.
   backscatter_coef_depol: 0. # m
 
-CORRECTION: -28.8461 # velocity correction for frequency offset = -28.8461 (remove if IAP fixes it themselves)
-DIVIDE_BEFORE_CORR_BY: 2.0 # velocity correction for off-zenith slant, divide by this value before offset correction (remove if IAP fixes it themselves)
+CORRECTION: 0. #-28.8461 # velocity correction for frequency offset = -28.8461 (remove if IAP fixes it themselves)
+DIVIDE_BEFORE_CORR_BY: 5.64 # velocity correction for off-zenith slant, divide by this value before offset correction (remove if IAP fixes it themselves)
 MULTIPLY_BY: 2.0 # velocity correction for off-zenith slant, after frequency offset correction remove if IAP fixes it themselves
+CLOUD_DETECTION: 0 # 1 to enable cloud detection, 0 to disable
 VARS_TO_KEEP: # list of variables to keep in the L2B file # this is for internal use for quicklooks (no external distribution)
 - altitude
 - temperature
