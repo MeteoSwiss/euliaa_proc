@@ -432,14 +432,14 @@ def plot_daily_signal_quicklooks_interactive(fname_list, fig_dir, fig_title, fig
                 
             if i==1:
                 fig.update_yaxes(
-                    title_text='Altitude [masl]',
+                    title_text='Altitude [magl]',
                     range=[0, var_fig_dict[var]['ylim']] if 'ylim' in var_fig_dict[var] else [0, ylim],
                     autorange=False,
                     row=i, col=1
                 )
             else:
                 fig.update_yaxes(
-                    title_text='Altitude [masl]',
+                    title_text='Altitude [magl]',
                     row=i, col=1
                 )
 

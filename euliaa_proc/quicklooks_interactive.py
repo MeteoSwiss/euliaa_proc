@@ -240,7 +240,7 @@ import pandas as pd
 
 
 def plot_daily_quicklooks_interactive(fname_list, fig_dir, fig_title, fig_prefix='L2A_', ylim=30000, 
-                                     wind_str='', bsc_str='', T_str='', mask_flag=1):
+                                     ylim_temp=40000, wind_str='', bsc_str='', T_str='', mask_flag=1):
     """
     Create interactive daily quicklooks from multiple L2A files using Plotly.
     """
@@ -307,6 +307,7 @@ def plot_daily_quicklooks_interactive(fname_list, fig_dir, fig_title, fig_prefix
     
     iplot = 1
     colorbar_idx = 0
+    temp_row = None
     
     # 1. Backscatter coefficient
     if 'backscatter_coef' in var_list:
@@ -440,6 +441,7 @@ def plot_daily_quicklooks_interactive(fname_list, fig_dir, fig_title, fig_prefix
     
     # 6. Temperature
     if 'temperature_int' in var_list:
+        temp_row = iplot
         plot_data = (len(T_str) == 0 or any(T_str in fname for fname in fname_list))
         if plot_data:
             temp_data = ds_combined.temperature_int.sel(line_of_sight=0).values - 273.15
@@ -507,28 +509,33 @@ def plot_daily_quicklooks_interactive(fname_list, fig_dir, fig_title, fig_prefix
     dt_end = pd.Timestamp(ds1.time[-1].values)
     
     # Update all axes
+    # The temperature panel keeps its own y-range (ylim_temp); all other panels
+    # share the same range (ylim) and stay linked when zooming/panning.
+    ref_row = 1 if temp_row != 1 else 2
+    ref_axis = 'y' if ref_row == 1 else 'y' + str(ref_row)
     for i in range(1, n_plots + 1):
-        if i==1:
+        if i == temp_row:
+            fig.update_yaxes(
+                title_text='Altitude [masl]',
+                range=[0, ylim_temp],
+                autorange=False,
+                matches=None,
+                row=i, col=1
+            )
+        elif i == ref_row:
             fig.update_yaxes(
                 title_text='Altitude [masl]',
                 range=[0, ylim],
                 autorange=False,
+                matches=None,
                 row=i, col=1
             )
         else:
             fig.update_yaxes(
                 title_text='Altitude [masl]',
+                matches=ref_axis,
                 row=i, col=1
             )
-        # fig.update_yaxes(
-        #     title_text='Altitude [masl]',
-        #     range=[0, ylim],
-        #     row=i, col=1
-        # )
-        fig.update_yaxes(matches='y')
-
-
-
 
 
 
@@ -598,6 +605,7 @@ if __name__=='__main__':
     parser.add_argument('--fig_dir', type=str, default='./', help='Path to the directory where quicklooks are saved')
     parser.add_argument('--fig_prefix', type=str, default='L2A_', help='Figure filename prefix')
     parser.add_argument('--ylim', type=int, default=30000, help='Y-axis limit for the plots')
+    parser.add_argument('--ylim_temp', type=int, default=40000, help='Y-axis limit for the temperature panel')
     parser.add_argument('--wind_str', type=str, default='', help='String in filename to identify proper wind data, e.g. time integration 20MIN')
     parser.add_argument('--bsc_str', type=str, default='', help='String in filename to identify proper backscatter data, e.g. time integration 20MIN')
     parser.add_argument('--T_str', type=str, default='', help='String in filename to identify proper temperature data, e.g. time integration 60MIN')
@@ -620,7 +628,7 @@ if __name__=='__main__':
         fig_title = fig_title0 + ' to ' + fig_title1
         plot_daily_quicklooks_interactive(
             args.l2a_file_list, args.fig_dir, fig_title, 
-            ylim=args.ylim, fig_prefix=args.fig_prefix, 
+            ylim=args.ylim, ylim_temp=args.ylim_temp, fig_prefix=args.fig_prefix, 
             wind_str=args.wind_str, bsc_str=args.bsc_str, 
             T_str=args.T_str, mask_flag=args.mask_flag
         )
@@ -630,6 +638,8 @@ if __name__=='__main__':
             fig_title = 'L2A_'+re.search("([0-9]{4}\-[0-9]{2}\-[0-9]{2})", fig_title).group(1)
         except:
             fig_title = 'L2A_'+re.search("([0-9]{4}[0-9]{2}[0-9]{2})", fig_title).group(1)
-        plot_quicklooks_interactive(args.l2a_file, args.fig_dir, fig_title, args.fig_prefix, args.ylim)
+        plot_daily_quicklooks_interactive([args.l2a_file], args.fig_dir, fig_title, fig_prefix=args.fig_prefix, 
+                                          ylim=args.ylim, ylim_temp=args.ylim_temp, wind_str=args.wind_str, 
+                                          bsc_str=args.bsc_str, T_str=args.T_str, mask_flag=args.mask_flag)
     else:
         raise ValueError('Either --l2a_file or --l2a_file_list must be provided')

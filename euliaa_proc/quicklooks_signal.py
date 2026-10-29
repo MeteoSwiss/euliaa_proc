@@ -126,7 +126,7 @@ def plot_daily_signal_quicklooks(fname_list, fig_dir, fig_title, fig_prefix='L1_
         ax.set_title('')
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
         ax.set_xlabel('Time [UTC]')
-        ax.set_ylabel('Altitude [masl]')
+        ax.set_ylabel('Altitude [magl]')
         ax.set_xlim(dt_start, dt_end)
         ax.tick_params(axis='x', labelbottom=True)
 
