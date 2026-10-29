@@ -59,8 +59,12 @@ def catch_root_post():
         - note August 2026: it seems that backscatter will never be used operationally, so doesn't really matter what we set here
         """
         if (('dT20MIN' in filepath) or ('dT20min' in filepath)):
-            operational_product = {'wind': 1, 'temperature': 0, 'backscatter': 1}
-            integration_time_str = '20MIN'
+            if 'Payerne' in filepath:
+                operational_product = {'wind': 0, 'temperature': 0, 'backscatter': 0}
+                integration_time_str = '20MIN'
+            else:
+                operational_product = {'wind': 1, 'temperature': 0, 'backscatter': 1}
+                integration_time_str = '20MIN'
         elif (('dT30MIN' in filepath) or ('dT30min' in filepath)):
             operational_product = {'wind': 1, 'temperature': 0, 'backscatter': 1}
             integration_time_str = '30MIN'
@@ -68,8 +72,12 @@ def catch_root_post():
             operational_product = {'wind': 1, 'temperature': 0, 'backscatter': 1}
             integration_time_str = '10MIN'
         elif (('dT60MIN' in filepath) or ('dT60min' in filepath)):
-            operational_product = {'wind': 0, 'temperature': 1, 'backscatter': 0}
-            integration_time_str = '60MIN'
+            if 'Payerne' in filepath:
+                operational_product = {'wind': 1, 'temperature': 0, 'backscatter': 0}
+                integration_time_str = '60MIN'
+            else:
+                operational_product = {'wind': 0, 'temperature': 1, 'backscatter': 0}
+                integration_time_str = '60MIN'
         elif (('dT120MIN' in filepath) or ('dT120min' in filepath)):
             operational_product = {'wind': 1, 'temperature': 1, 'backscatter': 0}
             integration_time_str = '120MIN'
@@ -121,6 +129,12 @@ def run_processing_pipeline(filepath, config_template, operational_product={'win
         month = date[5:7] # if date format is YYYY-MM-DD
         # day = date[6:8] # if date format is YYYYMMDD
         day = date[8:10] # if date format is YYYY-MM-DD
+        time_full = date_str.group(1).split('_')[1]
+        hour = time_full[:2]
+        minute = time_full[3:5]
+        second = time_full[6:8]
+        date_time = pd.to_datetime(f'{year}-{month}-{day} {hour}:{minute}:{second}')
+        logger.info(f'Extracted date and time from filename: {date_time}')
         ################
         config['hdf5_file'] = filepath
         if (('campaign_name' in config.keys()) and (config['campaign_name'] is not None)):
@@ -144,6 +158,8 @@ def run_processing_pipeline(filepath, config_template, operational_product={'win
             config['output_nc_eprofile_bsc'] = os.path.join(config['output_nc_eprofile_bsc_dir'],year, month, day, config['eprofile_bsc_prefix'] + date_str_eprofile[:-2].replace('_', '') + config['eprofile_bsc_suffix']+'.nc')
         if 'output_bufr_dir' in config.keys():
             config['output_bufr'] = os.path.join(config['output_bufr_dir'], year, month, day, 'BUFR_' + date_str_eprofile + '.bufr')
+        else:
+            config['output_bufr'] = None
         args = SimpleNamespace(**config)
 
         runner = Runner(args)
@@ -159,16 +175,21 @@ def run_processing_pipeline(filepath, config_template, operational_product={'win
                 integration_time = int(integration_time_str.replace('MIN',''))
             delta_minutes_upload_eprofile = integration_time-4 # minutes, using (integration_time - 4) minutes to allow for some delays
             write_eprofile=1 # flag to decide whether to write the E-Profile file or not
-            proc_ls = subprocess.run(['s3cmd', 'ls', '--recursive', config['output_nc_eprofile_wind_dir']], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            lines = proc_ls.stdout.decode('utf-8').splitlines()
-            for l in lines:
-                dt_str = l.split('  ')[0]
-                f = l.split('  ')[-1]
-                ts = pd.to_datetime(dt_str)
-                if (pd.Timestamp.now()-ts) < pd.Timedelta(minutes=delta_minutes_upload_eprofile):
-                    logger.warning(f"File {f} was added less than {delta_minutes_upload_eprofile} minutes ago: NOT proceeding to write E-Profile file to avoid data overlap.")
-                    write_eprofile=0 # set flag to not write e-profile file
-                    break
+
+            if (pd.Timestamp.now()-date_time) > pd.Timedelta(minutes=120):
+                logger.warning(f"File {filepath} is older than 120 minutes, skipping E-Profile writing to avoid sending old data.")
+                write_eprofile=0 # set flag to not write e-profile file
+            else:
+                proc_ls = subprocess.run(['s3cmd', 'ls', '--recursive', config['output_nc_eprofile_wind_dir']], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                lines = proc_ls.stdout.decode('utf-8').splitlines()
+                for l in lines:
+                    dt_str = l.split('  ')[0]
+                    f = l.split('  ')[-1]
+                    ts = pd.to_datetime(dt_str)
+                    if (pd.Timestamp.now()-ts) < pd.Timedelta(minutes=delta_minutes_upload_eprofile):
+                        logger.warning(f"File {f} was added less than {delta_minutes_upload_eprofile} minutes ago: NOT proceeding to write E-Profile file to avoid data overlap.")
+                        write_eprofile=0 # set flag to not write e-profile file
+                        break
 
             if write_eprofile==1:
                 runner.write_dwl_eprofile() # that's the local storage of the e-rprofile file 
