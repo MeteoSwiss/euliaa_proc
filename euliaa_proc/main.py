@@ -184,7 +184,7 @@ if __name__=='__main__':
     parser.add_argument('--output_nc_eprofile_wind', type=str, help='Path to the output netCDF file for DWL eprofile', default=os.path.join(cwd,'../data/TestNC_EPROFILE.nc'))
     parser.add_argument('--output_nc_eprofile_bsc', type=str, help='Path to the output netCDF file for ALC eprofile', default=os.path.join(cwd,'../data/TestNC_EPROFILE_BSC.nc'))
     parser.add_argument('--bufr_types', nargs='+', default=['wind', 'temperature'])
-    parser.add_argument('--output_bufr', type=str, help='Path to the output BUFR file', default=os.path.join(cwd,'../data/Test_BUFR.bufr'))
+    parser.add_argument('--output_bufr', type=str, help='Path to the output BUFR file', default=None) #os.path.join(cwd,'../data/Test_BUFR.bufr'))
     # parser.add_argument('--fig_dir', type=str, help='Path to the directory where quicklooks are saved', default=os.path.join(cwd,'quicklooks/'))
     # parser.add_argument('--fig_prefix', type=str, help='Prefix of the quicklook figure', default='quicklook_')
     args = parser.parse_args()
