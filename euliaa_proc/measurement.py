@@ -144,6 +144,9 @@ class Measurement():
         # if 'line_of_sight' in self.data.keys() and len(self.data.line_of_sight)>1:
         #     data_zen = self.data.backscatter_coef.sel(line_of_sight='zenith').copy(deep=True)
         # else:
+        if 'CLOUD_DETECTION' in self.qc_conf.keys() and self.qc_conf['CLOUD_DETECTION']==0:
+            logger.info('Cloud detection disabled in qc config file')
+            return
         data_zen = self.data.backscatter_coef.copy(deep=True)
         if 'backscatter_coef_flag' in self.data.keys():
             data_zen = data_zen.where(self.data.backscatter_coef_flag==0, np.nan)
