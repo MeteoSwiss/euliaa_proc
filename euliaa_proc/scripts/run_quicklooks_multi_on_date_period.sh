@@ -1,6 +1,6 @@
 #!/bin/bash
 
-start="2026-07-20"
+start="2026-09-20"
 end=$(date +%Y-%m-%d)  # current date
 
 current="$start"
