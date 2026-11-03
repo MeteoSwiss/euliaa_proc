@@ -235,6 +235,10 @@ class Measurement():
                 self.data[var] = self.data[var]*self.qc_conf['MULTIPLY_BY']# 2 # off-zenith slant # This is a general correction applied to all campaigns, so should be in the qc config file
                 logger.info(f'Corrected {var} for velocity offset of {self.qc_conf["CORRECTION"]} and multiplied by {self.qc_conf["MULTIPLY_BY"]}')
 
+    def correct_velocity_bias(self):
+        """
+        Correct the velocity bias for the variables in the data.
+        """
         for var_short in ['u', 'v', 'w']:
             if f'{var_short}_bias_correction' in self.conf['attributes']:
                 for var in [f'{var_short}_mie', f'{var_short}', f'{var_short}_ray']:

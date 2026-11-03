@@ -26,6 +26,7 @@ class Runner:
         logger.info('Adding basic quality flag')
         self.meas.add_quality_flag()
         self.meas.correct_azimuth_offset() # correct azimuth offset if needed, values set in config_nc (azimuth offset defined in attributes)
+        self.meas.correct_velocity_bias() # correct velocity bias if needed, values set in config_nc (velocity bias defined in attributes)
         logger.info('Adding aerosol depolarization ratio')
         self.meas.add_depolarization_ratio()
         logger.info('Cloud detection (for now, only transparent clouds)')
