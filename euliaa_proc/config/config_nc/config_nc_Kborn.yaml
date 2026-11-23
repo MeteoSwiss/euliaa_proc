@@ -1193,7 +1193,7 @@ attributes:
   license: Creative Commons Attribution Non Commercial 4.0 International
   version: 1.0
   references:
-  wigos_station_id: 0-20000-0-TEST
+  wigos_station_id: 
   wmo_id: 
   instrument_type: 'high_spectral_resolution_lidar'
   instrument_id: EULIAA_IR1 

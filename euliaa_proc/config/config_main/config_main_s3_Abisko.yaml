@@ -1,0 +1,22 @@
+campaign_name: Abisko
+hdf5_file:
+config: /home/oper/euliaa_proc/euliaa_proc/config/config_nc/config_nc_Abisko.yaml
+config_eprofile_wind: /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_wind_UV.yaml
+# config_eprofile_bsc:  /home/oper/euliaa_proc/euliaa_proc/config/config_eprofile_bsc.yaml
+config_qc: /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction_Abisko.yaml
+output_nc_dir: s3://euliaa-l2/Abisko/ # for L2A and L2B products
+
+# E-Profile DWL configuration
+output_nc_eprofile_wind_dir: s3://euliaa-eprofile/EProfile_DWL/Abisko/ # for E-Profile DWL products, stored on our own s3 bucket
+eprofile_wind_prefix: 'DWL_L1_EU3WL_' # should be DWL_L1_EU1WL_ (for IR unit), DWL_L1_EU2WL_ (for UV1) or DWL_L1_EU3WL_ (for UV2) 
+# s3cfg_eprofile_path: /home/oper/.s3cfg_eprofile # uncomment this line to upload on E-Profile DWL s3 bucket
+# output_nc_eprofile_wind_dir_DL: s3://eprofile-dl-l1/ # uncomment this line to upload on E-Profile DWL s3 bucket
+
+# output_bufr_dir: s3://euliaa-l2/BUFR/Abisko/
+bufr_types:
+  #- wind # in principle this is never used
+  # - temperature
+
+# OLD
+# fig_dir: s3://euliaa-quicklooks/TESTS/Abisko/
+# fig_prefix: euliaa_quicklook_

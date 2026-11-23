@@ -1,7 +1,7 @@
 #!/bin/bash
 
-start="2026-09-20"
-end=$(date +%Y-%m-%d)  # current date
+start="2026-05-30"
+end="2026-06-01" #$(date +%Y-%m-%d)  # current date
 
 current="$start"
 
@@ -11,7 +11,7 @@ while [ "$(date -d "$current" +%Y%m%d)" -le "$(date -d "$end" +%Y%m%d)" ]; do
     day=$(date -d "$current" +%d)
 
     echo "Running for $year-$month-$day"
-    /home/oper/euliaa_proc/euliaa_proc/scripts/quicklooks_multi.sh --year "$year" --month "$month" --day "$day"
+    /home/oper/euliaa_proc/euliaa_proc/scripts/quicklooks_multi_special_campaigns.sh --year "$year" --month "$month" --day "$day"
 
     # move to next day
     current=$(date -d "$current + 1 day" +%Y-%m-%d)

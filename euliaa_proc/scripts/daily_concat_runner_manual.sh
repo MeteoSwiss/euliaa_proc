@@ -1,5 +1,5 @@
-start="2026-10-22"
-end="2026-10-22"
+start="2026-09-20"
+end="2026-11-20"
 
 current="$start"
 
@@ -9,8 +9,12 @@ while [ "$(date -d "$current" +%Y%m%d)" -le "$(date -d "$end" +%Y%m%d)" ]; do
     day=$(date -d "$current" +%d)
     echo "Running for $year-$month-$day"
     # /home/oper/euliaa_proc/euliaa_proc/scripts/daily_concat.sh ${year}-${month}-${day} -b s3://euliaa-l2/Andoya/L2A/ -o s3://euliaa-daily/Andoya/ -t 10MIN -c /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml --campaign Andoya
-    /home/oper/euliaa_proc/euliaa_proc/scripts/daily_concat.sh ${year}-${month}-${day} -b s3://euliaa-l2/Payerne/L2A/ -o s3://euliaa-daily/Payerne_test/ -t 20MIN -c /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction_Payerne.yaml --campaign Payerne
+    /home/oper/euliaa_proc/euliaa_proc/scripts/daily_concat.sh ${year}-${month}-${day} -b s3://euliaa-l2/Payerne/L2A/ -o s3://euliaa-daily/Payerne/ -t 20MIN -c /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction_Payerne.yaml --campaign Payerne
+    /home/oper/euliaa_proc/euliaa_proc/scripts/daily_concat.sh ${year}-${month}-${day} -b s3://euliaa-l2/Payerne/L2A/ -o s3://euliaa-daily/Payerne/ -t 60MIN -c /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction_Payerne.yaml --campaign Payerne
     # /home/oper/euliaa_proc/euliaa_proc/scripts/daily_concat.sh ${year}-${month}-${day} -b s3://euliaa-l2/Andoya/L2A/ -o s3://euliaa-daily/Andoya/ -t 60MIN -c /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml --campaign Andoya
+    # /home/oper/euliaa_proc/euliaa_proc/scripts/daily_concat.sh ${year}-${month}-${day} -b s3://euliaa-l2/OHP/L2A/ -o s3://euliaa-daily/OHP/ -t 90MIN -c /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction_OHP.yaml --campaign OHP
+    # /home/oper/euliaa_proc/euliaa_proc/scripts/daily_concat.sh ${year}-${month}-${day} -b s3://euliaa-l2/OHP/L2A/ -o s3://euliaa-daily/Jungfraujoch/ -t 60MIN -c /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction_JFJ.yaml --campaign Jungfraujoch
+    # /home/oper/euliaa_proc/euliaa_proc/scripts/daily_concat.sh ${year}-${month}-${day} -b s3://euliaa-l2/Kuehlungsborn/L2A/ -o s3://euliaa-daily/Kuehlungsborn/ -t 20MIN -c /home/oper/euliaa_proc/euliaa_proc/config/config_qc_w_correction.yaml --campaign Kuehlungsborn
 
     current=$(date -d "$current + 1 day" +%Y-%m-%d)
 

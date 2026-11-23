@@ -105,5 +105,5 @@ VARIABLES_TO_KEEP_DAILY: # Uncomment the variables if they are good enough to in
 - station_altitude
 - range_integration
 - time_integration
-- time_mean
+# - time_mean
 - time_bnds

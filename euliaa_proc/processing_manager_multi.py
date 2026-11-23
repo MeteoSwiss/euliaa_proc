@@ -48,6 +48,8 @@ def catch_root_post():
             config_main_s3 = os.path.join(curr_file_path, 'config/config_main/config_main_s3_Maido.yaml')    
         elif '/Test/' in filepath:
             config_main_s3 = os.path.join(curr_file_path,'config/config_main/config_main_s3_Test.yaml')
+        elif '/Abisko/' in filepath:
+            config_main_s3 = os.path.join(curr_file_path,'config/config_main/config_main_s3_Abisko.yaml')
         elif '/Test_Kuehlungsborn/' in filepath:
             config_main_s3 = os.path.join(curr_file_path,'config/config_main/config_main_s3_Kborn2.yaml')
         else:

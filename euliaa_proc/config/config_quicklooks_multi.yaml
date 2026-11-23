@@ -7,14 +7,17 @@ campaign:
   #   - BSC_STR: 20MIN
   #   - T_STR: 60MIN
   #   - MASK_FLAG: 1
-  # Kborn:
-  #   - L2A_DIR: s3://euliaa-l2/TESTS/Kuehlungsborn/L2A/
-  #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Kuehlungsborn/quicklooks/
-  #   - FIG_PREFIX: L2A_Kuehlungsborn_
-  #   - WIND_STR: 20MIN
-  #   - BSC_STR: 20MIN
-  #   - T_STR: 60MIN
-  #   - MASK_FLAG: 1
+  Kuehlungsborn:
+    - L2A_DIR: s3://euliaa-l2/Kuehlungsborn/L2A/
+    - L1_DIR: /data/euliaa-l1/Kuehlungsborn/
+    - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Kuehlungsborn/quicklooks/
+    - L1_QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Kuehlungsborn/quicklooks_l1/
+    - FIG_PREFIX: L2A_Kuehlungsborn_
+    - L1_FIG_PREFIX: L1_Kuehlungsborn_
+    - WIND_STR: None
+    - BSC_STR: None
+    - T_STR: None
+    - MASK_FLAG: 0
   Andoya:
     - L2A_DIR: s3://euliaa-l2/Andoya/L2A/
     - L1_DIR: /data/euliaa-l1/Andoya/
@@ -26,17 +29,28 @@ campaign:
     - BSC_STR: None
     - T_STR: None
     - MASK_FLAG: 0
-  # Test_Andoya:
-  #   - L2A_DIR: s3://euliaa-l2/Test_Andoya/L2A/
-  #   - L1_DIR: /data/euliaa-l1/Test_Andoya/
-  #   - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Test_Andoya/quicklooks/
-  #   - L1_QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Test_Andoya/quicklooks_l1/
-  #   - FIG_PREFIX: L2A_Test_Andoya_
-  #   - L1_FIG_PREFIX: L1_Test_Andoya_
-  #   - WIND_STR: 20MIN
-  #   - BSC_STR: 20MIN
-  #   - T_STR: 20MIN
-  #   - MASK_FLAG: 0
+  Test_Andoya:
+    - L2A_DIR: s3://euliaa-l2/Test_Andoya/L2A/
+    - L1_DIR: /data/euliaa-l1/Test_Andoya/
+    - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Test_Andoya/quicklooks/
+    - L1_QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Test_Andoya/quicklooks_l1/
+    - FIG_PREFIX: L2A_Test_Andoya_
+    - L1_FIG_PREFIX: L1_Test_Andoya_
+    - WIND_STR: 20MIN
+    - BSC_STR: 20MIN
+    - T_STR: 20MIN
+    - MASK_FLAG: 0
+  Abisko:
+    - L2A_DIR: s3://euliaa-l2/Abisko/L2A/
+    - L1_DIR: /data/euliaa-l1/Abisko/
+    - QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Abisko/quicklooks/
+    - L1_QUICKLOOKS_DIR: s3://euliaa-quicklooks/campaigns/Abisko/quicklooks_l1/
+    - FIG_PREFIX: L2A_Abisko_
+    - L1_FIG_PREFIX: L1_Abisko_
+    - WIND_STR: None
+    - BSC_STR: None
+    - T_STR: None
+    - MASK_FLAG: 0
   OHP:
     - L2A_DIR: s3://euliaa-l2/OHP/L2A/
     - L1_DIR: /data/euliaa-l1/OHP/ #should be mounted to fs (not bucket path)
