@@ -409,6 +409,9 @@ class Measurement():
         The integrated variables are averaged with the broadened variables, and the flag is set to the maximum of the two
         """
         for var in ['temperature_int', 'temperature_broad']:
+            if not (var in self.data.variables.keys()):
+                logger.warning(f'Variable {var} not found in dataset, skipping combination for this variable')
+                continue
             if f'{var}_flag' in self.data.keys():
                 flag_var_exists = True
             else:
