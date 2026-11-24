@@ -5,6 +5,7 @@ while [[ "$#" -gt 0 ]]; do
         --year) year="$2"; shift ;;
         --month) month="$2"; shift ;;
         --day) day="$2"; shift ;;
+        --campaign) only_campaign="$2"; shift ;;
     esac
     shift
 done
@@ -31,6 +32,13 @@ fi
 
 # Get all campaign names from the YAML file
 campaigns=$(yq '.campaign | keys | .[]' "$CONFIG")
+if [ -n "$only_campaign" ]; then
+    if ! echo "$campaigns" | grep -qx "$only_campaign"; then
+        echo "Campaign $only_campaign not active in $CONFIG, nothing to do."
+        exit 0
+    fi
+    campaigns=$only_campaign
+fi
 for campaign in $campaigns; do
     echo "Quicklooks for campaign: $campaign"
     

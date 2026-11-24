@@ -13,6 +13,30 @@ import subprocess
 
 app = Flask(__name__)
 
+# Quicklooks are not produced here (plotting is slow). Instead, each processed L1 file drops a marker
+# <campaign>__<YYYY-MM-DD> in this directory; scripts/quicklooks_queue_worker.py (cron) plots the queued days.
+# The directory must be owned by the user running the worker (oper), so it can remove markers created by root.
+QL_QUEUE_DIR = os.environ.get('EULIAA_QL_QUEUE_DIR', '/home/oper/ql_queue')
+
+
+def enqueue_quicklook(key):
+    """Mark the (campaign, day) of an incoming L1 file as needing new quicklooks."""
+    try:
+        campaign = key.split('/')[0]  # bucket layout: <campaign>/EULIAA_L1_YYYY-MM-DD_HH-MM-SS_...h5
+        m = re.search(r'([0-9]{4}-[0-9]{2}-[0-9]{2})_[0-9]{2}-[0-9]{2}-[0-9]{2}', os.path.basename(key))
+        if '/' not in key or m is None:
+            logger.warning(f'Could not derive campaign/date from {key}, no quicklook queued.')
+            return
+        marker = os.path.join(QL_QUEUE_DIR, f'{campaign}__{m.group(1)}')
+        # O_EXCL: keep an existing marker untouched, so its mtime = first upload since the last plot
+        fd = os.open(marker, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o666)
+        os.close(fd)
+        logger.info(f'Quicklook queued: {marker}')
+    except FileExistsError:
+        pass
+    except Exception as e:
+        logger.error(f'Could not queue quicklook for {key}: {e}')
+
 @app.route('/', methods=['POST']) # This is the endpoint that will receive the POST requests
 def catch_root_post():
     try:
@@ -90,6 +114,7 @@ def catch_root_post():
         logger.info(f'Using config file {config_main_s3}, operational processing of : {operational_product}')
         
         run_processing_pipeline(filepath, config_main_s3, operational_product, integration_time_str) #os.path.join(curr_file_path,'config/config_main_s3.yaml'))
+        enqueue_quicklook(key)  # queued even if L2 processing failed: L1 quicklooks are still useful
         
 
 

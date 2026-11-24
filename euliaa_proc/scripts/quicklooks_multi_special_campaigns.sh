@@ -31,7 +31,7 @@ fi
 
 # Get all campaign names from the YAML file
 campaigns=$(yq '.campaign | keys | .[]' "$CONFIG")
-for campaign in Test_Andoya; do
+for campaign in OHP; do
     echo "Quicklooks for campaign: $campaign"
     
     # Extract L2A_DIR and QUICKLOOKS_DIR for this campaign
