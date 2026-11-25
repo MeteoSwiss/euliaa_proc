@@ -65,7 +65,7 @@ class Measurement():
             time_start = self.data['time'].values - self.data['time_integration'].values#/2
             time_stop = self.data['time'].values #+ self.data['time_integration'].values/2
             self.data['time_bnds'] = (('time', 'bnds'), np.stack([time_start, time_stop], axis=-1))
-            logger.info('Time bounds added to the dataset')
+            logger.info(f'Time bounds added to the dataset using time_integration {self.data["time_integration"].values}')
         else:
             dt = np.mean(self.data['time'].values[1:]-self.data['time'].values[:-1])
             time_start = self.data['time'].values - dt#/2
@@ -589,6 +589,9 @@ class H5Reader(Measurement):
             if var in ['u_mie', 'u_ray', 'u', 'v_mie', 'v_ray', 'v', 'w_mie', 'w_ray', 'w']: # invert the sign of the wind components to follow the convention of positive values for upward and northward winds
                 self.data[var] = -self.data[var]
                 logger.info(f'Inverting sign of {var}')
+
+            if var in ['time_integration']:
+                logger.info(f'Time integration variable {var} found in hdf5: {hdf5_var}, {self.data[var].values} s')
 
 
 

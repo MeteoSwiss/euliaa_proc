@@ -231,7 +231,7 @@ variables:
     _FillValue: -999.0
     original_hdf5:
       hdf5_group: glo
-      hdf5_var_name: shiftSec
+      hdf5_var_name: deltaSec
     attributes:
       long_name: Time integration window
       units: s

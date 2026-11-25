@@ -104,6 +104,9 @@ def catch_root_post():
             else:
                 operational_product = {'wind': 0, 'temperature': 1, 'backscatter': 0}
                 integration_time_str = '60MIN'
+        elif (('dT90MIN' in filepath) or ('dT90min' in filepath)):
+            operational_product = {'wind': 1, 'temperature': 0, 'backscatter': 0}
+            integration_time_str = '90MIN'
         elif (('dT120MIN' in filepath) or ('dT120min' in filepath)):
             operational_product = {'wind': 1, 'temperature': 1, 'backscatter': 0}
             integration_time_str = '120MIN'
